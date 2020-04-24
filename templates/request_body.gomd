@@ -1,0 +1,18 @@
+{{- /* this template receives a ReguestBodyRef which contains a Ref and a Value */ -}}
+{{- define "requestBody"}}
+{{- if . }}
+{{- $requestBody := .Value}}
+{{- $ref := .Ref}}
+{{- if $requestBody }}
+## Request Body
+
+{{ if $requestBody.Required }}**Required**{{else}}**Not Required**{{end}}
+
+{{ if $requestBody.Description }}{{ $requestBody.Description }}{{end}}
+
+{{- template "content" $requestBody.Content }}
+
+{{- end }}
+{{- end }}
+{{- end }}
+{{- /* End of request body */ -}}

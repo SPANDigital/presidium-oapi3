@@ -1,0 +1,22 @@
+{{- /* Security Template */ -}}
+{{- define "security" -}}
+{{- range $name, $scopes := . }}
+| {{ $name }} | {{ join $scopes ", " }} |
+{{- end}}
+{{- end}}
+{{- /* End of Security Template */ -}}
+
+{{- /* SecurityList Template */ -}}
+{{ define "securityList" }}
+{{- if . }}
+{{- if gt (len .) 0 }}
+#### Authentication
+|Name|Scopes|
+|----|------|
+{{- range $index, $security := . }}
+{{- template "security" $security }}
+{{- end}}
+{{- end}}
+{{- end}}
+{{- end}}
+{{- /* End of SecurityList Template */ -}}

@@ -1,33 +1,17 @@
-{{ $name := .Name }}
 ---
-title: {{ $name }}
+ title: {{ .OperationID }}
 ---
-{{- range $method, $operation := .PathItem.Operations }}/Users/adecastro/Downloads/CloudExtensionOpenAPI.yaml
-
-{{- if $operation.Summary }}
-#### {{ $operation.Summary }}
-{{- end }}
-
 ```
-{{ $method }} {{ $name }}
+{{.Method}} {{.Name}}
 ```
-{{- if $operation.Description }}
-##### Description
-{{ $operation.Description }}
-{{- end }}
-{{- if gt (len $operation.Parameters) 0 }}
 
-|Type|Name|Description|Schema|
-|---|---|---|---|
-{{- range $key, $parameterRef := $operation.Parameters }}
-{{- $parameter := $parameterRef.Value }}
-|**{{ $parameter.In }}**|**{{$parameter.Name}}** {{ if $parameter.Required }} </br> *required* {{end}}|*{{$parameter.Description}}*||
-{{- end}}
-{{- end }}
+{{ if gt (len .Tags) 0 }}Tags: {{ join .Tags ", " }}{{ end }}
+{{- if .Deprecated }}**Deprecated**{{ end }}
+{{- if .Summary }} >{{.Summary}} {{ end }}
 
-{{- end }}
-
-
-
-
+{{ if .Description }}{{ .Description }}{{ end }}
+{{ template "parametersList" .Parameters }}
+{{- template "requestBody" .RequestBody }}
+{{- template "responseList" .Responses }}
+{{- template "securityList" .Security }}
 

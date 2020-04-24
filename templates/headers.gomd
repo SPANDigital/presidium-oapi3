@@ -1,0 +1,24 @@
+{{- /* Header Template */ -}}
+{{define "header" -}}
+{{- $header := .Value }}
+{{- $ref := .Ref }}
+{{- if $header }}
+{{- if $header.Required }} <br> *required* {{end}} {{ if $header.Deprecated }} <br> *deprecated* {{end}} | {{template "schema" $header.Schema }} | *{{$header.Description}}* |
+{{- end }}
+{{- end}}
+{{- /* End of Header Template */ -}}
+
+{{- /* HeaderList template */ -}}
+{{define "headerList" -}}
+{{- if gt (len .) 0 }}
+#### Headers
+
+|Name|Type|Description|
+|----|---|-----------|
+
+{{- range $name, $header := .}}
+| **{{ $name }}** {{template "header" $header }}
+{{- end}}
+{{- end }}
+{{- end}}
+{{- /* End of HeaderList template */ -}}
