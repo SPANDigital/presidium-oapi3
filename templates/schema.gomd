@@ -1,0 +1,43 @@
+{{- /* this template receives a SchemaRef which contains a Ref and a Schema */ -}}
+{{- define "schema"}}
+    {{- $ref := .Ref }}
+    {{- $schema := .Value }}
+| Name | Type | Description |
+|------|------|-------------|
+    {{- if $ref }}
+| GET NAME | {{ template "schemaType" . }} | {{ $schema.Description }} |
+    {{- else }}
+
+        {{- if eq $schema.Type "object" }}
+
+        {{- range $name, $property := $schema.Properties }}
+|{{ $name }} | {{ template "schemaType" $property }} <br> {{ if (inStringSlice $schema.Required $name) }} **Required** {{ end }} | {{ if $property.Value }} {{$property.Value.Description}} {{ end }} |
+        {{- end }}
+
+        {{- else if eq $schema.Type "array" }}
+| TODO GET NAME | {{ template "schemaType" . }} | {{ $schema.Description }} |
+        {{- end }}
+
+    {{- end }}
+{{- end }}
+
+{{- /* schemaType Template */ -}}
+    {{- define "schemaType" }}
+    {{- $ref := .Ref }}
+    {{- $schema := .Value }}
+    {{- if $ref }}
+
+        {{- $ref }}
+
+    {{- else if $schema }}
+
+        {{- /* TODO check the object type */ -}}
+        {{- if eq $schema.Type "array" }}
+{{- $schema.Type }} ({{ template "schemaType" $schema.Items }})
+        {{- else }}
+{{- $schema.Type }} {{- if $schema.Format }} ({{$schema.Format}}) {{end}}
+        {{- end }}
+
+    {{- end}}
+{{- end }}
+{{- /* End of schemaType Template */ -}}
