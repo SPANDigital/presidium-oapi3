@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"fmt"
+	"github.com/SPANDigital/presidium-oapi3/pkg/infrastructure/log"
 	"github.com/SPANDigital/presidium-oapi3/pkg/service"
 	"github.com/spf13/cobra"
 )
@@ -12,9 +12,9 @@ func init() {
 
 var versionCmd = &cobra.Command{
 	Use:   "convert",
-	Short: "Converts oapi3 to markdown",
+	Short: "Converts OAPI3 to markdown",
 	Run: func(cmd *cobra.Command, args []string) {
-		fmt.Println("Converting to markdown...")
+		log.Info("Converting to markdown...")
 		service.ConvertToMarkdown()
 	},
 }
