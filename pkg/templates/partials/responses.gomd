@@ -1,0 +1,46 @@
+{{- /* Response template */ -}}
+{{- define "response" }}
+    {{- $ref := .Response.Ref }}
+    {{- $response := .Response.Value }}
+    {{- $status := .Status }}
+    {{- if $response.Content }}
+        {{- range $name, $mediaType := $response.Content }}
+            {{- if $mediaType.Schema }}
+                {{- $schemaRef := $mediaType.Schema.Ref}}
+                {{- $schema := $mediaType.Schema.Value}}
+                | {{$status}} | {{ $response.Description }} | {{ $name }} | {{ template "schemaType" $mediaType.Schema }} |
+            {{- end}}
+        {{- end}}
+
+    {{- else }}
+        | {{$status}} | {{ $response.Description }} | - | - |
+    {{- end}}
+{{- end }}
+{{- /* End of Response template */ -}}
+
+{{- /* ResponseList template */ -}}
+{{- define "responseList" }}
+    {{ if gt (len .) 0 }}
+        ## Responses
+
+        | HTTP Code | Description | MediaType | Schema |
+        |-----------|-------------|-----------|--------|
+        {{- range $status, $response := . }}
+            {{- template "response" dict "Response" $response "Status" $status }}
+        {{- end }}
+
+        {{- range $status, $response := . }}
+            {{- $ref := $response.Ref }}
+            {{- $responseValue := $response.Value }}
+            {{- if gt (len $responseValue.Headers) 0 }}
+
+                #### {{ $status }} Headers
+
+                | Name | Type | Description |
+                |------|------|-------------|
+                {{- template "headerList" $responseValue.Headers }}
+            {{- end }}
+        {{- end }}
+    {{- end }}
+{{- end }}
+{{- /* End of Response template */ -}}
