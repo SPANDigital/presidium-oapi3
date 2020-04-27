@@ -1,12 +1,14 @@
 package service
 
 import (
+	"bytes"
 	"fmt"
 	"github.com/SPANDigital/presidium-oapi3/pkg/infrastructure/log"
 	"github.com/SPANDigital/presidium-oapi3/pkg/service/tpl"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/iancoleman/strcase"
 	"os"
+	"strings"
 	"text/template"
 )
 
@@ -45,16 +47,33 @@ func NewOperationService() (OperationService, error) {
 	return &operationService{t}, nil
 }
 
+// cleanForMarkdown ensures what is written to the markdown file is clean:
+// - trimmed line spaces
+// - empty lines
+func cleanForMarkdown(b bytes.Buffer) bytes.Buffer {
+	var result bytes.Buffer
+	for _, line := range strings.Split(b.String(), "\n") {
+		line = strings.TrimSpace(line)
+		if len(line) > 0 {
+			result.WriteString(line + "\n")
+		}
+	}
+	return result
+}
+
 func (o operationService) ProcessOperation(operation Operation) error {
 	os.MkdirAll("out", os.ModePerm)
 	f, err := os.Create(fmt.Sprintf(OutputFormat, strcase.ToLowerCamel(operation.OperationID)))
 	if err != nil {
 		return err
 	}
-	err = o.t.Execute(f, operation)
+	var b bytes.Buffer
+	err = o.t.Execute(&b, operation)
 	if err != nil {
 		return err
 	}
+	cleaned := cleanForMarkdown(b)
+	f.Write(cleaned.Bytes())
 	return nil
 }
 

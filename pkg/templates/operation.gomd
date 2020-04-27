@@ -2,7 +2,7 @@
 title: {{ .OperationID }}
 ---
 ```
-{{.Method}} {{.Name}}
+{{ .Method }} {{ .Name }}
 ```
 
 {{ if gt (len .Tags) 0 }}Tags: {{ join .Tags ", " }}{{- end }}
@@ -10,7 +10,7 @@ title: {{ .OperationID }}
 {{ if .Summary }} >{{.Summary}} {{- end }}
 
 {{ if .Description }}{{ .Description }}{{ end }}
-{{ template "parametersList" .Parameters }}
+{{- template "parametersList" .Parameters }}
 {{- template "requestBody" .RequestBody }}
 {{- template "responseList" .Responses }}
 {{- template "securityList" .Security }}

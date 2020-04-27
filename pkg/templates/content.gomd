@@ -2,9 +2,9 @@
 {{- define "content"}}
     {{- range $name, $mediaType := . }}
 
-### `{{$name}}`
-{{- template "mediaType" $mediaType}}
+        ### `{{$name}}`
 
+        {{- template "mediaType" $mediaType}}
     {{- end}}
 {{- end}}
 {{- /* End of Content template */ -}}
@@ -13,9 +13,10 @@
 {{- /* TODO Render the media Type */ -}}
 {{- define "mediaType"}}
     {{- if .Schema }}
-#### Parameters
-{{ template "schema" .Schema }}
-    {{- end }}
 
+        #### Parameters
+
+        {{ template "schema" .Schema }}
+    {{- end }}
 {{- end }}
 {{- /* End of request body */ -}}

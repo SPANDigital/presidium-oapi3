@@ -1,23 +1,24 @@
 {{- /* this template receives a ParameterRef which contains a Ref and a Parameter */ -}}
 {{- define "parameter" }}
-{{- $parameter := .Value }}
-{{- $ref := .Ref }}
-{{- if $parameter }}
-| **{{ $parameter.Name }}** | **{{ $parameter.In }}** {{ if $parameter.Required }} <br> *required* {{end}} {{ if $parameter.Deprecated }} <br> *deprecated* {{end}} | {{- template "schemaType" $parameter.Schema }} | {{$parameter.Description}} |
-{{- end }}
+    {{- $parameter := .Value }}
+    {{- $ref := .Ref }}
+    {{- if $parameter }}
+        | **{{ $parameter.Name }}** | **{{ $parameter.In }}** {{ if $parameter.Required }} <br> *required* {{end}} {{ if $parameter.Deprecated }} <br> *deprecated* {{end}} | {{- template "schemaType" $parameter.Schema }} | {{$parameter.Description}} |
+    {{- end }}
 {{- end}}
 {{- /* End of parameter */ -}}
 
 {{- /* this template receives a List of ParameterRef */ -}}
 {{- define "parametersList" }}
-{{- if gt (len .) 0 }}
-## Request Parameters
+    {{- if gt (len .) 0 }}
 
-|Name|In|Type|Description|
-|----|---|---|-----------|
-{{- range $index, $parameter := .}}
-{{- template "parameter" $parameter }}
-{{- end }}
-{{- end }}
+        ## Request Parameters
+
+        | Name | In | Type | Description |
+        |------|----|------|-------------|
+        {{- range $index, $parameter := .}}
+            {{- template "parameter" $parameter }}
+        {{- end }}
+    {{- end }}
 {{- end }}
 {{- /* End of Parameters List */ -}}
