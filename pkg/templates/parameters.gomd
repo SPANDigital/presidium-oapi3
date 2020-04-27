@@ -3,7 +3,7 @@
 {{- $parameter := .Value }}
 {{- $ref := .Ref }}
 {{- if $parameter }}
-| **{{ $parameter.Name }}** | **{{ $parameter.In }}** {{ if $parameter.Required }} <br> *required* {{end}} {{ if $parameter.Deprecated }} <br> *deprecated* {{end}} | {{template "schema" $parameter.Schema }} | *{{$parameter.Description}}* |
+| **{{ $parameter.Name }}** | **{{ $parameter.In }}** {{ if $parameter.Required }} <br> *required* {{end}} {{ if $parameter.Deprecated }} <br> *deprecated* {{end}} | {{- template "schemaType" $parameter.Schema }} | {{$parameter.Description}} |
 {{- end }}
 {{- end}}
 {{- /* End of parameter */ -}}
@@ -11,7 +11,7 @@
 {{- /* this template receives a List of ParameterRef */ -}}
 {{- define "parametersList" }}
 {{- if gt (len .) 0 }}
-## Parameters
+## Request Parameters
 
 |Name|In|Type|Description|
 |----|---|---|-----------|
@@ -21,10 +21,3 @@
 {{- end }}
 {{- end }}
 {{- /* End of Parameters List */ -}}
-
-{{- /* this template receives a SchemaRef which contains a Ref and a Schema */ -}}
-{{- define "schema"}}
-{{- $ref := .Ref }}
-{{- $schema := .Value }}
-{{- $schema.Type }}
-{{- end}}

@@ -1,14 +1,13 @@
 ---
 title: {{ .OperationID }}
 ---
-
 ```
 {{.Method}} {{.Name}}
 ```
 
-{{ if gt (len .Tags) 0 }}Tags: {{ join .Tags ", " }}{{ end }}
-{{- if .Deprecated }}**Deprecated**{{ end }}
-{{- if .Summary }} >{{.Summary}} {{ end }}
+{{ if gt (len .Tags) 0 }}Tags: {{ join .Tags ", " }}{{- end }}
+{{ if .Deprecated }}**Deprecated**{{- end }}
+{{ if .Summary }} >{{.Summary}} {{- end }}
 
 {{ if .Description }}{{ .Description }}{{ end }}
 {{ template "parametersList" .Parameters }}

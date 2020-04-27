@@ -3,10 +3,15 @@ package service
 import (
 	"fmt"
 	"github.com/SPANDigital/presidium-oapi3/pkg/infrastructure/log"
+	"github.com/SPANDigital/presidium-oapi3/pkg/service/tpl"
 	"github.com/getkin/kin-openapi/openapi3"
+	"github.com/iancoleman/strcase"
 	"os"
-	"strings"
 	"text/template"
+)
+
+const (
+	OutputFormat = "out/%s.md"
 )
 
 type Operation struct {
@@ -15,24 +20,16 @@ type Operation struct {
 	*openapi3.Operation
 }
 
-func Join(list []string, sep string) string {
-	return strings.Join(list, sep)
+type OperationService interface {
+	ProcessOperation(operation Operation) error
 }
 
-func FuncMap() template.FuncMap {
-	return template.FuncMap{
-		"join": Join,
-	}
+type operationService struct {
+	t *template.Template
 }
 
-func ConvertToMarkdown() {
-	log.Info("Converting swagger.yml to markdown")
-	swagger, _ := openapi3.NewSwaggerLoader().LoadSwaggerFromFile("swagger.yml")
-	GenerateOperations(swagger.Paths)
-}
-
-func GenerateOperations(paths openapi3.Paths) error {
-	t, err := template.New("operation.gomd").Funcs(FuncMap()).ParseFiles(
+func NewOperationService() (OperationService, error) {
+	t, err := template.New("operation.gomd").Funcs(tpl.FuncMap()).ParseFiles(
 		"pkg/templates/operation.gomd",
 		"pkg/templates/parameters.gomd",
 		"pkg/templates/request_body.gomd",
@@ -40,29 +37,47 @@ func GenerateOperations(paths openapi3.Paths) error {
 		"pkg/templates/responses.gomd",
 		"pkg/templates/headers.gomd",
 		"pkg/templates/security.gomd",
+		"pkg/templates/schema.gomd",
 	)
 	if err != nil {
-		log.Error(err)
+		return &operationService{}, err
+	}
+	return &operationService{t}, nil
+}
+
+func (o operationService) ProcessOperation(operation Operation) error {
+	os.MkdirAll("out", os.ModePerm)
+	f, err := os.Create(fmt.Sprintf(OutputFormat, strcase.ToLowerCamel(operation.OperationID)))
+	if err != nil {
 		return err
 	}
-	for path, item := range paths {
+	err = o.t.Execute(f, operation)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func ConvertToMarkdown() {
+	swagger, err := openapi3.NewSwaggerLoader().LoadSwaggerFromFile("swagger.yml")
+	if err != nil {
+		log.Fatal(err)
+	}
+	operationService, err := NewOperationService()
+	if err != nil {
+		log.Fatal(err)
+	}
+	for path, item := range swagger.Paths {
 		for method, operation := range item.Operations() {
 			tplOperation := Operation{
 				Method:    method,
 				Name:      path,
 				Operation: operation,
 			}
-			f, err := os.Create(fmt.Sprintf("out/%s.md", tplOperation.OperationID))
+			err := operationService.ProcessOperation(tplOperation)
 			if err != nil {
-				log.Error("create file: ", err)
-				return err
-			}
-			err = t.Execute(f, tplOperation)
-			if err != nil {
-				log.Error("execute: ", err)
-				return err
+				log.Fatal(err)
 			}
 		}
 	}
-	return nil
 }

@@ -1,19 +1,21 @@
 {{- /* Content template */ -}}
 {{- define "content"}}
-{{- range $name, $mediaType := . }}
+    {{- range $name, $mediaType := . }}
 
-`{{$name}}`
+### `{{$name}}`
 {{- template "mediaType" $mediaType}}
 
-{{- end}}
+    {{- end}}
 {{- end}}
 {{- /* End of Content template */ -}}
 
 {{- /* Renders a MediaType */ -}}
 {{- /* TODO Render the media Type */ -}}
 {{- define "mediaType"}}
-```
-// PLEASE RENDER A MEDIA TYPE
-```
+    {{- if .Schema }}
+#### Parameters
+{{ template "schema" .Schema }}
+    {{- end }}
+
 {{- end }}
 {{- /* End of request body */ -}}
