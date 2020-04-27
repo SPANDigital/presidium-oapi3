@@ -13,11 +13,11 @@
 {{- /* ResponseList template */ -}}
 {{- define "responseList" }}
     {{ if gt (len .) 0 }}
-## Responses
+        ## Responses
         {{- range $status, $response := . }}
 
-### {{$status}}
-{{ template "response" $response }}
+            ### {{$status}}
+            {{ template "response" $response }}
         {{- end }}
     {{- end }}
 {{- end }}
