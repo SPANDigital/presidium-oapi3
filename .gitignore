@@ -1,4 +1,7 @@
 .DS_Store
 .idea/
 go.sum
-out/
+out/node_modules
+out/.jekyll
+out/dist
+out/content

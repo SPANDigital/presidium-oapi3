@@ -10,11 +10,13 @@
 {{ define "securityList" }}
     {{- if . }}
         {{- if gt (len .) 0 }}
-## Authentication
-|Name|Scopes|
-|----|------|
+
+            ## Authentication
+
+            |Name|Scopes|
+            |----|------|
             {{- range $index, $security := . }}
-{{- template "security" $security }}
+                {{- template "security" $security }}
             {{- end}}
         {{- end}}
     {{- end}}

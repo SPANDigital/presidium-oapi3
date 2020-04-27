@@ -5,7 +5,7 @@
     {{- if $ref }}
         | Name | Type | Description |
         |------|------|-------------|
-        | GET NAME | {{ template "schemaType" . }} | {{ $schema.Description }} |
+        | anonymus | {{ template "schemaType" . }} | {{ $schema.Description }} |
     {{- else }}
         | Name | Type | Description |
         |------|------|-------------|
@@ -16,7 +16,7 @@
             {{- end }}
 
         {{- else if eq $schema.Type "array" }}
-            | TODO GET NAME | {{ template "schemaType" . }} | {{ $schema.Description }} |
+            | anonymus | {{ template "schemaType" . }} | {{ $schema.Description }} |
         {{- end }}
 
     {{- end }}

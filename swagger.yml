@@ -323,6 +323,9 @@ paths:
           application/json:
             schema:
               $ref: '#/components/schemas/Order'
+          application/xml:
+            schema:
+              $ref: '#/components/schemas/Order'
         description: order placed for purchasing the pet
         required: true
       parameters: []
@@ -599,6 +602,7 @@ components:
         $ref: '#/components/schemas/User'
     User:
       type: object
+      description: A user
       properties:
         id:
           type: integer

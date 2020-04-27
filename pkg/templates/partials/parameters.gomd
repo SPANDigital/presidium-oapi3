@@ -19,6 +19,7 @@
         {{- range $index, $parameter := .}}
             {{- template "parameter" $parameter }}
         {{- end }}
-    {{- end }}
-{{- end }}
+
+    {{ end }}
+{{ end }}
 {{- /* End of Parameters List */ -}}
