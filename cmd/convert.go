@@ -7,15 +7,19 @@ import (
 )
 
 func init() {
-	rootCmd.AddCommand(versionCmd)
+	rootCmd.AddCommand(convertCmd)
 }
 
-var versionCmd = &cobra.Command{
+var convertCmd = &cobra.Command{
 	Use:   "convert",
 	Short: "Converts OAPI3 to markdown",
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Info("Converting to markdown...")
-		service.ConvertToMarkdown()
+		markdownService, err := service.NewMarkdownService()
+		if err != nil {
+			log.Fatal(err)
+		}
+		markdownService.ConvertToMarkdown("swagger.yml")
 	},
 }
 
