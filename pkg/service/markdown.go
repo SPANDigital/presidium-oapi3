@@ -34,6 +34,7 @@ func ConvertToMarkdown() {
 	}
 	operationService, err := NewOperationService()
 	componentsService, err := NewComponentsService()
+	infoService, err := NewInfoService()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -41,4 +42,5 @@ func ConvertToMarkdown() {
 		operationService.ProcessOperations(path, item.Operations())
 	}
 	componentsService.ProcessSchemas(swagger.Components.Schemas)
+	infoService.ProcessInfo(swagger.Info)
 }
