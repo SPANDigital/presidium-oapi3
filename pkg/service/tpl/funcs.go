@@ -2,7 +2,9 @@ package tpl
 
 import (
 	"errors"
-	"strings"
+	"fmt"
+	"github.com/iancoleman/strcase"
+	strings "strings"
 	"text/template"
 )
 
@@ -34,10 +36,19 @@ func InStringSlice(list []string, elem string) bool {
 	return false
 }
 
+func GetSchemaLink(ref string) string {
+	idx := strings.LastIndex(ref, "/")
+	refName := ref[idx+1:]
+	linkPath := ref[:idx]
+	linkPath = strings.ReplaceAll(linkPath, "#", "../..")
+	return fmt.Sprintf("[%s](%s/#%s)", strcase.ToCamel(refName), linkPath, strcase.ToLowerCamel(refName))
+}
+
 func FuncMap() template.FuncMap {
 	return template.FuncMap{
 		"join":          Join,
 		"dict":          Dict,
 		"inStringSlice": InStringSlice,
+		"schemaLink":    GetSchemaLink,
 	}
 }

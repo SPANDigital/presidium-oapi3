@@ -28,7 +28,7 @@
     {{- $schema := .Value }}
     {{- if $ref }}
 
-        {{- $ref }}
+        {{- schemaLink $ref }}
 
     {{- else if $schema }}
 
