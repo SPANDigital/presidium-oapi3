@@ -10,6 +10,11 @@ import (
 	"text/template"
 )
 
+type Schema struct {
+	Name string
+	*openapi3.SchemaRef
+}
+
 type ComponentsService interface {
 	ProcessSchemas(schemas map[string]*openapi3.SchemaRef) error
 }
@@ -31,15 +36,19 @@ func NewComponentsService() (ComponentsService, error) {
 
 func (c *componentsService) ProcessSchemas(schemas map[string]*openapi3.SchemaRef) error {
 	for name, schema := range schemas {
+		theSchema := Schema{
+			Name:      name,
+			SchemaRef: schema,
+		}
 		dir := "out/content/_reference/components/schemas"
-		path := fmt.Sprintf("%s/%s.md", dir, strcase.ToCamel(name))
+		path := fmt.Sprintf("%s/%s.md", dir, strcase.ToLowerCamel(name))
 		os.MkdirAll(dir, os.ModePerm)
 		f, err := os.Create(path)
 		if err != nil {
 			return err
 		}
 		var b bytes.Buffer
-		err = c.t.Execute(&b, schema)
+		err = c.t.Execute(&b, theSchema)
 		if err != nil {
 			return err
 		}
