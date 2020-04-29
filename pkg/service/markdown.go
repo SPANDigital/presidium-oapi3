@@ -65,7 +65,10 @@ func (ms *markdownService) processSchemas(schemas map[string]*openapi3.SchemaRef
 		}
 		dir := "out/content/_reference/components/schemas"
 		name := fmt.Sprintf("%s.md", strcase.ToLowerCamel(name))
-		ms.processTemplate(dir, name, ms.schemaTemplate, theSchema)
+		err := ms.processTemplate(dir, name, ms.schemaTemplate, theSchema)
+		if err != nil {
+			log.Error(err)
+		}
 	}
 	return nil
 }
