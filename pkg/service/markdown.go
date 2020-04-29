@@ -19,8 +19,9 @@ type MarkdownService interface {
 
 type markdownService struct {
 	operationTemplate *template.Template
-	schemaTemplate *template.Template
-	infoTemplate *template.Template
+	schemaTemplate    *template.Template
+	infoTemplate      *template.Template
+	tagTemplate       *template.Template
 }
 
 func NewMarkdownService() (MarkdownService, error) {
@@ -41,13 +42,18 @@ func NewMarkdownService() (MarkdownService, error) {
 	infoTemplate, err := template.New("info.gomd").Funcs(tpl.FuncMap()).ParseFiles(
 		"pkg/templates/info.gomd",
 	)
+
+	tagTemplate, err := template.New("tag.gomd").Funcs(tpl.FuncMap()).ParseFiles(
+		"pkg/templates/tag.gomd",
+	)
 	if err != nil {
 		return &markdownService{}, err
 	}
 	return &markdownService{
 		operationTemplate: operationTemplate,
-		schemaTemplate: schemaTemplate,
-		infoTemplate: infoTemplate,
+		schemaTemplate:    schemaTemplate,
+		infoTemplate:      infoTemplate,
+		tagTemplate:       tagTemplate,
 	}, nil
 }
 
@@ -58,19 +64,8 @@ func (ms *markdownService) processSchemas(schemas map[string]*openapi3.SchemaRef
 			SchemaRef: schema,
 		}
 		dir := "out/content/_reference/components/schemas"
-		path := fmt.Sprintf("%s/%s.md", dir, strcase.ToLowerCamel(name))
-		os.MkdirAll(dir, os.ModePerm)
-		f, err := os.Create(path)
-		if err != nil {
-			return err
-		}
-		var b bytes.Buffer
-		err = ms.schemaTemplate.Execute(&b, theSchema)
-		if err != nil {
-			return err
-		}
-		cleaned := ms.cleanForMarkdown(b)
-		f.Write(cleaned.Bytes())
+		name := fmt.Sprintf("%s.md", strcase.ToLowerCamel(name))
+		ms.processTemplate(dir, name, ms.schemaTemplate, theSchema)
 	}
 	return nil
 }
@@ -98,19 +93,8 @@ func (ms markdownService) cleanForMarkdown(b bytes.Buffer) bytes.Buffer {
 func (ms markdownService) processOperation(operation dto.Operation) error {
 	for _, tag := range operation.Tags {
 		dir := fmt.Sprintf("out/content/_reference/operations/%s", tag)
-		path := fmt.Sprintf("%s/%s.md", dir, strcase.ToLowerCamel(operation.OperationID))
-		os.MkdirAll(dir, os.ModePerm)
-		f, err := os.Create(path)
-		if err != nil {
-			return err
-		}
-		var b bytes.Buffer
-		err = ms.operationTemplate.Execute(&b, operation)
-		if err != nil {
-			return err
-		}
-		cleaned := ms.cleanForMarkdown(b)
-		f.Write(cleaned.Bytes())
+		name := fmt.Sprintf("%s.md", strcase.ToLowerCamel(operation.OperationID))
+		ms.processTemplate(dir, name, ms.operationTemplate, operation)
 	}
 	return nil
 }
@@ -132,14 +116,28 @@ func (ms markdownService) processOperations(path string, operations map[string]*
 
 func (ms *markdownService) processInfo(info *openapi3.Info) error {
 	dir := "out/content/_reference/"
-	path := fmt.Sprintf("%s/01_%s.md", dir, "info")
+	name := "01_info.md"
+	err := ms.processTemplate(dir, name, ms.infoTemplate, info)
+	return err
+}
+
+func (ms *markdownService) processTags(tags openapi3.Tags) {
+	for _, tag := range tags {
+		dir := fmt.Sprintf("out/content/_reference/operations/%s", tag.Name)
+		name := "index.md"
+		ms.processTemplate(dir, name, ms.tagTemplate, tag)
+	}
+}
+
+func (ms *markdownService) processTemplate(dir string, name string, tpl *template.Template, obj interface{}) error {
+	path := fmt.Sprintf("%s/%s", dir, name)
 	os.MkdirAll(dir, os.ModePerm)
 	f, err := os.Create(path)
 	if err != nil {
 		return err
 	}
 	var b bytes.Buffer
-	err = ms.infoTemplate.Execute(&b, info)
+	err = tpl.Execute(&b, obj)
 	if err != nil {
 		return err
 	}
@@ -158,5 +156,6 @@ func (ms *markdownService) ConvertToMarkdown(filename string) error {
 	}
 	ms.processSchemas(swagger.Components.Schemas)
 	ms.processInfo(swagger.Info)
+	ms.processTags(swagger.Tags)
 	return err
 }

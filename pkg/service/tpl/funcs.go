@@ -50,5 +50,6 @@ func FuncMap() template.FuncMap {
 		"dict":          Dict,
 		"inStringSlice": InStringSlice,
 		"schemaLink":    GetSchemaLink,
+		"toCamel":       strcase.ToCamel,
 	}
 }
