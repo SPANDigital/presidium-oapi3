@@ -20,7 +20,7 @@
                 {{- if (inStringSlice $schema.Required $name) }} <br> **Required** {{- end -}}
                 {{- if $value.ReadOnly }} <br> **Read Only** {{- end -}}
                 {{- if $value.Nullable }} <br> **Nullable** {{- end -}} |
-                {{- if and $value (not $property.Ref) }} {{ $value.Description }} {{- end -}} |
+                {{- if and $value (not $property.Ref) }} {{ toHTMLNewLines $value.Description }} {{- end -}} |
                 {{- /* Render all restrictions */ -}}
                 {{- if $value.MultipleOf }} Multiple of: {{ $value.MultipleOf }} {{- end -}}
                 {{- if $value.Max }} Maximum: {{ $value.Max }} {{- end -}}

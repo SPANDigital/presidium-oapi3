@@ -44,12 +44,17 @@ func GetSchemaLink(ref string) string {
 	return fmt.Sprintf("[%s](%s/#%s)", strcase.ToCamel(refName), linkPath, strcase.ToLowerCamel(refName))
 }
 
+func ToHTMLNewLines(str string) string {
+	return strings.ReplaceAll(str, "\n", "<br>")
+}
+
 func FuncMap() template.FuncMap {
 	return template.FuncMap{
-		"join":          Join,
-		"dict":          Dict,
-		"inStringSlice": InStringSlice,
-		"schemaLink":    GetSchemaLink,
-		"toCamel":       strcase.ToCamel,
+		"join":           Join,
+		"dict":           Dict,
+		"inStringSlice":  InStringSlice,
+		"schemaLink":     GetSchemaLink,
+		"toCamel":        strcase.ToCamel,
+		"toHTMLNewLines": ToHTMLNewLines,
 	}
 }
