@@ -1,9 +1,6 @@
-// Override any bootstrap or bootswatch variables as you need:
-// $brand-primary: #e49134 !default;
+// Variable Overrides
+// eg: $brand-primary: #e49134 !default;
+$navbar-default-link-hover-bg: white;
 
-// Available Bootswatch Themes
+// Base Theme
 @import 'themes/spacelab';
-//@import 'themes/cosmo';
-//@import 'themes/darkly';
-//@import 'themes/simplex';
-//@import 'themes/united';

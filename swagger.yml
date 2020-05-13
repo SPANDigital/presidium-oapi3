@@ -634,6 +634,13 @@ components:
         name:
           type: string
           nullable: true
+        example-prop:
+          type: object
+          properties:
+            first-prop:
+              type: integer
+            second-prop:
+              type: string
       xml:
         name: Tag
     Pet:

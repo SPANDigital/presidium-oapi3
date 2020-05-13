@@ -3,43 +3,65 @@
     {{- $ref := .Ref }}
     {{- $schema := .Value }}
     {{- if $ref }}
+
+        {{/* Render references */}}
         | Name | Type | Description |
         |------|------|-------------|
         | anonymus | {{ template "schemaType" . }} | {{ $schema.Description }} |
+
     {{- else }}
         {{ if $schema }} {{ $schema.Description }} {{ end }}
 
-        | Name | Type | Description | Restrictions |
-        |------|------|-------------|--------------|
-        {{- if eq $schema.Type "object" }}
+        {{- if and (eq $schema.Type "object") $schema.Properties }}
 
+            | Name | Type | Description | Restrictions |
+            |------|------|-------------|--------------|
             {{- range $name, $property := $schema.Properties }}
                 |{{ $name }} |
-                {{- template "schemaType" $property }}
                 {{- $value := $property.Value -}}
+                {{- $theRef := $property.Ref -}}
+                {{- if and (not $theRef) (eq $value.Type "object") $value.Properties -}}
+                    [{{$name}}](../../components/schemas/#{{ lower $name }})
+                {{- else -}}
+                    {{- template "schemaType" $property }}
+                {{- end -}}
                 {{- if (inStringSlice $schema.Required $name) }} <br> **Required** {{- end -}}
                 {{- if $value.ReadOnly }} <br> **Read Only** {{- end -}}
                 {{- if $value.Nullable }} <br> **Nullable** {{- end -}} |
                 {{- if and $value (not $property.Ref) }} {{ toHTMLNewLines $value.Description }} {{- end -}} |
-                {{- /* Render all restrictions */ -}}
-                {{- if $value.MultipleOf }} Multiple of: {{ $value.MultipleOf }} {{- end -}}
-                {{- if $value.Max }} Maximum: {{ $value.Max }} {{- end -}}
-                {{- if $value.ExclusiveMax }} Exclusive maximum: true {{- end -}}
-                {{- if $value.Min }} Minimum: {{ $value.Min }} {{- end -}}
-                {{- if $value.ExclusiveMin }} Exclusive minimum: true {{- end -}}
-                {{- if $value.MaxLength }} Maximum length: {{ $value.MaxLength }} {{- end -}}
-                {{- if $value.MinLength }} Minimum length: {{ $value.MinLength }} {{- end -}}
-                {{- if $value.Pattern }} Pattern: {{ $value.Pattern }} {{- end -}}
-                {{- if $value.MaxItems }} Maximum items: {{ $value.MaxItems }} {{- end -}}
-                {{- if $value.MinItems }} Minimum items: {{ $value.MinItems }} {{- end -}}
-                {{- if $value.UniqueItems }} UniqueItems: true {{- end -}}
-                {{- if $value.MaxProps }} Maximum properties: {{ $value.MaxProps }} {{- end -}}
-                {{- if $value.MinProps }} Minimum properties: {{ $value.MinProps }} {{- end -}}|
+                {{- template "restrictions" $value }} |
             {{- end }}
 
+            {{- /* Render all inline objects */ -}}
+            {{- range $name, $property := $schema.Properties }}
+                {{- $ref := .Ref }}
+                {{- $value := .Value }}
+                {{- if and (not $ref) (eq $value.Type "object") $value.Properties }}
+
+                    ## [{{ $name }}](#{{ lower $name }})
+
+                    {{ template "schema" $property }}
+                {{- end }}
+            {{- end }}
         {{- else if eq $schema.Type "array" }}
+            {{/* Render Arrays */}}
+
+
+            | Name | Type | Description | Restrictions |
+            |------|------|-------------|--------------|
             | anonymus | {{ template "schemaType" . }} | {{ $schema.Description }} | - |
+        {{- else if eq $schema.Type "string" "object" }}
+            {{/* Render allOf, anyOf, oneOf */}}
+            **Type:** {{ $schema.Type }} <br>
+            {{- if $schema.ReadOnly }} **Read Only** <br> {{- end -}}
+            {{- if $schema.Nullable }} **Nullable** <br> {{- end -}}
+            {{- template "restrictions" $schema }}
         {{- else }}
+            {{/* Render allOf, anyOf, oneOf */}}
+
+
+            | Name | Type | Description | Restrictions |
+            |------|------|-------------|--------------|
             | Type not supported yet | {{ $schema.Type }} | | |
         {{- end }}
 
@@ -56,9 +78,8 @@
 
     {{- else if $schema }}
 
-        {{- /* TODO check the object type */ -}}
-        {{- if eq $schema.Type "array" }}
-            {{- $schema.Type }} ({{ template "schemaType" $schema.Items }})
+        {{- if eq $schema.Type "array" -}}
+            [{{ template "schemaType" $schema.Items }}]
         {{- else }}
             {{- $schema.Type }} {{- if $schema.Format }} ({{$schema.Format}}) {{end}}
         {{- end }}
@@ -66,3 +87,23 @@
     {{- end}}
 {{- end }}
 {{- /* End of schemaType Template */ -}}
+
+{{- /* restrictions template */ -}}
+{{- define "restrictions" }}
+{{- /* Render all restrictions */ -}}
+    {{- if .MultipleOf }} **Multiple of**: {{ .MultipleOf }} <br> {{- end -}}
+    {{- if .Max }} **Maximum**: {{ .Max }} <br> {{- end -}}
+    {{- if .ExclusiveMax }} **Exclusive maximum**: true <br> {{- end -}}
+    {{- if .Min }} **Minimum**: {{ .Min }} <br> {{- end -}}
+    {{- if .ExclusiveMin }} **Exclusive minimum**: true <br> {{- end -}}
+    {{- if .MaxLength }} **Maximum length**: {{ .MaxLength }} <br> {{- end -}}
+    {{- if .MinLength }} **Minimum length**: {{ .MinLength }} <br> {{- end -}}
+    {{- if .Pattern }} **Pattern**: {{ .Pattern }} <br> {{- end -}}
+    {{- if .MaxItems }} **Maximum items**: {{ .MaxItems }} <br> {{- end -}}
+    {{- if .MinItems }} **Minimum items**: {{ .MinItems }} <br> {{- end -}}
+    {{- if .UniqueItems }} **UniqueItems**: true <br> {{- end -}}
+    {{- if .MaxProps }} **Maximum properties**: {{ .MaxProps }} <br> {{- end -}}
+    {{- if .MinProps }} **Minimum properties**: {{ .MinProps }} <br> {{- end -}}
+    {{- if .AdditionalPropertiesAllowed }} **Additional properties allowed**: true <br> {{- end -}}
+{{- end }}
+{{- /* End of restrictions template*/ -}}

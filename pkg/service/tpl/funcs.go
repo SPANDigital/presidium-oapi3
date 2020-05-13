@@ -41,7 +41,7 @@ func GetSchemaLink(ref string) string {
 	refName := ref[idx+1:]
 	linkPath := ref[:idx]
 	linkPath = strings.ReplaceAll(linkPath, "#", "../..")
-	return fmt.Sprintf("[%s](%s/#%s)", strcase.ToCamel(refName), linkPath, strcase.ToLowerCamel(refName))
+	return fmt.Sprintf("[%s](%s/#%s)", strcase.ToCamel(refName), linkPath, strings.ToLower(refName))
 }
 
 func ToHTMLNewLines(str string) string {
@@ -56,5 +56,6 @@ func FuncMap() template.FuncMap {
 		"schemaLink":     GetSchemaLink,
 		"toCamel":        strcase.ToCamel,
 		"toHTMLNewLines": ToHTMLNewLines,
+		"lower":          strings.ToLower,
 	}
 }
