@@ -57,5 +57,6 @@ func FuncMap() template.FuncMap {
 		"toCamel":        strcase.ToCamel,
 		"toHTMLNewLines": ToHTMLNewLines,
 		"lower":          strings.ToLower,
+		"replace":        strings.ReplaceAll,
 	}
 }

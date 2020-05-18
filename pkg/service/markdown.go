@@ -97,7 +97,10 @@ func (ms markdownService) processOperation(operation dto.Operation) error {
 	for _, tag := range operation.Tags {
 		dir := fmt.Sprintf("out/content/_reference/operations/%s", tag)
 		name := fmt.Sprintf("%s.md", strcase.ToLowerCamel(operation.OperationID))
-		ms.processTemplate(dir, name, ms.operationTemplate, operation)
+		err := ms.processTemplate(dir, name, ms.operationTemplate, operation)
+		if err != nil {
+			log.Error(err)
+		}
 	}
 	return nil
 }

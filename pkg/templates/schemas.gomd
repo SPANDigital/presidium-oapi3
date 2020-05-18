@@ -2,4 +2,4 @@
 title: {{ .Name }}
 ---
 
-{{ template "schema" .SchemaRef }}
+{{ template "schema" dict "SchemaRef" .SchemaRef "Name" .Name }}
