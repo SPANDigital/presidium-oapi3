@@ -13,7 +13,7 @@
 {{- /* TODO Render the media Type */ -}}
 {{- define "mediaType"}}
     {{- if .Schema }}
-        {{ template "schema" .Schema }}
+        {{ template "schema" dict "SchemaRef" .Schema }}
     {{- end }}
 {{- end }}
 {{- /* End of request body */ -}}

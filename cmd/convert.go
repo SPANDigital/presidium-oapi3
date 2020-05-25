@@ -19,6 +19,6 @@ var convertCmd = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		}
-		markdownService.ConvertToMarkdown("example.yml")
+		markdownService.ConvertToMarkdown("swagger.yml")
 	},
 }

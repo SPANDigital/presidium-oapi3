@@ -3,7 +3,7 @@
     {{- $header := .Value }}
     {{- $ref := .Ref }}
     {{- if $header }}
-        {{- if $header.Required }} <br> *required* {{end}} {{ if $header.Deprecated }} <br> *deprecated* {{end}} | {{template "schemaType" $header.Schema }} | *{{ toHTMLNewLines $header.Description}}* |
+        {{- if $header.Required }} <br> *required* {{end}} {{ if $header.Deprecated }} <br> *deprecated* {{end}} | {{template "schemaType" $header.Schema }} | *{{- toHTMLNewLines $header.Description -}}* |
     {{- end }}
 {{- end}}
 {{- /* End of Header Template */ -}}

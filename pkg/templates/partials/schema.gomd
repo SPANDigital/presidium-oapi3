@@ -1,7 +1,8 @@
 {{- /* this template receives a SchemaRef which contains a Ref and a Schema */ -}}
 {{- define "schema"}}
-    {{- $ref := .Ref }}
-    {{- $schema := .Value }}
+    {{- $ref := .SchemaRef.Ref }}
+    {{- $schema := .SchemaRef.Value }}
+    {{- $rootName := .Name }}
     {{- if $ref }}
 
         {{/* Render references */}}
@@ -10,7 +11,7 @@
         | anonymus | {{ template "schemaType" . }} | {{ $schema.Description }} |
 
     {{- else }}
-        {{ if $schema }} {{ $schema.Description }} {{ end }}
+        {{- if and $schema $schema.Description }} {{ $schema.Description }} <br> {{ end }}
 
         {{- if and (eq $schema.Type "object") $schema.Properties }}
 
@@ -21,7 +22,7 @@
                 {{- $value := $property.Value -}}
                 {{- $theRef := $property.Ref -}}
                 {{- if and (not $theRef) (eq $value.Type "object") $value.Properties -}}
-                    [{{$name}}](../../components/schemas/#{{ lower $name }})
+                    [{{$name}}](../../components/schemas/#{{- template "rootName" $rootName }}-{{ lower $name }})
                 {{- else -}}
                     {{- template "schemaType" $property }}
                 {{- end -}}
@@ -38,35 +39,68 @@
                 {{- $value := .Value }}
                 {{- if and (not $ref) (eq $value.Type "object") $value.Properties }}
 
-                    ## [{{ $name }}](#{{ lower $name }})
+                    ## {{ $name }}
+                    {: #{{- template "rootName" $rootName }}-{{ lower $name }} }
 
-                    {{ template "schema" $property }}
+                    {{ template "schema" dict "SchemaRef" $property "Name" $name }}
                 {{- end }}
             {{- end }}
         {{- else if eq $schema.Type "array" }}
-            {{/* Render Arrays */}}
+            {{- /* Render Arrays */ -}}
+            {{ toHTMLNewLines $schema.Description }}
 
+            {{- if $schema.Items.Ref }}
+                **Type:** [{{- template "schemaType" $schema.Items -}}] <br>
+                {{- if $schema.ReadOnly }} **Read Only** <br> {{- end -}}
+                {{- if $schema.Nullable }} **Nullable** <br> {{- end -}}
+                {{- template "restrictions" $schema }}
+            {{- else }}
+                {{- template "schema" dict "SchemaRef" $schema.Items -}}
+            {{- end}}
 
-            | Name | Type | Description | Restrictions |
-            |------|------|-------------|--------------|
-            | anonymus | {{ template "schemaType" . }} | {{ $schema.Description }} | - |
         {{- else if eq $schema.Type "string" "object" }}
-            {{/* Render allOf, anyOf, oneOf */}}
-            **Type:** {{ $schema.Type }} <br>
+
+            | Type | Restrictions |
+            |------|--------------|
+            |{{ $schema.Type }} <br>
             {{- if $schema.ReadOnly }} **Read Only** <br> {{- end -}}
-            {{- if $schema.Nullable }} **Nullable** <br> {{- end -}}
-            {{- template "restrictions" $schema }}
+            {{- if $schema.Nullable }} **Nullable** <br> {{- end -}} |
+            {{- template "restrictions" $schema }} |
         {{- else }}
-            {{/* Render allOf, anyOf, oneOf */}}
+            {{- /* Render allOf, anyOf, oneOf */ -}}
+            {{- if gt (len $schema.OneOf) 0 -}}
 
+                <br> **One Of:** <br>
+                {{- template "schemaListing" dict "Schemas" $schema.OneOf "Name" $rootName }}
+            {{- else if gt (len $schema.AllOf) 0 -}}
+                <br> **All Of:** <br>
+                {{- template "schemaListing" dict "Schemas" $schema.AllOf "Name" $rootName }}
+            {{- else if gt (len $schema.AnyOf) 0 -}}
+                <br> **Any Of:** <br>
+                {{- template "schemaListing" dict "Schemas" $schema.AnyOf "Name" $rootName }}
+            {{- end }}
 
-            | Name | Type | Description | Restrictions |
-            |------|------|-------------|--------------|
-            | Type not supported yet | {{ $schema.Type }} | | |
         {{- end }}
 
     {{- end }}
 {{- end }}
+
+{{- /* SchemaListing template */ -}}
+    {{- define "schemaListing" }}
+        {{- $name := .Name }}
+        {{- if gt (len .Schemas) 0 }}
+            {{- range $index, $schemaRef := .Schemas }}
+                {{- if $schemaRef.Ref }}
+                    {{- template "schemaType" $schemaRef -}}, <br>
+                {{- else }}
+
+                    - Inline schema: <br>
+                    {{- template "schema" dict "SchemaRef" $schemaRef "Name" $name -}}
+                {{- end }}
+            {{- end }}
+        {{- end }}
+    {{- end }}
+{{- /* End of SchemaListing template */ -}}
 
 {{- /* schemaType Template */ -}}
     {{- define "schemaType" }}
@@ -77,13 +111,13 @@
         {{- schemaLink $ref }}
 
     {{- else if $schema }}
-
         {{- if eq $schema.Type "array" -}}
-            [{{ template "schemaType" $schema.Items }}]
+            [{{- template "schemaType" $schema.Items -}}]
+        {{- else if not $schema.Type -}}
+            {{- template "schema" dict "SchemaRef" . -}}
         {{- else }}
             {{- $schema.Type }} {{- if $schema.Format }} ({{$schema.Format}}) {{end}}
         {{- end }}
-
     {{- end}}
 {{- end }}
 {{- /* End of schemaType Template */ -}}
@@ -107,3 +141,11 @@
     {{- if .AdditionalPropertiesAllowed }} **Additional properties allowed**: true <br> {{- end -}}
 {{- end }}
 {{- /* End of restrictions template*/ -}}
+
+{{- /* Render root name */ -}}
+{{- define "rootName" }}
+    {{- if . -}}
+        {{- replace (lower .) "_" "-" -}}
+    {{- end -}}
+{{- end -}}
+{{- /* Render root name */ -}}
