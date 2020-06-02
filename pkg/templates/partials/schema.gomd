@@ -22,7 +22,7 @@
                 {{- $value := $property.Value -}}
                 {{- $theRef := $property.Ref -}}
                 {{- if and (not $theRef) (eq $value.Type "object") $value.Properties -}}
-                    [{{$name}}](../../components/schemas/#{{- template "rootName" $rootName }}-{{ lower $name }})
+                    [{{$name}}](../../01-components/schemas/#{{- template "rootName" $rootName }}-{{ lower $name }})
                 {{- else -}}
                     {{- template "schemaType" $property }}
                 {{- end -}}

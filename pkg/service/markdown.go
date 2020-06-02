@@ -3,18 +3,20 @@ package service
 import (
 	"bytes"
 	"fmt"
+	"net/url"
+	"os"
+	"strings"
+	"text/template"
+
 	"github.com/SPANDigital/presidium-oapi3/pkg/infrastructure/log"
 	"github.com/SPANDigital/presidium-oapi3/pkg/service/dto"
 	"github.com/SPANDigital/presidium-oapi3/pkg/service/tpl"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/iancoleman/strcase"
-	"os"
-	"strings"
-	"text/template"
 )
 
 type MarkdownService interface {
-	ConvertToMarkdown(filename string) error
+	ConvertToMarkdown(filename string, name string) error
 }
 
 type markdownService struct {
@@ -22,6 +24,7 @@ type markdownService struct {
 	schemaTemplate    *template.Template
 	infoTemplate      *template.Template
 	tagTemplate       *template.Template
+	indexTemplate     *template.Template
 }
 
 func NewMarkdownService() (MarkdownService, error) {
@@ -46,6 +49,10 @@ func NewMarkdownService() (MarkdownService, error) {
 	tagTemplate, err := template.New("tag.gomd").Funcs(tpl.FuncMap()).ParseFiles(
 		"pkg/templates/tag.gomd",
 	)
+
+	indexTemplate, err := template.New("index.gomd").Funcs(tpl.FuncMap()).ParseFiles(
+		"pkg/templates/index.gomd",
+	)
 	if err != nil {
 		return &markdownService{}, err
 	}
@@ -54,16 +61,17 @@ func NewMarkdownService() (MarkdownService, error) {
 		schemaTemplate:    schemaTemplate,
 		infoTemplate:      infoTemplate,
 		tagTemplate:       tagTemplate,
+		indexTemplate:     indexTemplate,
 	}, nil
 }
 
-func (ms *markdownService) processSchemas(schemas map[string]*openapi3.SchemaRef) error {
+func (ms *markdownService) processSchemas(schemas map[string]*openapi3.SchemaRef, pathName string) error {
 	for name, schema := range schemas {
 		theSchema := dto.Schema{
 			Name:      name,
 			SchemaRef: schema,
 		}
-		dir := "out/content/_reference/components/schemas"
+		dir := fmt.Sprintf("out/content/_reference/%s/01-components/schemas", pathName)
 		name := fmt.Sprintf("%s.md", strcase.ToLowerCamel(name))
 		err := ms.processTemplate(dir, name, ms.schemaTemplate, theSchema)
 		if err != nil {
@@ -93,26 +101,24 @@ func (ms markdownService) cleanForMarkdown(b bytes.Buffer) bytes.Buffer {
 	return result
 }
 
-func (ms markdownService) processOperation(operation dto.Operation) error {
-	for _, tag := range operation.Tags {
-		dir := fmt.Sprintf("out/content/_reference/operations/%s", tag)
-		name := fmt.Sprintf("%s.md", strcase.ToLowerCamel(operation.OperationID))
-		err := ms.processTemplate(dir, name, ms.operationTemplate, operation)
-		if err != nil {
-			log.Error(err)
-		}
+func (ms markdownService) processOperation(operation dto.Operation, pathName string) error {
+	dir := fmt.Sprintf("out/content/_reference/%s/00-operations", pathName)
+	name := fmt.Sprintf("%s.md", strcase.ToLowerCamel(operation.OperationID))
+	err := ms.processTemplate(dir, name, ms.operationTemplate, operation)
+	if err != nil {
+		log.Error(err)
 	}
 	return nil
 }
 
-func (ms markdownService) processOperations(path string, operations map[string]*openapi3.Operation) error {
+func (ms markdownService) processOperations(path string, operations map[string]*openapi3.Operation, pathName string) error {
 	for method, operation := range operations {
 		tplOperation := dto.Operation{
 			Method:    method,
 			Name:      path,
 			Operation: operation,
 		}
-		err := ms.processOperation(tplOperation)
+		err := ms.processOperation(tplOperation, pathName)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -122,17 +128,25 @@ func (ms markdownService) processOperations(path string, operations map[string]*
 
 func (ms *markdownService) processInfo(info *openapi3.Info) error {
 	dir := "out/content/_reference/"
-	name := "01_info.md"
+	name := "index.md"
 	err := ms.processTemplate(dir, name, ms.infoTemplate, info)
 	return err
 }
 
+//This path is incorrect
 func (ms *markdownService) processTags(tags openapi3.Tags) {
 	for _, tag := range tags {
-		dir := fmt.Sprintf("out/content/_reference/operations/%s", tag.Name)
+		dir := fmt.Sprintf("out/content/_reference/%s/operations", tag.Name)
 		name := "index.md"
 		ms.processTemplate(dir, name, ms.tagTemplate, tag)
 	}
+}
+
+func (ms *markdownService) processIndex(serviceName string) {
+	dir := fmt.Sprintf("out/content/_reference/%s", serviceName)
+	name := "index.md"
+	var index = dto.Index{Title: strcase.ToCamel(serviceName)}
+	ms.processTemplate(dir, name, ms.indexTemplate, index)
 }
 
 func (ms *markdownService) processTemplate(dir string, name string, tpl *template.Template, obj interface{}) error {
@@ -152,15 +166,18 @@ func (ms *markdownService) processTemplate(dir string, name string, tpl *templat
 	return nil
 }
 
-func (ms *markdownService) ConvertToMarkdown(filename string) error {
-	swagger, err := openapi3.NewSwaggerLoader().LoadSwaggerFromFile(filename)
+func (ms *markdownService) ConvertToMarkdown(urlString string, name string) error {
+	u, err := url.Parse(urlString)
+	swagger, err := openapi3.NewSwaggerLoader().LoadSwaggerFromURI(u)
 	if err != nil {
 		log.Fatal(err)
 	}
+	ms.processIndex(name)
 	for path, item := range swagger.Paths {
-		ms.processOperations(path, item.Operations())
+		ms.processOperations(path, item.Operations(), name)
 	}
-	ms.processSchemas(swagger.Components.Schemas)
+
+	ms.processSchemas(swagger.Components.Schemas, name)
 	ms.processInfo(swagger.Info)
 	ms.processTags(swagger.Tags)
 	return err

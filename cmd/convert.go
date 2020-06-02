@@ -19,6 +19,11 @@ var convertCmd = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		}
-		markdownService.ConvertToMarkdown("swagger.yml")
+		markdownService.ConvertToMarkdown("https://adss.qa.spandigital.net/api/v2/api-docs/new-admin", "admin")
+		markdownService.ConvertToMarkdown("https://adss.qa.spandigital.net/api/v2/api-docs/auth", "auth")
+		markdownService.ConvertToMarkdown("https://adss.qa.spandigital.net/api/v2/api-docs/graph", "graph")
+		markdownService.ConvertToMarkdown("https://adss.qa.spandigital.net/api/v2/api-docs/ingestion", "ingestion")
+		markdownService.ConvertToMarkdown("https://adss.qa.spandigital.net/api/v2/api-docs/logging", "logging")
+		markdownService.ConvertToMarkdown("https://adss.qa.spandigital.net/api/v2/api-docs/developer", "developer")
 	},
 }

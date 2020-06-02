@@ -12,3 +12,7 @@ type Operation struct {
 	Method string
 	*openapi3.Operation
 }
+
+type Index struct {
+	Title string
+}
