@@ -71,7 +71,7 @@ func (ms *markdownService) processSchemas(schemas map[string]*openapi3.SchemaRef
 			Name:      name,
 			SchemaRef: schema,
 		}
-		dir := fmt.Sprintf("out/content/_reference/%s/01-components/schemas", pathName)
+		dir := fmt.Sprintf("out/content/_reference/%s/components/schemas", pathName)
 		name := fmt.Sprintf("%s.md", strcase.ToLowerCamel(name))
 		err := ms.processTemplate(dir, name, ms.schemaTemplate, theSchema)
 		if err != nil {
@@ -102,7 +102,7 @@ func (ms markdownService) cleanForMarkdown(b bytes.Buffer) bytes.Buffer {
 }
 
 func (ms markdownService) processOperation(operation dto.Operation, pathName string) error {
-	dir := fmt.Sprintf("out/content/_reference/%s/00-operations", pathName)
+	dir := fmt.Sprintf("out/content/_reference/%s/operations", pathName)
 	name := fmt.Sprintf("%s.md", strcase.ToLowerCamel(operation.OperationID))
 	err := ms.processTemplate(dir, name, ms.operationTemplate, operation)
 	if err != nil {
