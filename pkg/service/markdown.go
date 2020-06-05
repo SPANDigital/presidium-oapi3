@@ -14,46 +14,35 @@ import (
 )
 
 type MarkdownService interface {
-	ConvertToMarkdown(filename string) error
+	ConvertToMarkdown(filename, outputDir string) error
 }
 
 type markdownService struct {
-	operationTemplate *template.Template
-	schemaTemplate    *template.Template
-	infoTemplate      *template.Template
-	tagTemplate       *template.Template
+	templates *template.Template
+	outputDir string
 }
 
 func NewMarkdownService() (MarkdownService, error) {
-	operationTemplate, err := template.New("operation.gomd").Funcs(tpl.FuncMap()).ParseFiles(
-		"pkg/templates/operation.gomd",
-		"pkg/templates/partials/parameters.gomd",
-		"pkg/templates/partials/request_body.gomd",
-		"pkg/templates/partials/content.gomd",
-		"pkg/templates/partials/responses.gomd",
-		"pkg/templates/partials/headers.gomd",
-		"pkg/templates/partials/security.gomd",
-		"pkg/templates/partials/schema.gomd",
-	)
-	schemaTemplate, err := template.New("schemas.gomd").Funcs(tpl.FuncMap()).ParseFiles(
-		"pkg/templates/schemas.gomd",
-		"pkg/templates/partials/schema.gomd",
-	)
-	infoTemplate, err := template.New("info.gomd").Funcs(tpl.FuncMap()).ParseFiles(
-		"pkg/templates/info.gomd",
-	)
-
-	tagTemplate, err := template.New("tag.gomd").Funcs(tpl.FuncMap()).ParseFiles(
-		"pkg/templates/tag.gomd",
-	)
-	if err != nil {
-		return &markdownService{}, err
+	templates := template.New("").Funcs(tpl.FuncMap())
+	for _, path := range tpl.AssetNames() {
+		tplResult, err := tpl.Asset(path)
+		if err != nil {
+			log.PanicWithFields("unable to obtain asset", log.Fields{
+				"path":  path,
+				"error": err,
+			})
+		}
+		_, err = templates.New(path).Parse(string(tplResult))
+		if err != nil {
+			log.PanicWithFields("unable to parse template", log.Fields{
+				"path":  path,
+				"error": err,
+			})
+		}
 	}
+
 	return &markdownService{
-		operationTemplate: operationTemplate,
-		schemaTemplate:    schemaTemplate,
-		infoTemplate:      infoTemplate,
-		tagTemplate:       tagTemplate,
+		templates: templates,
 	}, nil
 }
 
@@ -63,9 +52,9 @@ func (ms *markdownService) processSchemas(schemas map[string]*openapi3.SchemaRef
 			Name:      name,
 			SchemaRef: schema,
 		}
-		dir := "out/content/_reference/components/schemas"
+		dir := fmt.Sprintf("%s/content/_reference/components/schemas", ms.outputDir)
 		name := fmt.Sprintf("%s.md", strcase.ToLowerCamel(name))
-		err := ms.processTemplate(dir, name, ms.schemaTemplate, theSchema)
+		err := ms.processTemplate(dir, name, "pkg/templates/schemas.gomd", theSchema)
 		if err != nil {
 			log.Error(err)
 		}
@@ -95,9 +84,9 @@ func (ms markdownService) cleanForMarkdown(b bytes.Buffer) bytes.Buffer {
 
 func (ms markdownService) processOperation(operation dto.Operation) error {
 	for _, tag := range operation.Tags {
-		dir := fmt.Sprintf("out/content/_reference/operations/%s", tag)
+		dir := fmt.Sprintf("%s/content/_reference/operations/%s", ms.outputDir, tag)
 		name := fmt.Sprintf("%s.md", strcase.ToLowerCamel(operation.OperationID))
-		err := ms.processTemplate(dir, name, ms.operationTemplate, operation)
+		err := ms.processTemplate(dir, name, "pkg/templates/operation.gomd", operation)
 		if err != nil {
 			log.Error(err)
 		}
@@ -121,21 +110,21 @@ func (ms markdownService) processOperations(path string, operations map[string]*
 }
 
 func (ms *markdownService) processInfo(info *openapi3.Info) error {
-	dir := "out/content/_reference/"
+	dir := fmt.Sprintf("%s/content/_reference/", ms.outputDir)
 	name := "01_info.md"
-	err := ms.processTemplate(dir, name, ms.infoTemplate, info)
+	err := ms.processTemplate(dir, name, "pkg/templates/info.gomd", info)
 	return err
 }
 
 func (ms *markdownService) processTags(tags openapi3.Tags) {
 	for _, tag := range tags {
-		dir := fmt.Sprintf("out/content/_reference/operations/%s", tag.Name)
+		dir := fmt.Sprintf("%s/content/_reference/operations/%s", ms.outputDir, tag.Name)
 		name := "index.md"
-		ms.processTemplate(dir, name, ms.tagTemplate, tag)
+		ms.processTemplate(dir, name, "pkg/templates/tag.gomd", tag)
 	}
 }
 
-func (ms *markdownService) processTemplate(dir string, name string, tpl *template.Template, obj interface{}) error {
+func (ms *markdownService) processTemplate(dir string, name string, tpl string, obj interface{}) error {
 	path := fmt.Sprintf("%s/%s", dir, name)
 	os.MkdirAll(dir, os.ModePerm)
 	f, err := os.Create(path)
@@ -143,7 +132,7 @@ func (ms *markdownService) processTemplate(dir string, name string, tpl *templat
 		return err
 	}
 	var b bytes.Buffer
-	err = tpl.Execute(&b, obj)
+	err = ms.templates.ExecuteTemplate(&b, tpl, obj)
 	if err != nil {
 		return err
 	}
@@ -152,11 +141,12 @@ func (ms *markdownService) processTemplate(dir string, name string, tpl *templat
 	return nil
 }
 
-func (ms *markdownService) ConvertToMarkdown(filename string) error {
+func (ms *markdownService) ConvertToMarkdown(filename, outputDir string) error {
 	swagger, err := openapi3.NewSwaggerLoader().LoadSwaggerFromFile(filename)
 	if err != nil {
 		log.Fatal(err)
 	}
+	ms.outputDir = outputDir
 	for path, item := range swagger.Paths {
 		ms.processOperations(path, item.Operations())
 	}
