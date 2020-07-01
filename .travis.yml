@@ -13,6 +13,9 @@ jobs:
       - ./build/ci/tag_code.sh
   - stage: Release
     if: tag IS present
+    language: go
+    go:
+      - 1.14.x
     install:
       - go get -u github.com/go-bindata/go-bindata/...
       - go generate ./...
