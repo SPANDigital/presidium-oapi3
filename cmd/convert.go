@@ -6,8 +6,13 @@ import (
 	"github.com/spf13/cobra"
 )
 
+var file string
+var outputDir string
+
 func init() {
 	rootCmd.AddCommand(convertCmd)
+	rootCmd.PersistentFlags().StringVar(&file, "file", "", "OpenAPI 3 spec file to generated documentation")
+	rootCmd.PersistentFlags().StringVar(&outputDir, "outputDir", ".", "The output directory")
 }
 
 var convertCmd = &cobra.Command{
@@ -19,6 +24,9 @@ var convertCmd = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		}
-		markdownService.ConvertToMarkdown("swagger.yml")
+		err = markdownService.ConvertToMarkdown(file, outputDir)
+		if err != nil {
+			log.Fatal(err)
+		}
 	},
 }
