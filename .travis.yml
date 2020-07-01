@@ -9,12 +9,12 @@ jobs:
       - docker
     git:
       depth: false
-    install:
-      - go get -u github.com/go-bindata/go-bindata/...
     script:
       - ./build/ci/tag_code.sh
   - stage: Release
     if: tag IS present
+    install:
+      - go get -u github.com/go-bindata/go-bindata/...
     script:
       - curl -sfL https://git.io/goreleaser | sh -s -- check
     deploy:
