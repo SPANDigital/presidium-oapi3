@@ -1,0 +1,46 @@
+{
+  "name": "presidium-oapi3",
+  "version": "1.0.0",
+  "description": "A Golang based tool for importing your Open API v3 spec into Presidium Documentation",
+  "homepage": "http://presidium.spandigital.net/",
+  "main": "index.js",
+  "scripts": {
+    "postinstall": "go-npm install",
+    "preuninstall": "go-npm uninstall"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/SPANDigital/presidium-oapi3.git"
+  },
+  "keywords": [
+    "OpenAPI",
+    "Swagger",
+    "Presidium"
+  ],
+  "authors": [
+    {
+      "name": "Andres De Castro",
+      "email": "andres.decastro@spandigital.com"
+    },
+    {
+      "name": "Travis Pawley",
+      "email": "travis.pawley@spandigital.com"
+    },
+    {
+      "name": "Presidium",
+      "email": "presidium@spandigital.com"
+    }
+  ],
+  "license": "Apache-2.0",
+  "bugs": {
+    "url": "https://github.com/SPANDigital/presidium-oapi3/issues"
+  },
+  "dependencies": {
+    "go-npm": "^0.1.9"
+  },
+  "goBinary": {
+    "name": "presidium-oapi3",
+    "path": "./bin",
+    "url": "https://github.com/SPANDigital/presidium-oapi3/releases/download/{{version}}/presidium-oapi3_{{version}}_{{platform}}_{{arch}}.tar.gz"
+  }
+}

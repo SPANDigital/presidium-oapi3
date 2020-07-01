@@ -6,3 +6,4 @@ out/.jekyll
 out/dist
 out/content
 dist
+node_modules
