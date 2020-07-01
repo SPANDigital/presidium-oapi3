@@ -102,7 +102,7 @@ func pkgTemplatesInfoGomd() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "pkg/templates/info.gomd", size: 465, mode: os.FileMode(420), modTime: time.Unix(1591022944, 0)}
+	info := bindataFileInfo{name: "pkg/templates/info.gomd", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -122,7 +122,7 @@ func pkgTemplatesOperationGomd() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "pkg/templates/operation.gomd", size: 379, mode: os.FileMode(420), modTime: time.Unix(1591022944, 0)}
+	info := bindataFileInfo{name: "pkg/templates/operation.gomd", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -142,7 +142,7 @@ func pkgTemplatesPartialsContentGomd() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "pkg/templates/partials/content.gomd", size: 467, mode: os.FileMode(420), modTime: time.Unix(1591022944, 0)}
+	info := bindataFileInfo{name: "pkg/templates/partials/content.gomd", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -162,7 +162,7 @@ func pkgTemplatesPartialsHeadersGomd() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "pkg/templates/partials/headers.gomd", size: 669, mode: os.FileMode(420), modTime: time.Unix(1591022944, 0)}
+	info := bindataFileInfo{name: "pkg/templates/partials/headers.gomd", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -182,7 +182,7 @@ func pkgTemplatesPartialsParametersGomd() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "pkg/templates/partials/parameters.gomd", size: 932, mode: os.FileMode(420), modTime: time.Unix(1591022944, 0)}
+	info := bindataFileInfo{name: "pkg/templates/partials/parameters.gomd", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -202,7 +202,7 @@ func pkgTemplatesPartialsRequest_bodyGomd() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "pkg/templates/partials/request_body.gomd", size: 907, mode: os.FileMode(420), modTime: time.Unix(1591022944, 0)}
+	info := bindataFileInfo{name: "pkg/templates/partials/request_body.gomd", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -222,7 +222,7 @@ func pkgTemplatesPartialsResponsesGomd() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "pkg/templates/partials/responses.gomd", size: 1610, mode: os.FileMode(420), modTime: time.Unix(1591022944, 0)}
+	info := bindataFileInfo{name: "pkg/templates/partials/responses.gomd", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -242,7 +242,7 @@ func pkgTemplatesPartialsSchemaGomd() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "pkg/templates/partials/schema.gomd", size: 6382, mode: os.FileMode(420), modTime: time.Unix(1591022944, 0)}
+	info := bindataFileInfo{name: "pkg/templates/partials/schema.gomd", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -262,7 +262,7 @@ func pkgTemplatesPartialsSecurityGomd() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "pkg/templates/partials/security.gomd", size: 595, mode: os.FileMode(420), modTime: time.Unix(1591022944, 0)}
+	info := bindataFileInfo{name: "pkg/templates/partials/security.gomd", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -282,7 +282,7 @@ func pkgTemplatesSchemasGomd() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "pkg/templates/schemas.gomd", size: 92, mode: os.FileMode(420), modTime: time.Unix(1591022944, 0)}
+	info := bindataFileInfo{name: "pkg/templates/schemas.gomd", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
@@ -302,7 +302,7 @@ func pkgTemplatesTagGomd() (*asset, error) {
 		return nil, err
 	}
 
-	info := bindataFileInfo{name: "pkg/templates/tag.gomd", size: 263, mode: os.FileMode(420), modTime: time.Unix(1591022944, 0)}
+	info := bindataFileInfo{name: "pkg/templates/tag.gomd", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
 	a := &asset{bytes: bytes, info: info}
 	return a, nil
 }
