@@ -28,7 +28,9 @@ jobs:
         script: curl -sL https://git.io/goreleaser | bash
         on:
           tags: true
-#          condition: ${TRAVIS_TAG} =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
+          condition: ${TRAVIS_TAG} =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
+    after_deploy:
+      - ./build/ci/tags_cleanup.sh
 env:
   global:
     # Add GITHUB_TOKEN environment variable to TravisCI
