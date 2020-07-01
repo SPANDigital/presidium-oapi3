@@ -5,3 +5,4 @@ out/node_modules
 out/.jekyll
 out/dist
 out/content
+dist

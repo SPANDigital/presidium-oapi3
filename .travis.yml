@@ -1,0 +1,28 @@
+jobs:
+  include:
+  - stage: Tag code
+    if: branch IN (develop, master) AND type = push
+    language: go
+    go:
+      - 1.14.x
+    services:
+      - docker
+    git:
+      depth: false
+    script:
+      - ./build/ci/tag_code.sh
+  - stage: Release
+    if: tag IS present
+    script:
+      - curl -sfL https://git.io/goreleaser | sh -s -- check
+    deploy:
+      - provider: script
+        skip_cleanup: true
+        script: curl -sL https://git.io/goreleaser | bash
+        on:
+          tags: true
+          condition: ${TRAVIS_TAG} =~ ^v[0-9]+\.[0-9]+\.[0-9]+$
+env:
+  global:
+    # Add GITHUB_TOKEN environment variable to TravisCI
+    - secure: "fBcUJ7XayQ+kbzJlGz0rhNNEw0NV2OMmVtrXmsC3WY5gSDLRV5zx7xf0gihQL/jSzXs+Wmwwrqh5PnjLeBGm77iuUbJAZwoWCVyKkbVdYXupAyOu6PKrSLjcm4MBfWvgoLskWeO3pXpcn7817yG6y33DcuFNLXeCe7ZRVUwNfSFcOfxhqIezogWIEIJ7iLfHDiIM2Ft3P0Iq50KYgHthdL6HSpfz/1cHnshk6Akmz53fBab0ghkhuAP8/wi3XR/zyJ8UqAHL1GqdRvAUILIR06zGXlibYtQ1tAMGAHcrAhE0u3L34kp+g0dFN06ALauVYdixEpmG6J2/SGDfDvNRTbPoSNsfNd2dcR9BGGYMrpybZQduueT2aW63t+G4Mtg0F9gtoaatQzOgWpR/HVUcr+H/7dKnaIu7Ru8NjV3yfFAwn1mUOT+AzWUUH3NHWWmdOQ1wMIJE9THt0hIUAKS96gKmCzvsKFig9dQjbyhM0Q9YvmrSKZ92UzLyB+K8VNULpOjYKd3VwSUy4uzGdwdXlcl8IhN0fS/Xr7sl9TlRd/W4fu/x4AvsCZo+EpsLfKqXJMJ9vtNHAirxsWkWknvzN1RDAKWSMahrrtjo080nGSV1zZ+6bIRfCo1UBc3bEXrjfvLk++KpNruaOsHejuPWTUXo6hNcbr/v3okS3f3v/UY="
