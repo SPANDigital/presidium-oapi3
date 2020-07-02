@@ -15,7 +15,7 @@ f_info_log "The tag for current source code is: ${tag}"
 if [ "${TRAVIS_BRANCH}" = "master" ]; then
   npm version "$tag" --no-git-tag-version --allow-same-version
   git add package.json
-  git commit -m "[skip travis] Bump up NPM version to ${tag}"
+  git commit -m "[NPM version] Bump up NPM version to ${tag}"
   git push -q "https://${GITHUB_TOKEN}@github.com/${TRAVIS_REPO_SLUG}" "$TRAVIS_BRANCH"
   # Override commit hash given the npm commit should be the one tagged
   TRAVIS_COMMIT=$(git rev-parse HEAD)
