@@ -8,15 +8,17 @@
 
 {{- /* SecurityList Template */ -}}
 {{ define "securityList" }}
-{{- if . }}
-{{- if gt (len .) 0 }}
-#### Authentication
-|Name|Scopes|
-|----|------|
-{{- range $index, $security := . }}
-{{- template "security" $security }}
-{{- end}}
-{{- end}}
-{{- end}}
+    {{- if . }}
+        {{- if gt (len .) 0 }}
+
+            ## Authentication
+
+            |Name|Scopes|
+            |----|------|
+            {{- range $index, $security := . }}
+                {{- template "security" $security }}
+            {{- end}}
+        {{- end}}
+    {{- end}}
 {{- end}}
 {{- /* End of SecurityList Template */ -}}

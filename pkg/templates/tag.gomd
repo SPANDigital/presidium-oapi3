@@ -1,0 +1,14 @@
+---
+title: {{ toCamel .Name }}
+---
+
+{{ .Description }}
+
+{{- if .ExternalDocs }}
+    {{- if .ExternalDocs.Description }}
+
+        [{{ .ExternalDocs.Description }}]({{ .ExternalDocs.URL }})
+    {{- else }}
+        <{{ .ExternalDocs.URL }}>
+    {{- end }}
+{{- end }}
