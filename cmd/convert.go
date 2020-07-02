@@ -11,13 +11,15 @@ var outputDir string
 
 func init() {
 	rootCmd.AddCommand(convertCmd)
-	rootCmd.PersistentFlags().StringVar(&file, "file", "", "OpenAPI 3 spec file to generated documentation")
-	rootCmd.PersistentFlags().StringVar(&outputDir, "outputDir", ".", "The output directory")
+	convertCmd.Flags().StringVarP(&file, "file", "f", "", "OpenAPI 3 spec file")
+	_ = convertCmd.MarkFlagRequired("file")
+	convertCmd.Flags().StringVarP(&outputDir, "outputDir", "o", "", "The output directory")
+	_ = convertCmd.MarkFlagRequired("outputDir")
 }
 
 var convertCmd = &cobra.Command{
 	Use:   "convert",
-	Short: "Converts OAPI3 to markdown",
+	Short: "Converts an OpenAPI 3 spec to markdown",
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Info("Converting to markdown...")
 		markdownService, err := service.NewMarkdownService()
