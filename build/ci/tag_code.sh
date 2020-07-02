@@ -17,6 +17,8 @@ if [ "${TRAVIS_BRANCH}" = "master" ]; then
   git add package.json
   git commit -m "[skip travis] Bump up NPM version to ${tag}"
   git push -q "https://${GITHUB_TOKEN}@github.com/${TRAVIS_REPO_SLUG}" "$TRAVIS_BRANCH"
+  # Override commit hash given the npm commit should be the one tagged
+  TRAVIS_COMMIT=$(git rev-parse HEAD)
 fi
 
 # Create tag in github
