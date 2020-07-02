@@ -1,0 +1,10 @@
+build
+cmd
+dist
+node_modules
+out
+pkg
+.goreleaser.yml
+.travis.yml
+GitVersion.yml
+main.go

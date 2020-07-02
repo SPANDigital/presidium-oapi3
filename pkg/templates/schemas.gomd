@@ -1,0 +1,5 @@
+---
+title: {{ .Name }}
+---
+
+{{ template "schema" dict "SchemaRef" .SchemaRef "Name" .Name }}
