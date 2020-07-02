@@ -1,0 +1,24 @@
+{{- /* this template receives a ReguestBodyRef which contains a Ref and a Value */ -}}
+{{- define "requestBody"}}
+    {{- if . }}
+    {{- $requestBody := .Value}}
+    {{- $ref := .Ref}}
+        {{- if $requestBody }}
+            ## Request Body
+
+            {{ if $requestBody.Required }}**Required**{{else}}**Not Required**{{end}}
+
+            | MediaType | Description | Schema |
+            |-----------|-------------|--------|
+            {{- range $name, $mediaType := $requestBody.Content }}
+                {{- if $mediaType.Schema }}
+                    {{- $schemaRef := $mediaType.Schema.Ref}}
+                    {{- $schema := $mediaType.Schema.Value}}
+                    | {{$name}} | {{ $requestBody.Description }} | {{ template "schemaType" $mediaType.Schema }} |
+                {{- end}}
+            {{- end}}
+
+        {{- end }}
+    {{- end }}
+{{- end }}
+{{- /* End of request body */ -}}

@@ -1,0 +1,459 @@
+// Custom SASS
+
+#presidium-content img.scalable {
+  border: none;
+}
+
+#presidium-content img.inline {
+  max-width: 20px;
+  padding: 0;
+  margin: 0;
+  border: 0;
+  display: inline;
+}
+
+@mixin bg-gradient($color) {
+  @include gradient-vertical-three-colors(lighten($color, 15%), $color, 50%, darken($color, 4%));
+  filter: none;
+  border: 1px solid darken($color, 10%);
+}
+
+.scrollable-container {
+  @include bg-gradient($navbar-default-bg);
+  .brand {
+    img {
+      max-width: 80px;
+      padding: 20px;
+    }
+  }
+}
+
+
+#presidium-navigation {
+  .level-four {
+    div.menu-title {
+      width: 100px;
+      word-wrap: break-word;
+      display: inline-block;
+    }
+  }
+}
+
+.import-nav {
+
+  .navbar-toggle {
+
+    position: relative;
+    display: block;
+    float: left;
+    margin-left: 20px;
+    padding: 9px 10px;
+    margin-top: -40px;
+    margin-bottom: 8px;
+    background-color: transparent;
+    background-image: none;
+    border: 1px solid transparent;
+    border-radius: 4px;
+  }
+
+  margin-top: -19px;
+  margin-left: 15px;
+
+  //Fixed navbar mobile
+  #nav-container {
+    position: fixed;
+    right: 0;
+    left: 0;
+    top: 0;
+    z-index: 1030;
+  }
+
+  span.anchor {
+    display: block;
+    position: relative;
+    top: -60px;
+    visibility: hidden;
+  }
+
+  #nav-container {
+    position: relative;
+    min-height: 50px;
+    margin-bottom: 50px;
+    border: 1px solid transparent;
+  }
+
+  span.anchor {
+    top: -10px;
+  }
+
+  .navbar-default {
+    .navbar-nav {
+
+      .open {
+        > a {
+          color: $navbar-default-color;
+          background-color: $navbar-default-bg;
+          &:hover, &:focus {
+            background-color: $navbar-default-link-hover-bg;
+          }
+        }
+      }
+
+      .active {
+        > a {
+          color: $navbar-default-link-hover-color;
+          background-color: $navbar-default-link-active-bg;
+          &:hover, &:focus {
+            background-color: $navbar-default-link-hover-bg;
+          }
+        }
+      }
+    }
+  }
+
+  .navbar-fixed-side {
+    width: 100%;
+
+    .navbar-brand, .navbar-brand-name {
+      display: none;
+    }
+
+    .expand-placeholder {
+      margin-right: 15px;
+    }
+
+    .glyphicon {
+      margin-right: 5px;
+      font-size: 0.8em;
+    }
+
+    a {
+      cursor: pointer;
+    }
+
+    margin-left: -15px;
+    margin-right: -15px;
+
+    position: fixed;
+    margin: 0 -15px;
+    height: 50px;
+    overflow: hidden;
+    border-top-width: 0;
+    border-bottom-width: 0;
+    border-radius: 0;
+
+    .container, .container-fluid {
+      width: auto;
+      padding-left: 0;
+      padding-right: 0;
+    }
+
+    .navbar-header {
+      float: none;
+    }
+
+    .navbar-brand {
+      display: block;
+      float: none;
+      margin: 0 auto;
+      height: auto;
+      padding: 0px;
+      img {
+        float: none;
+        margin: 0 auto;
+        width: 100%;
+      }
+    }
+
+    .navbar-brand-name {
+      display: block;
+      padding: 10px 5px 20px 5px;
+      margin: 0;
+      text-transform: uppercase;
+      text-align: center;
+      color: $navbar-default-brand-color;
+    }
+
+    > .container, > .container-fluid {
+      .navbar-brand {
+        margin-left: 0;
+      }
+    }
+
+    .navbar-collapse {
+      width: 100%;
+      border-top: 1px solid $navbar-default-border;
+    }
+
+    .navbar-nav {
+      float: none;
+      margin: 0 (-$navbar-padding-horizontal);
+      padding-top: 12px;
+      > li {
+        float: none;
+        > a {
+          padding-top: 12px;
+          padding-bottom: 12px;
+        }
+      }
+    }
+
+    .navbar-text {
+      float: none;
+      margin-left: 0;
+      margin-right: 0;
+    }
+
+    .dropdown-menu {
+      display: block;
+    }
+
+    .navbar-nav {
+
+      .dropdown-menu {
+        position: static;
+        float: none;
+        width: auto;
+        margin-top: 0;
+        background-color: transparent;
+        border: 0;
+        box-shadow: none;
+        padding: 0;
+
+        > li {
+          > a {
+            line-height: $line-height-computed;
+            color: $navbar-default-link-color;
+            padding-top: 10px;
+            padding-bottom: 10px;
+
+            white-space: normal;
+            border: 0;
+
+            &:hover, &:focus {
+              background-image: none;
+            }
+
+            &.level-two {
+              padding-left: 30px;
+            }
+            &.level-three {
+              padding-left: 50px;
+            }
+          }
+        }
+
+      }
+
+      .dropdown-toggle {
+        &:hover, &:focus {
+          background-color: $navbar-default-link-hover-bg;
+          color: $navbar-default-link-hover-color;
+          border-color: $navbar-default-border
+        }
+      }
+
+      > li > a, .dropdown-menu > li > a {
+        &:hover, &:focus {
+          background-color: $navbar-default-link-hover-bg;
+          color: $navbar-default-link-hover-color;
+          border-color: $navbar-default-border;
+        }
+      }
+
+    }
+
+    .dropdown > .dropdown-toggle,
+    .dropdown-menu > .dropdown-header {
+      background-color: transparent !important;
+      color: lighten($navbar-default-color, 15%) !important;
+      font-size: 0.8em;
+      text-transform: uppercase;
+      border-bottom: none;
+      padding-bottom: 0;
+    }
+
+  }
+}
+
+.imported-content {
+  h1, h2, h3, h4, h5, h6 {
+    text-transform: none;
+  }
+  h1, .h1 {
+    font-size: $font-size-h3;
+  }
+  h2, .h2 {
+    font-size: $font-size-h4;
+  }
+  h3, .h3, h4, .h4, h5, .h5, h6, .h6 {
+    font-size: $font-size-h5;
+  }
+}
+
+article {
+  iframe {
+    box-shadow: 0px 0px 10px #777;
+    border: None;
+    height: 900px;
+    width: 110%;
+  }
+}
+
+* {
+  -webkit-overflow-scrolling: touch
+}
+
+table {
+  margin: 20px 0 20px 0;
+  font-size: 0.9em;
+  table-layout: fixed;
+  overflow-wrap: break-word;
+
+  th {
+    white-space: nowrap;
+  }
+  td {
+    vertical-align: top !important;
+    white-space: normal;
+    strong {
+      color: #0064BC;
+    }
+    ul {
+      padding-left: 20px;
+    }
+  }
+}
+
+/* For fieldnames in Data Format Spec. */
+.field-name {
+  width: 16% !important;
+}
+
+blockquote {
+  margin: 20px 0 20px 0;
+}
+
+section {
+  width: 55em;
+}
+
+.glyphicon {
+  padding-right: 5px;
+}
+
+pre.prettyprint.source.linenums {
+  overflow-x: auto;
+  code {
+    overflow-wrap: normal;
+    white-space: pre;
+  }
+}
+
+/* Article heading styling, and line breaks. */
+section .article {
+  p {
+    line-height: 2em;
+  }
+
+  li {
+    line-height: 2em;
+  };
+
+  h1 {
+    margin-top: 30px;
+  }
+
+  .article-title h2 {
+    color: #444;
+    font-weight: bold;
+  }
+  hr {
+    border-top: 1px solid #888;
+  }
+  article hr {
+    border-top: 1px solid #dadada;
+    margin-top: 15px !important;
+    margin-bottom: 15px !important;
+  }
+}
+
+// ----------------------------------------------------------------------------------------------- //
+#presidium-content {
+  article {
+    h1, h2, h3, h4, h5, h6 {
+      text-transform: none;
+    }
+    h1, .h1 {
+      font-size: 25px !important;
+      color: #888;
+      font-weight: 500
+    }
+    h2, .h2 {
+      font-size: 20px !important;
+      color: #999;
+      padding: 15px 5px 5px 0;
+    }
+    h3, .h3, h4, .h4, h5, .h5, h6, .h6 {
+      font-size: 16px !important;
+      color: #888;
+      padding-left: 10px;
+    }
+  }
+}
+
+// ----------------------------------------------------------------------------------------------- //
+
+/* Collapsible Sections. */
+
+DETAILS[open] SUMMARY ~ * {
+  animation: sweep .5s ease-in-out;
+}
+
+@keyframes sweep {
+  0% {
+    opacity: 0;
+    margin-left: -10px
+  }
+  100% {
+    opacity: 1;
+    margin-left: 0px
+  }
+}
+
+details summary::-webkit-details-marker {
+  display: inline-block;
+  color: #777;
+}
+
+details summary {
+  outline: none;
+  * {
+    cursor: pointer;
+    margin-top: 5px;
+    margin-bottom: 5px;
+    display: -webkit-inline-box;
+    &:hover {
+      color: #dadada !important;
+    }
+  }
+  cursor: pointer;
+  margin: 0px;
+  display: -webkit-inline-box;
+  &:hover {
+    color: #dadada !important;
+  }
+}
+
+/* Disable permalinks. */
+div .permalink a {
+  display: none;
+}
+
+.major {
+    color : red;
+}
+
+.minor {
+    color : darkorange;
+}

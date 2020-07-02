@@ -1,0 +1,44 @@
+jobs:
+  include:
+  - stage: Tag code
+    if: branch IN (develop, master) AND type = push AND NOT (commit_message =~ /^.*\[NPM version\].*$/)
+    language: go
+    go:
+    - 1.14.x
+    services:
+    - docker
+    git:
+      depth: false
+    script:
+    - "./build/ci/tag_code.sh"
+  - stage: Release
+    if: tag IS present
+    language: go
+    go:
+    - 1.14.x
+    install:
+    - go get -u github.com/go-bindata/go-bindata/...
+    - go generate ./...
+    - git diff pkg/service/tpl/tpl.go
+    script:
+    - curl -sfL https://git.io/goreleaser | sh -s -- check
+    deploy:
+    - provider: script
+      skip_cleanup: true
+      script: curl -sL https://git.io/goreleaser | bash
+      on:
+        tags: true
+        condition: "${TRAVIS_TAG} =~ ^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+    - provider: npm
+      email: presidium@spandigital.com
+      api_key:
+        secure: YnHUaE/DF4nIrcUz6prrIMM4tbZRD3l0Gai3Rt6kufALxqhhuWwm3Y2Ub3Wu9xKvzdO0rSdtLABAVSnCfWi6bupy+YkE0uhdwOqsrSt9X+BVov/3XCNy7vHK0sif1XdSgfcud2y4EXnVchu7VsKl+ZZaNqQ36HRkpe8szWF5UujWEEHxiLrp6/WpY5lTp2NXfhbTAzmi74K0Eqg4Q0JhX5NvHAQUQVIjJszaugC8ZCQ30ODftW7/QgNxgtvXh3DdOwYs15yCfLInAkYpA3VJK/08pnGzCgWChoJ9J0pzhvYeIIUEFZIbBcsCsaVsxgwdC53EkFo3A7xTQJm2TQBrgYVN0uHngW+pXjQ56Am85YLS7qwzSmPTrwdUQFEwwW4yyirwstSV0B/Iw7QtyzXBF6ozR0tvJtiNXFN7zmhA5yRxcduEcmggClqt3KnaPuqk3F9Ne71OxE/ToqZW1k9JBEXKkwjXT/kVxhrR6SBiTf01Ze3gdDjqHifA16NAd/0pP32xA2Db1TPiBqxnqLRKTMVXpvJ8Rgg4Sj/CGeEFqM0kuCFO7AbBSTmqAVWSuMlOdtfbOG2vACD6sBoO33sF+kpM8yoIH9IvcMQUfzndqKR6iUOtjIXrZB/KKPNsDvNoDJHO8/3mTdmTKRdq/nX4B4fibUr+cHeqvdbhx9J8PvI=
+      on:
+        tags: true
+        repo: SPANDigital/presidium-oapi3
+        condition: "${TRAVIS_TAG} =~ ^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+    after_deploy:
+    - "./build/ci/tags_cleanup.sh"
+env:
+  global:
+  - secure: fBcUJ7XayQ+kbzJlGz0rhNNEw0NV2OMmVtrXmsC3WY5gSDLRV5zx7xf0gihQL/jSzXs+Wmwwrqh5PnjLeBGm77iuUbJAZwoWCVyKkbVdYXupAyOu6PKrSLjcm4MBfWvgoLskWeO3pXpcn7817yG6y33DcuFNLXeCe7ZRVUwNfSFcOfxhqIezogWIEIJ7iLfHDiIM2Ft3P0Iq50KYgHthdL6HSpfz/1cHnshk6Akmz53fBab0ghkhuAP8/wi3XR/zyJ8UqAHL1GqdRvAUILIR06zGXlibYtQ1tAMGAHcrAhE0u3L34kp+g0dFN06ALauVYdixEpmG6J2/SGDfDvNRTbPoSNsfNd2dcR9BGGYMrpybZQduueT2aW63t+G4Mtg0F9gtoaatQzOgWpR/HVUcr+H/7dKnaIu7Ru8NjV3yfFAwn1mUOT+AzWUUH3NHWWmdOQ1wMIJE9THt0hIUAKS96gKmCzvsKFig9dQjbyhM0Q9YvmrSKZ92UzLyB+K8VNULpOjYKd3VwSUy4uzGdwdXlcl8IhN0fS/Xr7sl9TlRd/W4fu/x4AvsCZo+EpsLfKqXJMJ9vtNHAirxsWkWknvzN1RDAKWSMahrrtjo080nGSV1zZ+6bIRfCo1UBc3bEXrjfvLk++KpNruaOsHejuPWTUXo6hNcbr/v3okS3f3v/UY=
