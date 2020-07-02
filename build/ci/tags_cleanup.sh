@@ -2,6 +2,8 @@
 
 set -e
 
+git checkout "${TRAVIS_BRANCH}"
+
 f_info_log "Cleaning old RFV tags"
 # Delete old alpha tags on release
 numTags=$(git tag -l "*-rfv.*" | wc -l | xargs)
