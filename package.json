@@ -41,6 +41,6 @@
   "goBinary": {
     "name": "presidium-oapi3",
     "path": "./bin",
-    "url": "https://github.com/SPANDigital/presidium-oapi3/releases/download/{{version}}/presidium-oapi3_{{version}}_{{platform}}_{{arch}}.tar.gz"
+    "url": "https://github.com/SPANDigital/presidium-oapi3/releases/download/v{{version}}/presidium-oapi3_{{version}}_{{platform}}_{{arch}}.tar.gz"
   }
 }
