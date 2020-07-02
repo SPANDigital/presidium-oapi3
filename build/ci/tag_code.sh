@@ -8,7 +8,11 @@ source "${DIR}"/include.sh
 git checkout "${TRAVIS_BRANCH}"
 
 f_info_log "Calculating tag ${TRAVIS_BRANCH} branch..."
-tag=v$(docker run --rm -v "$(pwd):/repo" gittools/gitversion:5.2.4-linux-ubuntu-18.04-netcoreapp3.1 /repo -output json -showvariable SemVer)
+if [ "${TRAVIS_BRANCH}" = "master" ]; then
+  tag=v$(docker run --rm -v "$(pwd):/repo" gittools/gitversion:5.2.4-linux-ubuntu-18.04-netcoreapp3.1 /repo -output json -showvariable MajorMinorPatch)
+elif [ "${TRAVIS_BRANCH}" = "develop" ]; then
+  tag=v$(docker run --rm -v "$(pwd):/repo" gittools/gitversion:5.2.4-linux-ubuntu-18.04-netcoreapp3.1 /repo -output json -showvariable SemVer)
+fi
 f_info_log "The tag for current source code is: ${tag}"
 
 # Bump up npm version if is a master release
