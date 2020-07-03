@@ -1,4 +1,4 @@
-# Presidium Javadoc
+# Presidium OpenAPI 3
 
 A Golang toole for importing your [OpenAPI 3](https://spec.openapis.org/oas/v3.0.3) spec into 
 [Presidium](http://presidium.spandigital.net) documentation.
