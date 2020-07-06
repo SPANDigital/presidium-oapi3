@@ -18,12 +18,13 @@ type MarkdownService interface {
 }
 
 type markdownService struct {
-	templates *template.Template
-	outputDir string
+	templates    *template.Template
+	outputDir    string
+	referenceURL string
 }
 
-func NewMarkdownService() (MarkdownService, error) {
-	templates := template.New("").Funcs(tpl.FuncMap())
+func NewMarkdownService(referenceURL string) (MarkdownService, error) {
+	templates := template.New("").Funcs(tpl.FuncMap(referenceURL))
 	for _, path := range tpl.AssetNames() {
 		tplResult, err := tpl.Asset(path)
 		if err != nil {
@@ -42,15 +43,17 @@ func NewMarkdownService() (MarkdownService, error) {
 	}
 
 	return &markdownService{
-		templates: templates,
+		templates:    templates,
+		referenceURL: referenceURL,
 	}, nil
 }
 
 func (ms *markdownService) processSchemas(schemas map[string]*openapi3.SchemaRef) error {
 	for name, schema := range schemas {
 		theSchema := dto.Schema{
-			Name:      name,
-			SchemaRef: schema,
+			Name:            name,
+			PresidiumRefURL: ms.referenceURL,
+			SchemaRef:       schema,
 		}
 		dir := fmt.Sprintf("%s/content/_reference/components/schemas", ms.outputDir)
 		name := fmt.Sprintf("%s.md", strcase.ToLowerCamel(name))

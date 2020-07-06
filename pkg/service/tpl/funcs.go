@@ -4,9 +4,11 @@ import (
 	"errors"
 	"fmt"
 	"github.com/iancoleman/strcase"
-	strings "strings"
+	"strings"
 	"text/template"
 )
+
+var referenceURL string
 
 func Join(list []string, sep string) string {
 	return strings.Join(list, sep)
@@ -40,7 +42,7 @@ func GetSchemaLink(ref string) string {
 	idx := strings.LastIndex(ref, "/")
 	refName := ref[idx+1:]
 	linkPath := ref[:idx]
-	linkPath = strings.ReplaceAll(linkPath, "#", "../..")
+	linkPath = strings.ReplaceAll(linkPath, "#", fmt.Sprintf("%s%s", "{{site.baseurl}}", referenceURL))
 	return fmt.Sprintf("[%s](%s/#%s)", strcase.ToCamel(refName), linkPath, strings.ToLower(refName))
 }
 
@@ -48,7 +50,8 @@ func ToHTMLNewLines(str string) string {
 	return strings.ReplaceAll(str, "\n", "<br>")
 }
 
-func FuncMap() template.FuncMap {
+func FuncMap(refUrl string) template.FuncMap {
+	referenceURL = refUrl
 	return template.FuncMap{
 		"join":           Join,
 		"dict":           Dict,

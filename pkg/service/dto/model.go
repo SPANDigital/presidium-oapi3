@@ -3,7 +3,8 @@ package dto
 import "github.com/getkin/kin-openapi/openapi3"
 
 type Schema struct {
-	Name string
+	Name            string
+	PresidiumRefURL string
 	*openapi3.SchemaRef
 }
 
