@@ -46,7 +46,7 @@ Use "presidium-oapi3 [command] --help" for more information about a command.
 To convert a file you simply:
 
 ```shell
-presidium-oapi3 convert -f <YOUR_API_SPEC> -o <THE_OUTPUT_DIRECTORY>
+presidium-oapi3 convert -f <YOUR_API_SPEC> -o <THE_OUTPUT_DIRECTORY> -r <THE_PRESIDIUM_REFERENCE_URL>
 ```
 
 ## Part Of Your Project
@@ -56,7 +56,7 @@ Include as part of the npm build building your Presidium site as in the followin
 ```json
     ...
     "scripts" : {
-        "import-open-api-3" : "presidium-oapi3"
+        "import-open-api-3" : "presidium-oapi3 convert -f <YOUR_API_SPEC> -o <THE_OUTPUT_DIRECTORY> -r <THE_PRESIDIUM_REFERENCE_URL>"
     },
     "devDependencies": {
         "presidium-oapi-3" : "#.#.#"
