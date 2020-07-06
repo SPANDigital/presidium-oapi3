@@ -2,6 +2,7 @@
 {{- define "schema"}}
     {{- $ref := .SchemaRef.Ref }}
     {{- $schema := .SchemaRef.Value }}
+    {{- $presidiumRefURL := .PresidiumRefURL }}
     {{- $rootName := .Name }}
     {{- if $ref }}
 
@@ -22,7 +23,7 @@
                 {{- $value := $property.Value -}}
                 {{- $theRef := $property.Ref -}}
                 {{- if and (not $theRef) (eq $value.Type "object") $value.Properties -}}
-                    [{{$name}}](../../components/schemas/#{{- template "rootName" $rootName }}-{{ lower $name }})
+                    [{{$name}}]({{"{{site.baseurl}}"}}{{$presidiumRefURL}}/components/schemas/#{{- template "rootName" $rootName }}-{{ lower $name }})
                 {{- else -}}
                     {{- template "schemaType" $property }}
                 {{- end -}}

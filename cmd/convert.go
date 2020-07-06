@@ -8,6 +8,7 @@ import (
 
 var file string
 var outputDir string
+var referenceURL string
 
 func init() {
 	rootCmd.AddCommand(convertCmd)
@@ -15,6 +16,8 @@ func init() {
 	_ = convertCmd.MarkFlagRequired("file")
 	convertCmd.Flags().StringVarP(&outputDir, "outputDir", "o", "", "The output directory")
 	_ = convertCmd.MarkFlagRequired("outputDir")
+	convertCmd.Flags().StringVarP(&referenceURL, "referenceURL", "r", "", "The reference URL")
+	_ = convertCmd.MarkFlagRequired("referenceURL")
 }
 
 var convertCmd = &cobra.Command{
@@ -22,7 +25,7 @@ var convertCmd = &cobra.Command{
 	Short: "Converts an OpenAPI 3 spec to markdown",
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Info("Converting to markdown...")
-		markdownService, err := service.NewMarkdownService()
+		markdownService, err := service.NewMarkdownService(referenceURL)
 		if err != nil {
 			log.Fatal(err)
 		}
