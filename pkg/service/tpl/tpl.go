@@ -1,5 +1,6 @@
 // Code generated for package tpl by go-bindata DO NOT EDIT. (@generated)
 // sources:
+// pkg/templates/index.gomd
 // pkg/templates/info.gomd
 // pkg/templates/operation.gomd
 // pkg/templates/partials/content.gomd
@@ -85,6 +86,26 @@ func (fi bindataFileInfo) IsDir() bool {
 // Sys return file is sys mode
 func (fi bindataFileInfo) Sys() interface{} {
 	return nil
+}
+
+var _pkgTemplatesIndexGomd = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\xd2\xd5\xd5\xe5\x2a\xc9\x2c\xc9\x49\xb5\x52\xa8\xae\x56\xd0\x0b\x01\x31\x15\x6a\x6b\xb9\x40\xe2\x80\x00\x00\x00\xff\xff\xff\xd8\xd2\xd8\x1c\x00\x00\x00")
+
+func pkgTemplatesIndexGomdBytes() ([]byte, error) {
+	return bindataRead(
+		_pkgTemplatesIndexGomd,
+		"pkg/templates/index.gomd",
+	)
+}
+
+func pkgTemplatesIndexGomd() (*asset, error) {
+	bytes, err := pkgTemplatesIndexGomdBytes()
+	if err != nil {
+		return nil, err
+	}
+
+	info := bindataFileInfo{name: "pkg/templates/index.gomd", size: 0, mode: os.FileMode(0), modTime: time.Unix(0, 0)}
+	a := &asset{bytes: bytes, info: info}
+	return a, nil
 }
 
 var _pkgTemplatesInfoGomd = []byte("\x1f\x8b\x08\x00\x00\x00\x00\x00\x00\xff\x8c\xcf\xcd\x8a\x83\x30\x14\x05\xe0\x7d\x9e\xe2\x80\xbb\x40\x7c\x00\x11\x37\x33\xb3\x93\x19\x70\xb4\x7b\xb1\x11\x02\xfe\x94\x18\xba\x11\xdf\xbd\xdc\x6b\xea\x4f\xda\x45\x5d\xe5\x9e\x7b\xfc\xa2\x4a\x29\xe1\x8c\xeb\x74\x82\x79\x46\x5c\xd2\x11\xcb\x22\x28\x17\xd1\x29\xe3\xe1\xa2\xed\x64\xc6\x81\x2a\x82\xe6\x6f\x3d\x35\xd6\xdc\xdc\x9e\x29\x98\x16\x71\xa9\x6d\x3f\xfd\xb5\xff\xda\xde\x4d\xc3\xa2\x00\x80\x28\x02\x6f\x30\xb6\xf0\xbb\x84\x17\x29\xdf\x14\xbe\x94\xad\xa0\x1e\xae\x24\x3c\xed\xaf\x71\x70\x75\xe3\x8e\xa8\x8f\x78\x0c\x6a\xf1\x6f\xdd\xf3\x07\xc0\x3f\x52\x52\x22\xe5\xfa\xc7\x61\x6b\x23\xfc\xa5\xef\xc4\x9f\xbe\x36\xdd\x99\xe4\x28\x34\xb7\xde\x27\x68\x55\xe4\x67\xb2\x2a\x72\x02\xd3\xa3\xb8\x96\xb2\x17\x70\x3f\x3e\x02\x00\x00\xff\xff\xbc\xf2\x49\x2e\xd1\x01\x00\x00")
@@ -359,6 +380,7 @@ func AssetNames() []string {
 
 // _bindata is a table, holding each asset generator, mapped to its name.
 var _bindata = map[string]func() (*asset, error){
+	"pkg/templates/index.gomd":                 pkgTemplatesIndexGomd,
 	"pkg/templates/info.gomd":                  pkgTemplatesInfoGomd,
 	"pkg/templates/operation.gomd":             pkgTemplatesOperationGomd,
 	"pkg/templates/partials/content.gomd":      pkgTemplatesPartialsContentGomd,
@@ -415,6 +437,7 @@ type bintree struct {
 var _bintree = &bintree{nil, map[string]*bintree{
 	"pkg": &bintree{nil, map[string]*bintree{
 		"templates": &bintree{nil, map[string]*bintree{
+			"index.gomd":     &bintree{pkgTemplatesIndexGomd, map[string]*bintree{}},
 			"info.gomd":      &bintree{pkgTemplatesInfoGomd, map[string]*bintree{}},
 			"operation.gomd": &bintree{pkgTemplatesOperationGomd, map[string]*bintree{}},
 			"partials": &bintree{nil, map[string]*bintree{
