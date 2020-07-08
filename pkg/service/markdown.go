@@ -144,12 +144,26 @@ func (ms *markdownService) processTemplate(dir string, name string, tpl string, 
 	return nil
 }
 
+func (ms *markdownService) createIndexFiles() {
+	dirs := map[string]string{
+		"components":         "Components",
+		"components/schemas": "Schemas",
+		"operations":         "Operations",
+	}
+	for dir, title := range dirs {
+		index := dto.Index{Title: title}
+		baseDir := fmt.Sprintf("%s/content/_reference/%s", ms.outputDir, dir)
+		ms.processTemplate(baseDir, "index.md", "pkg/templates/index.gomd", index)
+	}
+}
+
 func (ms *markdownService) ConvertToMarkdown(filename, outputDir string) error {
 	swagger, err := openapi3.NewSwaggerLoader().LoadSwaggerFromFile(filename)
 	if err != nil {
 		log.Fatal(err)
 	}
 	ms.outputDir = outputDir
+	ms.createIndexFiles()
 	for path, item := range swagger.Paths {
 		ms.processOperations(path, item.Operations())
 	}
