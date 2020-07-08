@@ -1,6 +1,6 @@
 {
   "name": "presidium-oapi-3",
-  "version": "1.1.0",
+  "version": "1.3.1",
   "description": "A Golang based tool for importing your Open API v3 spec into Presidium Documentation",
   "homepage": "http://presidium.spandigital.net/",
   "main": "index.js",
