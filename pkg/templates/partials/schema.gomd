@@ -140,6 +140,12 @@
     {{- if .MaxProps }} **Maximum properties**: {{ .MaxProps }} <br> {{- end -}}
     {{- if .MinProps }} **Minimum properties**: {{ .MinProps }} <br> {{- end -}}
     {{- if .AdditionalPropertiesAllowed }} **Additional properties allowed**: true <br> {{- end -}}
+    {{- if gt (len .Enum) 0 -}}
+        **Enum**:<br>
+        {{- range $idx, $value := .Enum -}}
+            {{- $value}}<br>
+        {{- end -}}
+    {{- end -}}
 {{- end }}
 {{- /* End of restrictions template*/ -}}
 
