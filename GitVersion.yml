@@ -4,6 +4,7 @@ branches:
   develop:
     mode: ContinuousDeployment
     tag: rfv
+    increment: Patch
   master:
     mode: ContinuousDelivery
 ignore:
