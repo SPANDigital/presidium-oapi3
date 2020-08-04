@@ -59,8 +59,6 @@
     {{ $url := .PresidiumRefURL }}
     {{ $rootName := .RootName }}
 
-    {{ $url }}
-
     {{- range $name, $property := .Schema.Properties }}
         {{- $ref := .Ref }}
         {{- $value := .Value }}
