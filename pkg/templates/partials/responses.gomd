@@ -8,7 +8,7 @@
             {{- if $mediaType.Schema }}
                 {{- $schemaRef := $mediaType.Schema.Ref}}
                 {{- $schema := $mediaType.Schema.Value}}
-                | {{$status}} | {{ toHTMLNewLines $response.Description }} | {{ $name }} | {{ template "schemaType" $mediaType.Schema }} |
+                | {{$status}} | {{ toHTMLNewLines $response.Description }} | {{ $name }} | {{ template "operationSchemaType" $mediaType.Schema }} |
             {{- end}}
         {{- end}}
 
