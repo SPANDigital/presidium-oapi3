@@ -50,6 +50,10 @@ func ToHTMLNewLines(str string) string {
 	return strings.ReplaceAll(str, "\n", "<br>")
 }
 
+func Sum(int1, int2 int) int {
+	return int1 + int2
+}
+
 func FuncMap(refUrl string) template.FuncMap {
 	referenceURL = refUrl
 	return template.FuncMap{
@@ -61,5 +65,6 @@ func FuncMap(refUrl string) template.FuncMap {
 		"toHTMLNewLines": ToHTMLNewLines,
 		"lower":          strings.ToLower,
 		"replace":        strings.ReplaceAll,
+		"sum":            Sum,
 	}
 }

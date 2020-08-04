@@ -1,121 +1,163 @@
-{{- /* this template receives a SchemaRef which contains a Ref and a Schema */ -}}
 {{- define "schema"}}
     {{- $ref := .SchemaRef.Ref }}
     {{- $schema := .SchemaRef.Value }}
     {{- $presidiumRefURL := .PresidiumRefURL }}
-    {{- $rootName := .Name }}
-    {{- if $ref }}
+    {{- $name := .Name }}
+    {{- /* If this schema is a reference */ -}}
+    {{- if not $ref }}
 
-        {{/* Render references */}}
-        | Name | Type | Description |
-        |------|------|-------------|
-        | anonymus | {{ template "schemaType" . }} | {{ $schema.Description }} |
+        {{- if and $schema $schema.Description }} **Description:** <br> {{ $schema.Description }} <br> {{ end }}
 
-    {{- else }}
-        {{- if and $schema $schema.Description }} {{ $schema.Description }} <br> {{ end }}
+        {{ if $schema.Type }}
+            {{- if and $schema $schema.Type }} **Type:** {{ $schema.Type }} <br> {{ end -}} {{- if $schema.ReadOnly }} **Read Only** <br> {{- end -}} {{- if $schema.Nullable }} **Nullable** <br> {{- end -}}
 
-        {{- if and (eq $schema.Type "object") $schema.Properties }}
+            {{ template "restrictions" $schema }}
+        {{- end -}}
 
-            | Name | Type | Description | Restrictions |
-            |------|------|-------------|--------------|
-            {{- range $name, $property := $schema.Properties }}
-                |{{ $name }} |
-                {{- $value := $property.Value -}}
-                {{- $theRef := $property.Ref -}}
-                {{- if and (not $theRef) (eq $value.Type "object") $value.Properties -}}
-                    [{{$name}}]({{"{{site.baseurl}}"}}{{$presidiumRefURL}}/components/schemas/#{{- template "rootName" $rootName }}-{{ lower $name }})
-                {{- else -}}
-                    {{- template "schemaType" $property }}
-                {{- end -}}
-                {{- if (inStringSlice $schema.Required $name) }} <br> **Required** {{- end -}}
-                {{- if $value.ReadOnly }} <br> **Read Only** {{- end -}}
-                {{- if $value.Nullable }} <br> **Nullable** {{- end -}} |
-                {{- if and $value (not $property.Ref) }} {{ toHTMLNewLines $value.Description }} {{- end -}} |
-                {{- template "restrictions" $value }} |
-            {{- end }}
+        {{ if $schema.Properties }}
 
-            {{- /* Render all inline objects */ -}}
-            {{- range $name, $property := $schema.Properties }}
-                {{- $ref := .Ref }}
-                {{- $value := .Value }}
-                {{- if and (not $ref) (eq $value.Type "object") $value.Properties }}
+            **Properties:**
 
-                    ## {{ $name }}
-                    {: #{{- template "rootName" $rootName }}-{{ lower $name }} }
+            {{ template "properties" dict "Schema" $schema "PresidiumRefURL" $presidiumRefURL "RootName" $name }}
 
-                    {{ template "schema" dict "SchemaRef" $property "Name" $name }}
-                {{- end }}
-            {{- end }}
-        {{- else if eq $schema.Type "array" }}
-            {{- /* Render Arrays */ -}}
-            {{ toHTMLNewLines $schema.Description }}
+            {{ template "inlineProperties" dict "Schema" $schema "PresidiumRefURL" $presidiumRefURL "RootName" $name }}
 
-            {{- if $schema.Items.Ref }}
-                **Type:** [{{- template "schemaType" $schema.Items -}}] <br>
-                {{- if $schema.ReadOnly }} **Read Only** <br> {{- end -}}
-                {{- if $schema.Nullable }} **Nullable** <br> {{- end -}}
-                {{- template "restrictions" $schema }}
+        {{ end }}
+
+        {{ template "printCuantifiers" dict "Schema" $schema "PresidiumRefURL" $presidiumRefURL "RootName" $name "Name" $name }}
+
+    {{- end }}
+{{- end -}}
+
+{{- define "properties" }}
+
+    {{ $required := .Schema.Required }}
+    {{ $url := .PresidiumRefURL }}
+    {{ $rootName := .RootName }}
+    | Name | Type | Description | Restrictions |
+    |------|------|-------------|--------------|
+    {{- range $name, $property := .Schema.Properties }}
+        {{- $value := $property.Value }}
+        {{- $theRef := $property.Ref }}
+        | {{ $name -}}
+        |   {{- if and (not $theRef) (eq $value.Type "object") $value.Properties -}}
+                [{{$name}}]({{"{{site.baseurl}}"}}{{$url}}/components/schemas/#{{- template "rootName" $rootName }}-{{ lower $name }})
             {{- else }}
-                {{- template "schema" dict "SchemaRef" $schema.Items -}}
-            {{- end}}
+                {{- template "schemaType" dict "Property" $property "Name" $name "RootName" $rootName "PresidiumRefURL" $url -}}
+                {{- if (inStringSlice $required $name) }} <br> **Required** {{- end -}}
+                {{- if $value.ReadOnly }} <br> **Read Only** {{- end -}}
+                {{- if $value.Nullable }} <br> **Nullable** {{- end -}}
+            {{- end -}}
+        | {{ if $value.Description }} {{ toHTMLNewLines $value.Description }} {{ end -}}
+        | {{ template "restrictions" $value }} |
+    {{- end -}}
+{{- end -}}
 
-        {{- else if eq $schema.Type "string" "object" }}
+{{- define "inlineProperties" }}
 
-            | Type | Restrictions |
-            |------|--------------|
-            |{{ $schema.Type }} <br>
-            {{- if $schema.ReadOnly }} **Read Only** <br> {{- end -}}
-            {{- if $schema.Nullable }} **Nullable** <br> {{- end -}} |
-            {{- template "restrictions" $schema }} |
-        {{- else }}
-            {{- /* Render allOf, anyOf, oneOf */ -}}
-            {{- if gt (len $schema.OneOf) 0 -}}
+    {{ $required := .Schema.Required }}
+    {{ $url := .PresidiumRefURL }}
+    {{ $rootName := .RootName }}
 
-                <br> **One Of:** <br>
-                {{- template "schemaListing" dict "Schemas" $schema.OneOf "Name" $rootName }}
-            {{- else if gt (len $schema.AllOf) 0 -}}
-                <br> **All Of:** <br>
-                {{- template "schemaListing" dict "Schemas" $schema.AllOf "Name" $rootName }}
-            {{- else if gt (len $schema.AnyOf) 0 -}}
-                <br> **Any Of:** <br>
-                {{- template "schemaListing" dict "Schemas" $schema.AnyOf "Name" $rootName }}
-            {{- end }}
+    {{ $url }}
 
-        {{- end }}
+    {{- range $name, $property := .Schema.Properties }}
+        {{- $ref := .Ref }}
+        {{- $value := .Value }}
 
-    {{- end }}
-{{- end }}
+        {{- if and (not $ref) (eq $value.Type "object") $value.Properties }}
+            ## {{ $name }}
+            {: #{{- template "rootName" $rootName }}-{{ lower $name }} }
+            {{ template "schema" dict "SchemaRef" $property "Name" $name "PresidiumRefURL" $url }}
+        {{- end -}}
+    {{- end -}}
 
-{{- /* SchemaListing template */ -}}
-    {{- define "schemaListing" }}
-        {{- $name := .Name }}
-        {{- if gt (len .Schemas) 0 }}
-            {{- range $index, $schemaRef := .Schemas }}
-                {{- if $schemaRef.Ref }}
-                    {{- template "schemaType" $schemaRef -}}, <br>
-                {{- else }}
+    {{- range $name, $property := .Schema.Properties }}
+        {{- $ref := .Ref }}
+        {{- $value := .Value }}
+        {{ if and (or $value.AllOf $value.AnyOf $value.OneOf) (not $ref) }}
+            ## {{ $name }}
+            {: #{{- template "rootName" $rootName }}-{{ lower $name }} }
 
-                    - Inline schema: <br>
-                    {{- template "schema" dict "SchemaRef" $schemaRef "Name" $name -}}
-                {{- end }}
-            {{- end }}
-        {{- end }}
-    {{- end }}
-{{- /* End of SchemaListing template */ -}}
+            {{ if $value.Description }} {{ toHTMLNewLines $value.Description }} {{ end -}}
+
+            {{ template "printCuantifiers" dict "Schema" $value "PresidiumRefURL" $url "RootName" $rootName "Name" $name }}
+        {{ end }}
+    {{- end -}}
+{{- end -}}
+
+{{- define "printCuantifiers" }}
+    {{ $schema := .Schema}}
+    {{ $presidiumRefURL := .PresidiumRefURL }}
+    {{ $name := .Name }}
+    {{ $rootName := .RootName }}
+    {{ if $schema.OneOf }}
+    **One Of:**
+    {{ template "cuantifiers" dict "Schemas" $schema.OneOf "PresidiumRefURL" $presidiumRefURL "RootName" $rootName "Name" $name }}
+    {{ end }}
+
+    {{ if $schema.AllOf }}
+    **All Of:**
+    {{ template "cuantifiers" dict "Schemas" $schema.AllOf "PresidiumRefURL" $presidiumRefURL "RootName" $rootName "Name" $name }}
+    {{ end }}
+
+    {{ if $schema.AnyOf }}
+    **Any Of:**
+    {{ template "cuantifiers" dict "Schemas" $schema.AnyOf "PresidiumRefURL" $presidiumRefURL "RootName" $rootName "Name" $name }}
+    {{ end }}
+{{- end -}}
+
+{{- define "cuantifiers" }}
+
+    {{ $url := .PresidiumRefURL }}
+    {{ $rootName := .RootName }}
+    {{ $name := .Name }}
+    | Type | Description | Restrictions |
+    |------|-------------|--------------|
+    {{- range $idx, $property := .Schemas }}
+        {{- $inlineCount := 1}}
+        {{- $value := $property.Value }}
+        {{- $theRef := $property.Ref }}
+        |   {{- if and (not $theRef) (eq $value.Type "object") $value.Properties -}}
+                [Inline Schema {{$inlineCount}}]({{"{{site.baseurl}}"}}{{$url}}/components/schemas/#{{- template "rootName" $rootName }}-{{lower $name}}-inline-schema-{{$inlineCount}})
+                {{- $inlineCount = sum $inlineCount 1 }}
+            {{- else }}
+                {{- template "schemaType" dict "Property" $property "Name" $name "RootName" $rootName "PresidiumRefURL" $url -}}
+            {{- end -}}
+        | {{ if $value.Description }} {{ toHTMLNewLines $value.Description }} {{ end -}}
+        | {{ template "restrictions" $value }} |
+    {{- end -}}
+
+    {{- range $idx, $property := .Schemas }}
+        {{- $inlineCount := 1}}
+        {{- $ref := .Ref }}
+        {{- $value := .Value }}
+
+        {{- if and (not $ref) (eq $value.Type "object") $value.Properties }}
+
+            ### Inline Schema {{ $inlineCount }}
+            {: #{{- template "rootName" $rootName }}-{{lower $name}}-inline-schema-{{$inlineCount}} }
+            {{ template "schema" dict "SchemaRef" $property "Name" $rootName "PresidiumRefURL" $url }}
+        {{- end -}}
+    {{- end -}}
+{{- end -}}
 
 {{- /* schemaType Template */ -}}
-    {{- define "schemaType" }}
-    {{- $ref := .Ref }}
-    {{- $schema := .Value }}
+{{- define "schemaType" }}
+    {{- $ref := .Property.Ref }}
+    {{- $schema := .Property.Value }}
+    {{- $name := .Name }}
+    {{- $rootName := .RootName }}
+    {{- $url := .PresidiumRefURL }}
     {{- if $ref }}
 
         {{- schemaLink $ref }}
 
     {{- else if $schema }}
         {{- if eq $schema.Type "array" -}}
-            [{{- template "schemaType" $schema.Items -}}]
+            [{{- template "schemaType" dict "Property" $schema.Items "Name" $name -}}]
         {{- else if not $schema.Type -}}
-            {{- template "schema" dict "SchemaRef" . -}}
+            [{{$name}}]({{"{{site.baseurl}}"}}{{$url}}/components/schemas/#{{- template "rootName" $rootName }}-{{lower $name}})
         {{- else }}
             {{- $schema.Type }} {{- if $schema.Format }} ({{$schema.Format}}) {{end}}
         {{- end }}
@@ -124,7 +166,7 @@
 {{- /* End of schemaType Template */ -}}
 
 {{- /* restrictions template */ -}}
-{{- define "restrictions" }}
+{{- define "restrictions" -}}
 {{- /* Render all restrictions */ -}}
     {{- if .MultipleOf }} **Multiple of**: {{ .MultipleOf }} <br> {{- end -}}
     {{- if .Max }} **Maximum**: {{ .Max }} <br> {{- end -}}
@@ -146,7 +188,7 @@
             {{- $value}}<br>
         {{- end -}}
     {{- end -}}
-{{- end }}
+{{- end -}}
 {{- /* End of restrictions template*/ -}}
 
 {{- /* Render root name */ -}}
@@ -156,3 +198,39 @@
     {{- end -}}
 {{- end -}}
 {{- /* Render root name */ -}}
+
+{{- /* schemaType Template */ -}}
+{{- define "operationSchemaType" }}
+    {{- $ref := .Ref }}
+    {{- $schema := .Value }}
+
+    {{- if $ref }}
+        {{- schemaLink $ref }}
+    {{- else if $schema }}
+        {{- if eq $schema.Type "array" -}}
+            [{{- template "operationSchemaType" $schema.Items -}}]
+        {{- else if not $schema.Type -}}
+            {{ template "listCuantifiers" $schema }}
+        {{- else }}
+            {{- $schema.Type }} {{- if $schema.Format }} ({{$schema.Format}}) {{end}}
+        {{- end }}
+    {{- end}}
+{{- end }}
+{{- /* End of schemaType Template */ -}}
+
+{{- define "listCuantifiers"}}
+    {{- $schemas := .AllOf -}}
+    {{- $op := "AllOf"}}
+    {{- if .AnyOf }}
+        {{- $schemas = .AnyOf -}}
+        {{- $op = "AnyOf" }}
+    {{- else if .OneOf }}
+        {{- $schemas = .OneOf -}}
+        {{- $op = "OneOf" -}}
+    {{- end -}}
+
+    **{{ $op }}:** <br>
+    {{- range $idx, $schema := $schemas -}}
+        {{- template "operationSchemaType" $schema -}}, <br>
+    {{- end -}}
+{{- end -}}
