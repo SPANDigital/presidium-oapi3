@@ -3,7 +3,7 @@
     {{- $parameter := .Value }}
     {{- $ref := .Ref }}
     {{- if $parameter }}
-        | **{{ $parameter.Name }}** | **{{ $parameter.In }}** {{ if $parameter.Required }} <br> *required* {{end}} {{ if $parameter.Deprecated }} <br> *deprecated* {{end}} | {{- template "schemaType" $parameter.Schema }} | {{ toHTMLNewLines $parameter.Description}} |
+        | **{{ $parameter.Name }}** | **{{ $parameter.In }}** {{ if $parameter.Required }} <br> *required* {{end}} {{ if $parameter.Deprecated }} <br> *deprecated* {{end}} | {{- template "operationSchemaType" $parameter.Schema }} | {{ toHTMLNewLines $parameter.Description}} |
     {{- end }}
 {{- end}}
 {{- /* End of parameter */ -}}
