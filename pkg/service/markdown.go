@@ -3,14 +3,15 @@ package service
 import (
 	"bytes"
 	"fmt"
+	"os"
+	"strings"
+	"text/template"
+
 	"github.com/SPANDigital/presidium-oapi3/pkg/infrastructure/log"
 	"github.com/SPANDigital/presidium-oapi3/pkg/service/dto"
 	"github.com/SPANDigital/presidium-oapi3/pkg/service/tpl"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/iancoleman/strcase"
-	"os"
-	"strings"
-	"text/template"
 )
 
 type MarkdownService interface {
@@ -21,9 +22,10 @@ type markdownService struct {
 	templates    *template.Template
 	outputDir    string
 	referenceURL string
+	apiName      string
 }
 
-func NewMarkdownService(referenceURL string) (MarkdownService, error) {
+func NewMarkdownService(referenceURL, apiName string) (MarkdownService, error) {
 	templates := template.New("").Funcs(tpl.FuncMap(referenceURL))
 	for _, path := range tpl.AssetNames() {
 		tplResult, err := tpl.Asset(path)
@@ -41,10 +43,14 @@ func NewMarkdownService(referenceURL string) (MarkdownService, error) {
 			})
 		}
 	}
+	if apiName != "" {
+		apiName = "/" + apiName
+	}
 
 	return &markdownService{
 		templates:    templates,
 		referenceURL: referenceURL,
+		apiName:      apiName,
 	}, nil
 }
 
@@ -55,7 +61,7 @@ func (ms *markdownService) processSchemas(schemas map[string]*openapi3.SchemaRef
 			PresidiumRefURL: ms.referenceURL,
 			SchemaRef:       schema,
 		}
-		dir := fmt.Sprintf("%s/content/_reference/components/schemas", ms.outputDir)
+		dir := fmt.Sprintf("%s/content/_reference%s/components/schemas", ms.outputDir, ms.apiName)
 		name := fmt.Sprintf("%s.md", strcase.ToLowerCamel(name))
 		err := ms.processTemplate(dir, name, "pkg/templates/schemas.gomd", theSchema)
 		if err != nil {
@@ -85,9 +91,9 @@ func (ms markdownService) cleanForMarkdown(b bytes.Buffer) bytes.Buffer {
 	return result
 }
 
-func (ms markdownService) processOperation(operation dto.Operation) error {
+func (ms markdownService) processOperation(operation dto.Operation, parentFolder string) error {
 	for _, tag := range operation.Tags {
-		dir := fmt.Sprintf("%s/content/_reference/operations/%s", ms.outputDir, tag)
+		dir := fmt.Sprintf("%s/content/_reference%s/operations/%s", ms.outputDir, parentFolder, tag)
 		name := fmt.Sprintf("%s.md", strcase.ToLowerCamel(operation.OperationID))
 		err := ms.processTemplate(dir, name, "pkg/templates/operation.gomd", operation)
 		if err != nil {
@@ -104,7 +110,7 @@ func (ms markdownService) processOperations(path string, operations map[string]*
 			Name:      path,
 			Operation: operation,
 		}
-		err := ms.processOperation(tplOperation)
+		err := ms.processOperation(tplOperation, ms.apiName)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -113,7 +119,7 @@ func (ms markdownService) processOperations(path string, operations map[string]*
 }
 
 func (ms *markdownService) processInfo(info *openapi3.Info) error {
-	dir := fmt.Sprintf("%s/content/_reference/", ms.outputDir)
+	dir := fmt.Sprintf("%s/content/_reference%s", ms.outputDir, ms.apiName)
 	name := "01_info.md"
 	err := ms.processTemplate(dir, name, "pkg/templates/info.gomd", info)
 	return err
@@ -121,7 +127,7 @@ func (ms *markdownService) processInfo(info *openapi3.Info) error {
 
 func (ms *markdownService) processTags(tags openapi3.Tags) {
 	for _, tag := range tags {
-		dir := fmt.Sprintf("%s/content/_reference/operations/%s", ms.outputDir, tag.Name)
+		dir := fmt.Sprintf("%s/content/_reference%s/operations/%s", ms.outputDir, ms.apiName, tag.Name)
 		name := "index.md"
 		ms.processTemplate(dir, name, "pkg/templates/tag.gomd", tag)
 	}
@@ -152,7 +158,7 @@ func (ms *markdownService) createIndexFiles() {
 	}
 	for dir, title := range dirs {
 		index := dto.Index{Title: title}
-		baseDir := fmt.Sprintf("%s/content/_reference/%s", ms.outputDir, dir)
+		baseDir := fmt.Sprintf("%s/content/_reference%s/%s", ms.outputDir, ms.apiName, dir)
 		ms.processTemplate(baseDir, "index.md", "pkg/templates/index.gomd", index)
 	}
 }
