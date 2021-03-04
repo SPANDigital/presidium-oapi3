@@ -9,9 +9,9 @@ git checkout "${TRAVIS_BRANCH}"
 
 f_info_log "Calculating tag ${TRAVIS_BRANCH} branch..."
 if [ "${TRAVIS_BRANCH}" = "master" ]; then
-  tag=v$(docker run --rm -v "$(pwd):/repo" gittools/gitversion:5.2.4-linux-ubuntu-18.04-netcoreapp3.1 /repo -output json -showvariable MajorMinorPatch)
+  tag=v$(docker run --rm -v "$(pwd):/repo" gittools/gitversion:5.6.4-debian.9-x64-5.0 /repo -output json -showvariable MajorMinorPatch)
 elif [ "${TRAVIS_BRANCH}" = "develop" ]; then
-  tag=v$(docker run --rm -v "$(pwd):/repo" gittools/gitversion:5.2.4-linux-ubuntu-18.04-netcoreapp3.1 /repo -output json -showvariable SemVer)
+  tag=v$(docker run --rm -v "$(pwd):/repo" gittools/gitversion:5.6.4-debian.9-x64-5.0 /repo -output json -showvariable SemVer)
 fi
 f_info_log "The tag for current source code is: ${tag}"
 
