@@ -127,7 +127,7 @@ func (ms markdownService) processOperations(path string, operations map[string]*
 }
 
 func (ms *markdownService) processInfo(info *openapi3.Info) error {
-	dir := fmt.Sprintf("%s/content/_reference%s", ms.outputDir, ms.apiName)
+	dir := fmt.Sprintf("%s/content/_reference%s/", ms.outputDir, ms.apiName)
 	name := "01_info.md"
 	err := ms.processTemplate(dir, name, "pkg/templates/info.gomd", info)
 	return err
