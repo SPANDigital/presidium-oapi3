@@ -44,7 +44,7 @@ func NewMarkdownService(referenceURL, apiName string) (MarkdownService, error) {
 		}
 	}
 	if apiName != "" {
-		apiName = "/" + apiName
+		apiName = fmt.Sprintf("/%s", apiName)
 	}
 
 	return &markdownService{
