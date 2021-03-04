@@ -92,6 +92,14 @@ func (ms markdownService) cleanForMarkdown(b bytes.Buffer) bytes.Buffer {
 }
 
 func (ms markdownService) processOperation(operation dto.Operation, parentFolder string) error {
+	if len(operation.Tags) == 0 {
+		dir := fmt.Sprintf("%s/content/_reference%s/operations/Default", ms.outputDir, parentFolder)
+		name := fmt.Sprintf("%s.md", strcase.ToLowerCamel(operation.OperationID))
+		err := ms.processTemplate(dir, name, "pkg/templates/operation.gomd", operation)
+		if err != nil {
+			log.Error(err)
+		}
+	}
 	for _, tag := range operation.Tags {
 		dir := fmt.Sprintf("%s/content/_reference%s/operations/%s", ms.outputDir, parentFolder, tag)
 		name := fmt.Sprintf("%s.md", strcase.ToLowerCamel(operation.OperationID))
