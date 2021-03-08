@@ -15,7 +15,7 @@ import (
 )
 
 type MarkdownService interface {
-	ConvertToMarkdown(filename, outputDir string) error
+	ConvertToMarkdown(filename, outputDir string, methodTitle bool) error
 }
 
 type markdownService struct {
@@ -111,12 +111,13 @@ func (ms markdownService) processOperation(operation dto.Operation, parentFolder
 	return nil
 }
 
-func (ms markdownService) processOperations(path string, operations map[string]*openapi3.Operation) error {
+func (ms markdownService) processOperations(path string, operations map[string]*openapi3.Operation, methodTitle bool) error {
 	for method, operation := range operations {
 		tplOperation := dto.Operation{
-			Method:    method,
-			Name:      path,
-			Operation: operation,
+			Method:      method,
+			Name:        path,
+			Operation:   operation,
+			MethodTitle: methodTitle,
 		}
 		err := ms.processOperation(tplOperation, ms.apiName)
 		if err != nil {
@@ -171,7 +172,7 @@ func (ms *markdownService) createIndexFiles() {
 	}
 }
 
-func (ms *markdownService) ConvertToMarkdown(filename, outputDir string) error {
+func (ms *markdownService) ConvertToMarkdown(filename, outputDir string, methodTitle bool) error {
 	swagger, err := openapi3.NewSwaggerLoader().LoadSwaggerFromFile(filename)
 	if err != nil {
 		log.Fatal(err)
@@ -179,7 +180,7 @@ func (ms *markdownService) ConvertToMarkdown(filename, outputDir string) error {
 	ms.outputDir = outputDir
 	ms.createIndexFiles()
 	for path, item := range swagger.Paths {
-		ms.processOperations(path, item.Operations())
+		ms.processOperations(path, item.Operations(), methodTitle)
 	}
 	ms.processSchemas(swagger.Components.Schemas)
 	ms.processInfo(swagger.Info)
