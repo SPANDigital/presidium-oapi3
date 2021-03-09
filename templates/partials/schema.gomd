@@ -24,7 +24,7 @@
 
         {{ end }}
 
-        {{ template "printCuantifiers" dict "Schema" $schema "PresidiumRefURL" $presidiumRefURL "RootName" $name "Name" $name }}
+        {{ template "printQuantifiers" dict "Schema" $schema "PresidiumRefURL" $presidiumRefURL "RootName" $name "Name" $name }}
 
     {{- end }}
 {{- end -}}
@@ -79,33 +79,33 @@
 
             {{ if $value.Description }} {{ toHTMLNewLines $value.Description }} {{ end -}}
 
-            {{ template "printCuantifiers" dict "Schema" $value "PresidiumRefURL" $url "RootName" $rootName "Name" $name }}
+            {{ template "printQuantifiers" dict "Schema" $value "PresidiumRefURL" $url "RootName" $rootName "Name" $name }}
         {{ end }}
     {{- end -}}
 {{- end -}}
 
-{{- define "printCuantifiers" }}
+{{- define "printQuantifiers" }}
     {{ $schema := .Schema}}
     {{ $presidiumRefURL := .PresidiumRefURL }}
     {{ $name := .Name }}
     {{ $rootName := .RootName }}
     {{ if $schema.OneOf }}
     **One Of:**
-    {{ template "cuantifiers" dict "Schemas" $schema.OneOf "PresidiumRefURL" $presidiumRefURL "RootName" $rootName "Name" $name }}
+    {{ template "quantifiers" dict "Schemas" $schema.OneOf "PresidiumRefURL" $presidiumRefURL "RootName" $rootName "Name" $name }}
     {{ end }}
 
     {{ if $schema.AllOf }}
     **All Of:**
-    {{ template "cuantifiers" dict "Schemas" $schema.AllOf "PresidiumRefURL" $presidiumRefURL "RootName" $rootName "Name" $name }}
+    {{ template "quantifiers" dict "Schemas" $schema.AllOf "PresidiumRefURL" $presidiumRefURL "RootName" $rootName "Name" $name }}
     {{ end }}
 
     {{ if $schema.AnyOf }}
     **Any Of:**
-    {{ template "cuantifiers" dict "Schemas" $schema.AnyOf "PresidiumRefURL" $presidiumRefURL "RootName" $rootName "Name" $name }}
+    {{ template "quantifiers" dict "Schemas" $schema.AnyOf "PresidiumRefURL" $presidiumRefURL "RootName" $rootName "Name" $name }}
     {{ end }}
 {{- end -}}
 
-{{- define "cuantifiers" }}
+{{- define "quantifiers" }}
 
     {{ $url := .PresidiumRefURL }}
     {{ $rootName := .RootName }}
@@ -208,7 +208,7 @@
         {{- if eq $schema.Type "array" -}}
             [{{- template "operationSchemaType" $schema.Items -}}]
         {{- else if not $schema.Type -}}
-            {{ template "listCuantifiers" $schema }}
+            {{ template "listQuantifiers" $schema }}
         {{- else }}
             {{- $schema.Type }} {{- if $schema.Format }} ({{$schema.Format}}) {{end}}
         {{- end }}
@@ -216,7 +216,7 @@
 {{- end }}
 {{- /* End of schemaType Template */ -}}
 
-{{- define "listCuantifiers"}}
+{{- define "listQuantifiers"}}
     {{- $schemas := .AllOf -}}
     {{- $op := "AllOf"}}
     {{- if .AnyOf }}
