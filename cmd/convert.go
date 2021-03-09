@@ -11,17 +11,6 @@ var outputDir string
 var referenceURL string
 var apiName string
 
-func init() {
-	rootCmd.AddCommand(convertCmd)
-	convertCmd.Flags().StringVarP(&file, "file", "f", "", "OpenAPI 3 spec file")
-	_ = convertCmd.MarkFlagRequired("file")
-	convertCmd.Flags().StringVarP(&outputDir, "outputDir", "o", "", "The output directory")
-	_ = convertCmd.MarkFlagRequired("outputDir")
-	convertCmd.Flags().StringVarP(&referenceURL, "referenceURL", "r", "", "The reference URL")
-	_ = convertCmd.MarkFlagRequired("referenceURL")
-	convertCmd.Flags().StringVarP(&apiName, "apiName", "n", "", "The name under which the generated docs will be grouped")
-}
-
 var convertCmd = &cobra.Command{
 	Use:   "convert",
 	Short: "Converts an OpenAPI 3 spec to markdown",
@@ -36,4 +25,19 @@ var convertCmd = &cobra.Command{
 			log.Fatal(err)
 		}
 	},
+}
+
+func init() {
+	rootCmd.AddCommand(convertCmd)
+
+	// Flags
+	convertCmd.Flags().StringVarP(&file, "file", "f", "", "OpenAPI 3 spec file")
+	convertCmd.Flags().StringVarP(&outputDir, "outputDir", "o", "", "The output directory")
+	convertCmd.Flags().StringVarP(&referenceURL, "referenceURL", "r", "", "The reference URL")
+	convertCmd.Flags().StringVarP(&apiName, "apiName", "n", "", "The name under which the generated docs will be grouped")
+
+	// Required flags
+	_ = convertCmd.MarkFlagRequired("file")
+	_ = convertCmd.MarkFlagRequired("outputDir")
+	_ = convertCmd.MarkFlagRequired("referenceURL")
 }
