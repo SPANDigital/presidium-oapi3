@@ -1,8 +1,8 @@
 package cmd
 
 import (
-	"github.com/SPANDigital/presidium-oapi3/pkg/infrastructure/log"
-	"github.com/SPANDigital/presidium-oapi3/pkg/service"
+	"github.com/SPANDigital/presidium-oapi3/pkg/log"
+	"github.com/SPANDigital/presidium-oapi3/pkg/markdown"
 	"github.com/spf13/cobra"
 )
 
@@ -27,7 +27,7 @@ var convertCmd = &cobra.Command{
 	Short: "Converts an OpenAPI 3 spec to markdown",
 	Run: func(cmd *cobra.Command, args []string) {
 		log.Info("Converting to markdown...")
-		markdownService, err := service.NewMarkdownService(referenceURL, apiName)
+		markdownService, err := markdown.NewMarkdownService(referenceURL, apiName)
 		if err != nil {
 			log.Fatal(err)
 		}

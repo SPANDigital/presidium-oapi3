@@ -1,7 +1,7 @@
 package cmd
 
 import (
-	"github.com/SPANDigital/presidium-oapi3/pkg/infrastructure/log"
+	"github.com/SPANDigital/presidium-oapi3/pkg/log"
 	"github.com/spf13/cobra"
 	"os"
 )

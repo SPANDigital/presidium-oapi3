@@ -1,4 +1,4 @@
-package dto
+package markdown
 
 import "github.com/getkin/kin-openapi/openapi3"
 

@@ -2,7 +2,7 @@
 title: {{ .Title }}
 ---
 
-###{{ .Title }} v.{{ .Version }}
+### {{ .Title }} v.{{ .Version }}
 
 {{ .Description }}
 

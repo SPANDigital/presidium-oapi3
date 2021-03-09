@@ -4,10 +4,13 @@ A Golang tool for importing your [OpenAPI 3](https://spec.openapis.org/oas/v3.0.
 [Presidium](http://presidium.spandigital.net) documentation.
 
 ## Prerequisites
+
 - npm 6+
 
 ## Generation
+
 This tool can be run as a:
+
  - Standalone executable:
  - Part of your Presidium Project
     
