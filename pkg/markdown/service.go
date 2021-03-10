@@ -1,4 +1,4 @@
-package service
+package markdown
 
 import (
 	"bytes"
@@ -7,9 +7,8 @@ import (
 	"strings"
 	"text/template"
 
-	"github.com/SPANDigital/presidium-oapi3/pkg/infrastructure/log"
-	"github.com/SPANDigital/presidium-oapi3/pkg/service/dto"
-	"github.com/SPANDigital/presidium-oapi3/pkg/service/tpl"
+	"github.com/SPANDigital/presidium-oapi3/pkg/log"
+	"github.com/SPANDigital/presidium-oapi3/pkg/tpl"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/iancoleman/strcase"
 )
@@ -56,7 +55,7 @@ func NewMarkdownService(referenceURL, apiName string) (MarkdownService, error) {
 
 func (ms *markdownService) processSchemas(schemas map[string]*openapi3.SchemaRef) error {
 	for name, schema := range schemas {
-		theSchema := dto.Schema{
+		theSchema := Schema{
 			Name:            name,
 			PresidiumRefURL: ms.referenceURL,
 			SchemaRef:       schema,
@@ -91,7 +90,7 @@ func (ms markdownService) cleanForMarkdown(b bytes.Buffer) bytes.Buffer {
 	return result
 }
 
-func (ms markdownService) processOperation(operation dto.Operation, parentFolder string, count int) error {
+func (ms markdownService) processOperation(operation Operation, parentFolder string, count int) error {
 	if len(operation.Tags) == 0 {
 		dir := fmt.Sprintf("%s/content/_reference%s/operations/Default", ms.outputDir, parentFolder)
 		name := fmt.Sprintf("%03d-%s.md", count, strcase.ToLowerCamel(operation.OperationID))
@@ -114,7 +113,7 @@ func (ms markdownService) processOperation(operation dto.Operation, parentFolder
 
 func (ms markdownService) processOperations(path string, operations map[string]*openapi3.Operation, methodTitle bool, count int) error {
 	for method, operation := range operations {
-		tplOperation := dto.Operation{
+		tplOperation := Operation{
 			Method:      method,
 			Name:        path,
 			Operation:   operation,
@@ -129,7 +128,7 @@ func (ms markdownService) processOperations(path string, operations map[string]*
 }
 
 func (ms *markdownService) processInfo(info *openapi3.Info) error {
-	dir := fmt.Sprintf("%s/content/_reference%s", ms.outputDir, ms.apiName)
+	dir := fmt.Sprintf("%s/content/_reference%s/", ms.outputDir, ms.apiName)
 	name := "01_info.md"
 	err := ms.processTemplate(dir, name, "pkg/templates/info.gomd", info)
 	return err
@@ -167,7 +166,7 @@ func (ms *markdownService) createIndexFiles() {
 		"operations":         "Operations",
 	}
 	for dir, title := range dirs {
-		index := dto.Index{Title: title}
+		index := Index{Title: title}
 		baseDir := fmt.Sprintf("%s/content/_reference%s/%s", ms.outputDir, ms.apiName, dir)
 		ms.processTemplate(baseDir, "index.md", "pkg/templates/index.gomd", index)
 	}
