@@ -30,26 +30,40 @@
 {{- end -}}
 
 {{- define "properties" }}
+    {{- $required := .Schema.Required }}
+    {{- $url := .PresidiumRefURL }}
+    {{- $rootName := .RootName }}
 
-    {{ $required := .Schema.Required }}
-    {{ $url := .PresidiumRefURL }}
-    {{ $rootName := .RootName }}
     | Name | Type | Description | Restrictions |
     |------|------|-------------|--------------|
     {{- range $name, $property := .Schema.Properties }}
-        {{- $value := $property.Value }}
-        {{- $theRef := $property.Ref }}
-        | {{ $name -}}
-        |   {{- if and (not $theRef) (eq $value.Type "object") $value.Properties -}}
-                [{{$name}}]({{"{{site.baseurl}}"}}{{$url}}/components/schemas/#{{- template "rootName" $rootName }}-{{ lower $name }})
-            {{- else }}
-                {{- template "schemaType" dict "Property" $property "Name" $name "RootName" $rootName "PresidiumRefURL" $url -}}
-                {{- if (inStringSlice $required $name) }} <br> **Required** {{- end -}}
-                {{- if $value.ReadOnly }} <br> **Read Only** {{- end -}}
-                {{- if $value.Nullable }} <br> **Nullable** {{- end -}}
-            {{- end -}}
-        | {{ if $value.Description }} {{ toHTMLNewLines $value.Description }} {{ end -}}
-        | {{ template "restrictions" $value }} |
+        {{- template "property" dict "Property" $property "FullName" $name "Name" $name "RootName" $rootName "PresidiumRefURL" $url -}}
+    {{- end -}}
+{{- end -}}
+
+{{- define "property" }}
+    {{- $required := .Schema.Required }}
+    {{- $property := .Property }}
+    {{- $name := .Name }}
+    {{- $fullName := .FullName }}
+    {{- $url := .PresidiumRefURL }}
+    {{- $rootName := .RootName }}
+    {{- $value := $property.Value }}
+    {{- $theRef := $property.Ref }}
+    | {{ $fullName -}}
+    |   {{- if and (not $theRef) (eq $value.Type "object") $value.Properties -}}
+        [{{$name}}]({{"{{site.baseurl}}"}}{{$url}}/components/schemas/#{{- template "rootName" $rootName }}-{{ lower $name }})
+    {{- else }}
+        {{- template "schemaType" dict "Property" $property "Name" $name "RootName" $rootName "PresidiumRefURL" $url -}}
+        {{- if (inStringSlice $required $name) }} <br> **Required** {{- end -}}
+        {{- if $value.ReadOnly }} <br> **Read Only** {{- end -}}
+        {{- if $value.Nullable }} <br> **Nullable** {{- end -}}
+    {{- end -}}
+    | {{ if $value.Description }} {{ toHTMLNewLines $value.Description }} {{ end -}}
+    | {{ template "restrictions" $value }} |
+    {{- range $n, $p := $value.Properties }}
+        {{- $fn := printf "%s > %s" $name $n }}
+        {{- template "property" dict "Property" $p "FullName" $fn "Name" $n "RootName" $rootName "PresidiumRefURL" $url -}}
     {{- end -}}
 {{- end -}}
 
