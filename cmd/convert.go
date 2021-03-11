@@ -21,7 +21,7 @@ var convertCmd = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		}
-		if titleFormat == "MethodURL" {
+		if titleFormat == "methodURL" {
 			err = markdownService.ConvertToMarkdown(file, outputDir, true)
 		} else {
 			err = markdownService.ConvertToMarkdown(file, outputDir, false)
