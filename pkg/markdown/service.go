@@ -55,6 +55,7 @@ func NewMarkdownService(referenceURL, apiName string) (MarkdownService, error) {
 
 func (ms *markdownService) processSchemas(schemas map[string]*openapi3.SchemaRef) error {
 	for name, schema := range schemas {
+		log.Infof("Processing schema %s...", name)
 		theSchema := Schema{
 			Name:            name,
 			PresidiumRefURL: ms.referenceURL,
@@ -62,7 +63,7 @@ func (ms *markdownService) processSchemas(schemas map[string]*openapi3.SchemaRef
 		}
 		dir := fmt.Sprintf("%s/content/_reference%s/components/schemas", ms.outputDir, ms.apiName)
 		name := fmt.Sprintf("%s.md", strcase.ToLowerCamel(name))
-		err := ms.processTemplate(dir, name, "pkg/templates/schemas.gomd", theSchema)
+		err := ms.processTemplate(dir, name, "templates/schemas.gomd", theSchema)
 		if err != nil {
 			log.Error(err)
 		}
@@ -94,7 +95,7 @@ func (ms markdownService) processOperation(operation Operation, parentFolder str
 	if len(operation.Tags) == 0 {
 		dir := fmt.Sprintf("%s/content/_reference%s/operations/Default", ms.outputDir, parentFolder)
 		name := fmt.Sprintf("%03d-%s.md", count, strcase.ToLowerCamel(operation.OperationID))
-		err := ms.processTemplate(dir, name, "pkg/templates/operation.gomd", operation)
+		err := ms.processTemplate(dir, name, "templates/operation.gomd", operation)
 		if err != nil {
 			log.Error(err)
 		}
@@ -102,7 +103,7 @@ func (ms markdownService) processOperation(operation Operation, parentFolder str
 		for _, tag := range operation.Tags {
 			dir := fmt.Sprintf("%s/content/_reference%s/operations/%s", ms.outputDir, parentFolder, tag)
 			name := fmt.Sprintf("%03d-%s.md", count, strcase.ToLowerCamel(operation.OperationID))
-			err := ms.processTemplate(dir, name, "pkg/templates/operation.gomd", operation)
+			err := ms.processTemplate(dir, name, "templates/operation.gomd", operation)
 			if err != nil {
 				log.Error(err)
 			}
@@ -112,6 +113,8 @@ func (ms markdownService) processOperation(operation Operation, parentFolder str
 }
 
 func (ms markdownService) processOperations(path string, operations map[string]*openapi3.Operation, methodTitle bool, count int) error {
+	log.Infof("Processing operations %s...", path)
+
 	for method, operation := range operations {
 		tplOperation := Operation{
 			Method:      method,
@@ -128,23 +131,32 @@ func (ms markdownService) processOperations(path string, operations map[string]*
 }
 
 func (ms *markdownService) processInfo(info *openapi3.Info) error {
+	log.Info("Processing info templates...")
 	dir := fmt.Sprintf("%s/content/_reference%s/", ms.outputDir, ms.apiName)
 	name := "01_info.md"
-	err := ms.processTemplate(dir, name, "pkg/templates/info.gomd", info)
+	err := ms.processTemplate(dir, name, "templates/info.gomd", info)
 	return err
 }
 
-func (ms *markdownService) processTags(tags openapi3.Tags) {
+func (ms *markdownService) processTags(tags openapi3.Tags) error {
 	for _, tag := range tags {
+		log.Infof("Processing tag %s...", tag.Name)
 		dir := fmt.Sprintf("%s/content/_reference%s/operations/%s", ms.outputDir, ms.apiName, tag.Name)
 		name := "index.md"
-		ms.processTemplate(dir, name, "pkg/templates/tag.gomd", tag)
+		err := ms.processTemplate(dir, name, "templates/tag.gomd", tag)
+		if err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 func (ms *markdownService) processTemplate(dir string, name string, tpl string, obj interface{}) error {
 	path := fmt.Sprintf("%s/%s", dir, name)
-	os.MkdirAll(dir, os.ModePerm)
+	err := os.MkdirAll(dir, os.ModePerm)
+	if err != nil {
+		return err
+	}
 	f, err := os.Create(path)
 	if err != nil {
 		return err
@@ -155,11 +167,12 @@ func (ms *markdownService) processTemplate(dir string, name string, tpl string, 
 		return err
 	}
 	cleaned := ms.cleanForMarkdown(b)
-	f.Write(cleaned.Bytes())
-	return nil
+	_, err = f.Write(cleaned.Bytes())
+	return err
 }
 
-func (ms *markdownService) createIndexFiles() {
+func (ms *markdownService) createIndexFiles() error {
+	log.Info("Creating index files...")
 	dirs := map[string]string{
 		"components":         "Components",
 		"components/schemas": "Schemas",
@@ -168,24 +181,42 @@ func (ms *markdownService) createIndexFiles() {
 	for dir, title := range dirs {
 		index := Index{Title: title}
 		baseDir := fmt.Sprintf("%s/content/_reference%s/%s", ms.outputDir, ms.apiName, dir)
-		ms.processTemplate(baseDir, "index.md", "pkg/templates/index.gomd", index)
+		err := ms.processTemplate(baseDir, "index.md", "templates/index.gomd", index)
+		if err != nil {
+			return err
+		}
 	}
+	return nil
 }
 
 func (ms *markdownService) ConvertToMarkdown(filename, outputDir string, methodTitle bool) error {
+	log.Infof("Loading swagger from file %s...", filename)
+  
 	swagger, err := openapi3.NewSwaggerLoader().LoadSwaggerFromFile(filename)
 	if err != nil {
 		log.Fatal(err)
 	}
 	ms.outputDir = outputDir
-	ms.createIndexFiles()
-	count := 0
+  
+	err = ms.createIndexFiles()
+	if err != nil {
+		return err
+	}
+  count := 0
 	for path, item := range swagger.Paths {
 		ms.processOperations(path, item.Operations(), methodTitle, count)
 		count++
+    if err != nil {
+			return err
+		}
+	err = ms.processSchemas(swagger.Components.Schemas)
+	if err != nil {
+		return err
 	}
-	ms.processSchemas(swagger.Components.Schemas)
-	ms.processInfo(swagger.Info)
-	ms.processTags(swagger.Tags)
+	err = ms.processInfo(swagger.Info)
+	if err != nil {
+		return err
+	}
+	err = ms.processTags(swagger.Tags)
 	return err
 }
