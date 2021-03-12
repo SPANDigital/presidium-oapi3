@@ -10,6 +10,7 @@ var file string
 var outputDir string
 var referenceURL string
 var apiName string
+var titleFormat string
 
 var convertCmd = &cobra.Command{
 	Use:   "convert",
@@ -20,7 +21,11 @@ var convertCmd = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		}
-		err = markdownService.ConvertToMarkdown(file, outputDir)
+		if titleFormat == "methodURL" {
+			err = markdownService.ConvertToMarkdown(file, outputDir, true)
+		} else {
+			err = markdownService.ConvertToMarkdown(file, outputDir, false)
+		}
 		if err != nil {
 			log.Fatal(err)
 		}

@@ -12,6 +12,7 @@ type Operation struct {
 	Name   string
 	Method string
 	*openapi3.Operation
+	MethodTitle bool
 }
 
 type Index struct {

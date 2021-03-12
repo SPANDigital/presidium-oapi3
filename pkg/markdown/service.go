@@ -14,7 +14,7 @@ import (
 )
 
 type MarkdownService interface {
-	ConvertToMarkdown(filename, outputDir string) error
+	ConvertToMarkdown(filename, outputDir string, methodTitle bool) error
 }
 
 type markdownService struct {
@@ -91,35 +91,38 @@ func (ms markdownService) cleanForMarkdown(b bytes.Buffer) bytes.Buffer {
 	return result
 }
 
-func (ms markdownService) processOperation(operation Operation, parentFolder string) error {
+func (ms markdownService) processOperation(operation Operation, parentFolder string, count int) error {
 	if len(operation.Tags) == 0 {
 		dir := fmt.Sprintf("%s/content/_reference%s/operations/Default", ms.outputDir, parentFolder)
-		name := fmt.Sprintf("%s.md", strcase.ToLowerCamel(operation.OperationID))
+		name := fmt.Sprintf("%03d-%s.md", count, strcase.ToLowerCamel(operation.OperationID))
 		err := ms.processTemplate(dir, name, "templates/operation.gomd", operation)
 		if err != nil {
 			log.Error(err)
 		}
-	}
-	for _, tag := range operation.Tags {
-		dir := fmt.Sprintf("%s/content/_reference%s/operations/%s", ms.outputDir, parentFolder, tag)
-		name := fmt.Sprintf("%s.md", strcase.ToLowerCamel(operation.OperationID))
-		err := ms.processTemplate(dir, name, "templates/operation.gomd", operation)
-		if err != nil {
-			log.Error(err)
+	} else {
+		for _, tag := range operation.Tags {
+			dir := fmt.Sprintf("%s/content/_reference%s/operations/%s", ms.outputDir, parentFolder, tag)
+			name := fmt.Sprintf("%03d-%s.md", count, strcase.ToLowerCamel(operation.OperationID))
+			err := ms.processTemplate(dir, name, "templates/operation.gomd", operation)
+			if err != nil {
+				log.Error(err)
+			}
 		}
 	}
 	return nil
 }
 
-func (ms markdownService) processOperations(path string, operations map[string]*openapi3.Operation) error {
+func (ms markdownService) processOperations(path string, operations map[string]*openapi3.Operation, methodTitle bool, count int) error {
 	log.Infof("Processing operations %s...", path)
+
 	for method, operation := range operations {
 		tplOperation := Operation{
-			Method:    method,
-			Name:      path,
-			Operation: operation,
+			Method:      method,
+			Name:        path,
+			Operation:   operation,
+			MethodTitle: methodTitle,
 		}
-		err := ms.processOperation(tplOperation, ms.apiName)
+		err := ms.processOperation(tplOperation, ms.apiName, count)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -186,23 +189,26 @@ func (ms *markdownService) createIndexFiles() error {
 	return nil
 }
 
-func (ms *markdownService) ConvertToMarkdown(filename, outputDir string) error {
+func (ms *markdownService) ConvertToMarkdown(filename, outputDir string, methodTitle bool) error {
 	log.Infof("Loading swagger from file %s...", filename)
+  
 	swagger, err := openapi3.NewSwaggerLoader().LoadSwaggerFromFile(filename)
 	if err != nil {
 		log.Fatal(err)
 	}
 	ms.outputDir = outputDir
+  
 	err = ms.createIndexFiles()
 	if err != nil {
 		return err
 	}
+  count := 0
 	for path, item := range swagger.Paths {
-		err = ms.processOperations(path, item.Operations())
-		if err != nil {
+		ms.processOperations(path, item.Operations(), methodTitle, count)
+		count++
+    if err != nil {
 			return err
 		}
-	}
 	err = ms.processSchemas(swagger.Components.Schemas)
 	if err != nil {
 		return err
