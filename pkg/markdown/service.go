@@ -191,24 +191,25 @@ func (ms *markdownService) createIndexFiles() error {
 
 func (ms *markdownService) ConvertToMarkdown(filename, outputDir string, methodTitle bool) error {
 	log.Infof("Loading swagger from file %s...", filename)
-  
+
 	swagger, err := openapi3.NewSwaggerLoader().LoadSwaggerFromFile(filename)
 	if err != nil {
 		log.Fatal(err)
 	}
 	ms.outputDir = outputDir
-  
+
 	err = ms.createIndexFiles()
 	if err != nil {
 		return err
 	}
-  count := 0
+	count := 0
 	for path, item := range swagger.Paths {
 		ms.processOperations(path, item.Operations(), methodTitle, count)
-		count++
-    if err != nil {
+		if err != nil {
 			return err
 		}
+		count++
+	}
 	err = ms.processSchemas(swagger.Components.Schemas)
 	if err != nil {
 		return err
