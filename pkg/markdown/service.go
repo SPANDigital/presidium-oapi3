@@ -71,6 +71,24 @@ func (ms *markdownService) processSchemas(schemas map[string]*openapi3.SchemaRef
 	return nil
 }
 
+func (ms *markdownService) processResponses(responses map[string]*openapi3.ResponseRef) error {
+	for name, response := range responses {
+		log.Infof("Processing response %s...", name)
+		theResponse := Response{
+			Name:            name,
+			PresidiumRefURL: ms.referenceURL,
+			ResponseRef:     response,
+		}
+		dir := fmt.Sprintf("%s/content/_reference%s/components/responses", ms.outputDir, ms.apiName)
+		name := fmt.Sprintf("%s.md", strcase.ToLowerCamel(name))
+		err := ms.processTemplate(dir, name, "templates/responses.gomd", theResponse)
+		if err != nil {
+			log.Error(err)
+		}
+	}
+	return nil
+}
+
 // cleanForMarkdown ensures what is written to the markdown file is clean:
 // - trimmed line spaces
 // - empty lines
@@ -174,9 +192,10 @@ func (ms *markdownService) processTemplate(dir string, name string, tpl string, 
 func (ms *markdownService) createIndexFiles() error {
 	log.Info("Creating index files...")
 	dirs := map[string]string{
-		"components":         "Components",
-		"components/schemas": "Schemas",
-		"operations":         "Operations",
+		"components":           "Components",
+		"components/schemas":   "Schemas",
+		"components/responses": "Responses",
+		"operations":           "Operations",
 	}
 	for dir, title := range dirs {
 		index := Index{Title: title}
@@ -211,6 +230,10 @@ func (ms *markdownService) ConvertToMarkdown(filename, outputDir string, methodT
 		count++
 	}
 	err = ms.processSchemas(swagger.Components.Schemas)
+	if err != nil {
+		return err
+	}
+	err = ms.processResponses(swagger.Components.Responses)
 	if err != nil {
 		return err
 	}

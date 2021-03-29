@@ -8,6 +8,12 @@ type Schema struct {
 	*openapi3.SchemaRef
 }
 
+type Response struct {
+	Name            string
+	PresidiumRefURL string
+	*openapi3.ResponseRef
+}
+
 type Operation struct {
 	Name   string
 	Method string

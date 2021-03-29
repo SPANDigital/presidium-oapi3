@@ -2,9 +2,9 @@
 {{- define "content"}}
     {{- range $name, $mediaType := . }}
 
-        ### `{{$name}}`
+        **Format:** `{{$name}}`
 
-        {{- template "mediaType" $mediaType}}
+        {{ template "mediaType" $mediaType}}
     {{- end}}
 {{- end}}
 {{- /* End of Content template */ -}}

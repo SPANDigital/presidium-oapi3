@@ -3,10 +3,29 @@
     {{- $parameter := .Value }}
     {{- $ref := .Ref }}
     {{- if $parameter }}
-        | **{{ $parameter.Name }}** | **{{ $parameter.In }}** {{ if $parameter.Required }} <br> *required* {{end}} {{ if $parameter.Deprecated }} <br> *deprecated* {{end}} | {{- template "operationSchemaType" $parameter.Schema }} | {{ toHTMLNewLines $parameter.Description}} |
+        | **{{ $parameter.Name }}** | **{{ $parameter.In }}** {{ if $parameter.Required }} <br> *required* {{end}} {{ if $parameter.Deprecated }} <br> *deprecated* {{end}} | {{- template "parameterType" $parameter.Schema }} | {{ toHTMLNewLines $parameter.Description}} |
     {{- end }}
 {{- end}}
 {{- /* End of parameter */ -}}
+
+{{- /* this template recieves a Schema for a parameter */ -}}
+{{- define "parameterType" }}
+    {{- $ref := .Ref }}
+    {{- $schema := .Value }}
+
+    {{- if $ref }}
+        {{- schemaLink $ref }}
+    {{- else if $schema }}
+        {{- if eq $schema.Type "array" -}}
+            {{- template "parameterType" $schema.Items -}}
+        {{- else if not $schema.Type -}}
+            {{ template "listQuantifiers" $schema }}
+        {{- else }}
+            {{- $schema.Type }} {{- if $schema.Format }} ({{$schema.Format}}) {{end}}
+        {{- end }}
+    {{- end }}
+{{- end }}
+{{- /*  parameterType */ -}}
 
 {{- /* this template receives a List of ParameterRef */ -}}
 {{- define "parametersList" }}
