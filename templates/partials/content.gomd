@@ -1,10 +1,10 @@
 {{- /* Content template */ -}}
 {{- define "content"}}
-    {{- range $name, $mediaType := . }}
-
+    {{- $presidiumRefURL := .PresidiumRefURL }}
+    {{- range $name, $mediaType := .Content }}
         **Format:** `{{$name}}`
 
-        {{ template "mediaType" $mediaType}}
+        {{ template "mediaType" dict "MediaType" $mediaType "PresidiumRefURL" $presidiumRefURL }}
     {{- end}}
 {{- end}}
 {{- /* End of Content template */ -}}
@@ -12,8 +12,10 @@
 {{- /* Renders a MediaType */ -}}
 {{- /* TODO Render the media Type */ -}}
 {{- define "mediaType"}}
-    {{- if .Schema }}
-        {{ template "schema" dict "SchemaRef" .Schema }}
+    {{- $presidiumRefURL := .PresidiumRefURL }}
+
+    {{- if .MediaType.Schema }}
+        {{ template "schema" dict "SchemaRef" .MediaType.Schema "PresidiumRefURL" $presidiumRefURL }}
     {{- end }}
 {{- end }}
 {{- /* End of request body */ -}}

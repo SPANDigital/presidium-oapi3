@@ -44,9 +44,11 @@
 {{- define "itemsProperties" }}
     {{- $url := .PresidiumRefURL }}
     {{- $rootName := .RootName }}
+    {{- $currentName := .CurrentName }}
 
     {{- range $name, $property := .Schema.Value.Properties }}
-        {{- template "property" dict "Property" $property "FullName" $name "Name" $name "RootName" $rootName "PresidiumRefURL" $url -}}
+        {{- $fn := printf "%s > %s" $currentName $name }}
+        {{- template "property" dict "Property" $property "FullName" $fn "Name" $name "RootName" $rootName "PresidiumRefURL" $url -}}
     {{- end -}}
 {{- end -}}
 
@@ -70,13 +72,12 @@
     {{- end -}}
     | {{ if $value.Description }} {{ toHTMLNewLines $value.Description }} {{ end -}}
     | {{ template "restrictions" $value }} |
-    {{- range $n, $p := $value.Properties }}
-        {{- $fn := printf "%s > %s" $name $n }}
-        {{- template "property" dict "Property" $p "FullName" $fn "Name" $n "RootName" $rootName "PresidiumRefURL" $url -}}
+    {{- if not (and (not $theRef) (eq $value.Type "object") $value.Properties) }}
+        {{- range $n, $p := $value.Properties }}
+            {{- $fn := printf "%s > %s" $name $n }}
+            {{- template "property" dict "Property" $p "FullName" $fn "Name" $n "RootName" $rootName "PresidiumRefURL" $url -}}
+        {{- end -}}
     {{- end -}}
-    {{- if $value.Items }}
-        {{- template "itemsProperties" dict "Schema" $value.Items "PresidiumRefURL" $url "RootName" $rootName -}}
-    {{- end }}
 {{- end -}}
 
 {{- define "inlineProperties" }}
@@ -143,6 +144,7 @@
         {{- $value := $property.Value }}
         {{- $theRef := $property.Ref }}
         |   {{- if and (not $theRef) (eq $value.Type "object") $value.Properties -}}
+                {{ printf "Spot 2: %#v" $url }}
                 [Inline Schema {{$inlineCount}}]({{"{{site.baseurl}}"}}{{$url}}/components/schemas/#{{- template "RootName" $rootName }}-{{lower $name}}-inline-schema-{{$inlineCount}})
                 {{- $inlineCount = sum $inlineCount 1 }}
             {{- else }}
