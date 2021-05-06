@@ -4,6 +4,7 @@ import (
 	"errors"
 	"fmt"
 	"github.com/iancoleman/strcase"
+	"regexp"
 	"strings"
 	"text/template"
 )
@@ -47,7 +48,8 @@ func GetSchemaLink(ref string) string {
 }
 
 func ToHTMLNewLines(str string) string {
-	return strings.ReplaceAll(str, "\n", "<br>")
+	newLineRegex := regexp.MustCompile(`(\\+)n`)
+	return newLineRegex.ReplaceAllString(str, "br")
 }
 
 func Sum(int1, int2 int) int {
