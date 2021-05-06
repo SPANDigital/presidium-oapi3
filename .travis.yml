@@ -19,7 +19,7 @@ jobs:
     install:
     - go get -u github.com/go-bindata/go-bindata/...
     - go generate ./...
-    - git diff pkg/service/tpl/tpl.go
+    - git diff pkg/tpl/tpl.go
     script:
     - curl -sfL https://git.io/goreleaser | sh -s -- check
     deploy:
