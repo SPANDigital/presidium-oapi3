@@ -3,9 +3,10 @@ package tpl
 import (
 	"errors"
 	"fmt"
-	"github.com/iancoleman/strcase"
 	"strings"
 	"text/template"
+
+	"github.com/iancoleman/strcase"
 )
 
 var referenceURL string
@@ -47,6 +48,7 @@ func GetSchemaLink(ref string) string {
 }
 
 func ToHTMLNewLines(str string) string {
+	str = strings.ReplaceAll(str, "\\\n", "<br>")
 	return strings.ReplaceAll(str, "\n", "<br>")
 }
 

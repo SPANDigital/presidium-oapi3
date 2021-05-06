@@ -3,7 +3,13 @@
     {{- $ref := .Response.Ref }}
     {{- $response := .Response.Value }}
     {{- $status := .Status }}
-    {{- if $response.Content }}
+    {{- if and $ref $response.Content}}
+        {{- range $name, $mediaType := $response.Content }}
+            | {{$status}} | {{ $response.Description }} | {{ $name }} | {{ schemaLink $ref }} |
+        {{- end }}
+    {{- else if  $ref}}
+        | {{$status}} | {{ $response.Description }} | - | {{ schemaLink $ref }} |
+    {{- else if $response.Content }}
         {{- range $name, $mediaType := $response.Content }}
             {{- if $mediaType.Schema }}
                 {{- $schemaRef := $mediaType.Schema.Ref}}
@@ -11,7 +17,6 @@
                 | {{$status}} | {{ toHTMLNewLines $response.Description }} | {{ $name }} | {{ template "operationSchemaType" $mediaType.Schema }} |
             {{- end}}
         {{- end}}
-
     {{- else }}
         | {{$status}} | {{ $response.Description }} | - | - |
     {{- end}}
@@ -44,3 +49,29 @@
     {{- end }}
 {{- end }}
 {{- /* End of Response template */ -}}
+
+{{- /* Response_schema template */ -}}
+{{- define "responseSchema"}}
+    {{- $ref := .ResponseRef.Ref }}
+    {{- $response := .ResponseRef.Value }}
+    {{- $presidiumRefURL := .PresidiumRefURL }}
+    {{- $name := .Name }}
+
+    {{- if not $ref }}
+        >{{$response.Description}}
+
+        {{ if gt (len $response.Headers) 0 }}
+
+            | Name | Type | Description |
+            |------|------|-------------|
+            {{- template "headerList" $response.Headers }}
+        {{- end }}
+
+        {{ if gt (len $response.Content) 0 }}
+            {{ template "content" dict "Content" $response.Content "PresidiumRefURL" .PresidiumRefURL }}
+        {{- end }}
+    {{- end }}
+{{- end }}
+{{- /* End of Response template */ -}}
+
+

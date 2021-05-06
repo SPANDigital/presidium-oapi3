@@ -10,6 +10,7 @@ var file string
 var outputDir string
 var referenceURL string
 var apiName string
+var titleFormat string
 
 var convertCmd = &cobra.Command{
 	Use:   "convert",
@@ -20,7 +21,11 @@ var convertCmd = &cobra.Command{
 		if err != nil {
 			log.Fatal(err)
 		}
-		err = markdownService.ConvertToMarkdown(file, outputDir)
+		if titleFormat == "methodURL" {
+			err = markdownService.ConvertToMarkdown(file, outputDir, true)
+		} else {
+			err = markdownService.ConvertToMarkdown(file, outputDir, false)
+		}
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -35,6 +40,7 @@ func init() {
 	convertCmd.Flags().StringVarP(&outputDir, "outputDir", "o", "", "The output directory")
 	convertCmd.Flags().StringVarP(&referenceURL, "referenceURL", "r", "", "The reference URL")
 	convertCmd.Flags().StringVarP(&apiName, "apiName", "n", "", "The name under which the generated docs will be grouped")
+	convertCmd.Flags().StringVarP(&titleFormat, "titleFormat", "t", "", "The template format used to create the title for each operation. \nValid options are: \n\t- operationId: (Default) Uses the value of the operationId field.\n\t- MethodURL: Uses a combination of the Method property and the URL.")
 
 	// Required flags
 	_ = convertCmd.MarkFlagRequired("file")
