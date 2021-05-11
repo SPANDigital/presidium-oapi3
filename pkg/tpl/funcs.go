@@ -48,8 +48,13 @@ func GetSchemaLink(ref string) string {
 }
 
 func ToHTMLNewLines(str string) string {
-	str = strings.ReplaceAll(str, "\\\n", "<br>")
-	return strings.ReplaceAll(str, "\n", "<br>")
+	replacement := "<br>"
+	replacer := strings.NewReplacer(
+		"\n", replacement,
+		"\\n", replacement,
+		"\\\n", replacement,
+	)
+	return replacer.Replace(str)
 }
 
 func Sum(int1, int2 int) int {
