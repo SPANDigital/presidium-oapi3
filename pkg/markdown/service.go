@@ -25,7 +25,11 @@ type markdownService struct {
 }
 
 func NewMarkdownService(referenceURL, apiName string) (MarkdownService, error) {
-	templates := template.New("").Funcs(tpl.FuncMap(referenceURL))
+	if apiName != "" {
+		apiName = fmt.Sprintf("/%s", apiName)
+	}
+
+	templates := template.New("").Funcs(tpl.FuncMap(fmt.Sprintf("%s%s", referenceURL, apiName)))
 	for _, path := range tpl.AssetNames() {
 		tplResult, err := tpl.Asset(path)
 		if err != nil {
@@ -42,15 +46,16 @@ func NewMarkdownService(referenceURL, apiName string) (MarkdownService, error) {
 			})
 		}
 	}
-	if apiName != "" {
-		apiName = fmt.Sprintf("/%s", apiName)
-	}
 
 	return &markdownService{
 		templates:    templates,
 		referenceURL: referenceURL,
 		apiName:      apiName,
 	}, nil
+}
+
+func (ms *markdownService) basePath() string {
+	return fmt.Sprintf("%s%s", ms.referenceURL, ms.apiName)
 }
 
 func (ms *markdownService) processSchemas(schemas map[string]*openapi3.SchemaRef) error {
@@ -61,7 +66,7 @@ func (ms *markdownService) processSchemas(schemas map[string]*openapi3.SchemaRef
 			PresidiumRefURL: ms.referenceURL,
 			SchemaRef:       schema,
 		}
-		dir := fmt.Sprintf("%s/content/_reference%s/components/schemas", ms.outputDir, ms.apiName)
+		dir := fmt.Sprintf("%s/content/_%s/components/schemas", ms.outputDir, ms.basePath())
 		name := fmt.Sprintf("%s.md", strcase.ToLowerCamel(name))
 		err := ms.processTemplate(dir, name, "templates/schemas.gomd", theSchema)
 		if err != nil {
@@ -79,7 +84,7 @@ func (ms *markdownService) processResponses(responses map[string]*openapi3.Respo
 			PresidiumRefURL: ms.referenceURL,
 			ResponseRef:     response,
 		}
-		dir := fmt.Sprintf("%s/content/_reference%s/components/responses", ms.outputDir, ms.apiName)
+		dir := fmt.Sprintf("%s/content/_%s/components/responses", ms.outputDir, ms.basePath())
 		name := fmt.Sprintf("%s.md", strcase.ToLowerCamel(name))
 		err := ms.processTemplate(dir, name, "templates/responses.gomd", theResponse)
 		if err != nil {
@@ -111,7 +116,7 @@ func (ms markdownService) cleanForMarkdown(b bytes.Buffer) bytes.Buffer {
 
 func (ms markdownService) processOperation(operation Operation, parentFolder string, count int) error {
 	if len(operation.Tags) == 0 {
-		dir := fmt.Sprintf("%s/content/_reference%s/operations/Default", ms.outputDir, parentFolder)
+		dir := fmt.Sprintf("%s/content/_%s/operations/Default", ms.outputDir, parentFolder)
 		name := fmt.Sprintf("%03d-%s.md", count, strcase.ToLowerCamel(operation.OperationID))
 		err := ms.processTemplate(dir, name, "templates/operation.gomd", operation)
 		if err != nil {
@@ -119,7 +124,7 @@ func (ms markdownService) processOperation(operation Operation, parentFolder str
 		}
 	} else {
 		for _, tag := range operation.Tags {
-			dir := fmt.Sprintf("%s/content/_reference%s/operations/%s", ms.outputDir, parentFolder, tag)
+			dir := fmt.Sprintf("%s/content/_%s/operations/%s", ms.outputDir, parentFolder, tag)
 			name := fmt.Sprintf("%03d-%s.md", count, strcase.ToLowerCamel(operation.OperationID))
 			err := ms.processTemplate(dir, name, "templates/operation.gomd", operation)
 			if err != nil {
@@ -140,7 +145,7 @@ func (ms markdownService) processOperations(path string, operations map[string]*
 			Operation:   operation,
 			MethodTitle: methodTitle,
 		}
-		err := ms.processOperation(tplOperation, ms.apiName, count)
+		err := ms.processOperation(tplOperation, ms.basePath(), count)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -150,7 +155,7 @@ func (ms markdownService) processOperations(path string, operations map[string]*
 
 func (ms *markdownService) processInfo(info *openapi3.Info) error {
 	log.Info("Processing info templates...")
-	dir := fmt.Sprintf("%s/content/_reference%s/", ms.outputDir, ms.apiName)
+	dir := fmt.Sprintf("%s/content/_%s/", ms.outputDir, ms.basePath())
 	name := "01_info.md"
 	err := ms.processTemplate(dir, name, "templates/info.gomd", info)
 	return err
@@ -159,7 +164,7 @@ func (ms *markdownService) processInfo(info *openapi3.Info) error {
 func (ms *markdownService) processTags(tags openapi3.Tags) error {
 	for _, tag := range tags {
 		log.Infof("Processing tag %s...", tag.Name)
-		dir := fmt.Sprintf("%s/content/_reference%s/operations/%s", ms.outputDir, ms.apiName, tag.Name)
+		dir := fmt.Sprintf("%s/content/_%s/operations/%s", ms.outputDir, ms.basePath(), tag.Name)
 		name := "index.md"
 		err := ms.processTemplate(dir, name, "templates/tag.gomd", tag)
 		if err != nil {
@@ -199,7 +204,7 @@ func (ms *markdownService) createIndexFiles() error {
 	}
 	for dir, title := range dirs {
 		index := Index{Title: title}
-		baseDir := fmt.Sprintf("%s/content/_reference%s/%s", ms.outputDir, ms.apiName, dir)
+		baseDir := fmt.Sprintf("%s/content/_%s/%s", ms.outputDir, ms.basePath(), dir)
 		err := ms.processTemplate(baseDir, "index.md", "templates/index.gomd", index)
 		if err != nil {
 			return err
