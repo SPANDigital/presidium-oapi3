@@ -181,7 +181,12 @@
 
     {{- else if $schema }}
         {{- if eq $schema.Type "array" -}}
-            [{{- template "schemaType" dict "Property" $schema.Items "Name" $name "RootName" $rootName "PresidiumRefURL" $url -}}]
+            {{- $items := $schema.Items -}}
+            {{- if or $items.Value.AnyOf $items.Value.AllOf $items.Value.OneOf -}}
+                {{- template "listQuantifiers" $items.Value -}}
+            {{- else -}}
+                [{{- template "schemaType" dict "Property" $schema.Items "Name" $name "RootName" $rootName "PresidiumRefURL" $url -}}]
+            {{- end -}}
         {{- else if eq $schema.Type "object" -}}
             {{- $name }}
         {{- else if not $schema.Type -}}
