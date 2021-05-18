@@ -38,12 +38,11 @@ func init() {
 	// Flags
 	convertCmd.Flags().StringVarP(&file, "file", "f", "", "OpenAPI 3 spec file")
 	convertCmd.Flags().StringVarP(&outputDir, "outputDir", "o", "", "The output directory")
-	convertCmd.Flags().StringVarP(&referenceURL, "referenceURL", "r", "", "The reference URL")
+	convertCmd.Flags().StringVarP(&referenceURL, "referenceURL", "r", "reference", "The reference URL")
 	convertCmd.Flags().StringVarP(&apiName, "apiName", "n", "", "The name under which the generated docs will be grouped")
 	convertCmd.Flags().StringVarP(&titleFormat, "titleFormat", "t", "", "The template format used to create the title for each operation. \nValid options are: \n\t- operationId: (Default) Uses the value of the operationId field.\n\t- MethodURL: Uses a combination of the Method property and the URL.")
 
 	// Required flags
 	_ = convertCmd.MarkFlagRequired("file")
 	_ = convertCmd.MarkFlagRequired("outputDir")
-	_ = convertCmd.MarkFlagRequired("referenceURL")
 }
