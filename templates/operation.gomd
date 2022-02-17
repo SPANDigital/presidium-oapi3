@@ -1,22 +1,23 @@
-{{- if .MethodTitle }} 
 ---
+{{- if .MethodTitle }}
 title: {{ .Method }} {{ .Name }}
----
-{{else}}
----
+{{ else }}
 title: {{ .OperationID }}
+{{- end }}
+weight: {{ .Weight }}
 ---
-{{- end}}
+
 ```
 {{ .Method }} {{ .Name }}
 ```
 
 {{ if .Deprecated }}**Deprecated**{{- end }}
+
 {{ if .Summary }} >{{.Summary}} {{- end }}
 
 {{ if .Description }}{{ .Description }}{{ end }}
+
 {{- template "parametersList" .Parameters }}
 {{- template "requestBody" .RequestBody }}
 {{- template "responseList" .Responses }}
 {{- template "securityList" .Security }}
-

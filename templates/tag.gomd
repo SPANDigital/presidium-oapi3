@@ -6,7 +6,6 @@ title: {{ toCamel .Name }}
 
 {{- if .ExternalDocs }}
     {{- if .ExternalDocs.Description }}
-
         [{{ .ExternalDocs.Description }}]({{ .ExternalDocs.URL }})
     {{- else }}
         <{{ .ExternalDocs.URL }}>

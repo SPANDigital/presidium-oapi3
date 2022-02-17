@@ -114,10 +114,10 @@ func (ms markdownService) cleanForMarkdown(b bytes.Buffer) bytes.Buffer {
 	return result
 }
 
-func (ms markdownService) processOperation(operation Operation, parentFolder string, count int) error {
+func (ms markdownService) processOperation(operation Operation, parentFolder string) error {
 	if len(operation.Tags) == 0 {
 		dir := fmt.Sprintf("%s/content/_%s/operations/Default", ms.outputDir, parentFolder)
-		name := fmt.Sprintf("%03d-%s.md", count, strcase.ToLowerCamel(operation.OperationID))
+		name := fmt.Sprintf("%s.md", strcase.ToLowerCamel(operation.OperationID))
 		err := ms.processTemplate(dir, name, "templates/operation.gomd", operation)
 		if err != nil {
 			log.Error(err)
@@ -125,7 +125,7 @@ func (ms markdownService) processOperation(operation Operation, parentFolder str
 	} else {
 		for _, tag := range operation.Tags {
 			dir := fmt.Sprintf("%s/content/_%s/operations/%s", ms.outputDir, parentFolder, tag)
-			name := fmt.Sprintf("%03d-%s.md", count, strcase.ToLowerCamel(operation.OperationID))
+			name := fmt.Sprintf("%s.md", strcase.ToLowerCamel(operation.OperationID))
 			err := ms.processTemplate(dir, name, "templates/operation.gomd", operation)
 			if err != nil {
 				log.Error(err)
@@ -144,8 +144,9 @@ func (ms markdownService) processOperations(path string, operations map[string]*
 			Name:        path,
 			Operation:   operation,
 			MethodTitle: methodTitle,
+			Weight:      count + 1,
 		}
-		err := ms.processOperation(tplOperation, ms.basePath(), count)
+		err := ms.processOperation(tplOperation, ms.basePath())
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -156,7 +157,7 @@ func (ms markdownService) processOperations(path string, operations map[string]*
 func (ms *markdownService) processInfo(info *openapi3.Info) error {
 	log.Info("Processing info templates...")
 	dir := fmt.Sprintf("%s/content/_%s/", ms.outputDir, ms.basePath())
-	name := "01_info.md"
+	name := "info.md"
 	err := ms.processTemplate(dir, name, "templates/info.gomd", info)
 	return err
 }
@@ -226,13 +227,13 @@ func (ms *markdownService) ConvertToMarkdown(filename, outputDir string, methodT
 	if err != nil {
 		return err
 	}
-	count := 0
+	sequence := 0
 	for path, item := range swagger.Paths {
-		ms.processOperations(path, item.Operations(), methodTitle, count)
+		_ = ms.processOperations(path, item.Operations(), methodTitle, sequence)
 		if err != nil {
 			return err
 		}
-		count++
+		sequence++
 	}
 	err = ms.processSchemas(swagger.Components.Schemas)
 	if err != nil {
