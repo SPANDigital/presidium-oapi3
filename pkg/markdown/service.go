@@ -166,7 +166,7 @@ func (ms *markdownService) processTags(tags openapi3.Tags) error {
 	for _, tag := range tags {
 		log.Infof("Processing tag %s...", tag.Name)
 		dir := fmt.Sprintf("%s/content/_%s/operations/%s", ms.outputDir, ms.basePath(), tag.Name)
-		name := "index.md"
+		name := "_index.md"
 		err := ms.processTemplate(dir, name, "templates/tag.gomd", tag)
 		if err != nil {
 			return err
@@ -206,7 +206,7 @@ func (ms *markdownService) createIndexFiles() error {
 	for dir, title := range dirs {
 		index := Index{Title: title}
 		baseDir := fmt.Sprintf("%s/content/_%s/%s", ms.outputDir, ms.basePath(), dir)
-		err := ms.processTemplate(baseDir, "index.md", "templates/index.gomd", index)
+		err := ms.processTemplate(baseDir, "_index.md", "templates/index.gomd", index)
 		if err != nil {
 			return err
 		}
