@@ -4,7 +4,7 @@ jobs:
     if: branch IN (develop, master) AND type = push AND NOT (commit_message =~ /^.*\[NPM version\].*$/)
     language: go
     go:
-    - 1.14.x
+    - 1.17.x
     services:
     - docker
     git:
@@ -15,7 +15,7 @@ jobs:
     if: tag IS present
     language: go
     go:
-    - 1.14.x
+    - 1.17.x
     install:
     - go get -u github.com/go-bindata/go-bindata/...
     - go generate ./...
