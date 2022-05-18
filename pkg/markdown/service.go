@@ -3,6 +3,8 @@ package markdown
 import (
 	"bytes"
 	"fmt"
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 	"os"
 	"strings"
 	"text/template"
@@ -166,7 +168,7 @@ func (ms *markdownService) processTags(tags openapi3.Tags) error {
 	for _, tag := range tags {
 		log.Infof("Processing tag %s...", tag.Name)
 		dir := fmt.Sprintf("%s/content/%s/operations/%s", ms.outputDir, ms.basePath(), tag.Name)
-		name := "index.md"
+		name := "_index.md"
 		err := ms.processTemplate(dir, name, "templates/tag.gomd", tag)
 		if err != nil {
 			return err
@@ -202,7 +204,9 @@ func (ms *markdownService) createIndexFiles() error {
 		"components/schemas":   "Schemas",
 		"components/responses": "Responses",
 		"operations":           "Operations",
+		"":                     cases.Title(language.English).String(ms.referenceURL),
 	}
+
 	for dir, title := range dirs {
 		index := Index{Title: title}
 		baseDir := fmt.Sprintf("%s/content/%s/%s", ms.outputDir, ms.basePath(), dir)

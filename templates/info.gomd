@@ -1,6 +1,6 @@
 ---
 title: {{ .Title }}
-slug: {{ slugify .Title }}
+weight: 1
 ---
 
 ### {{ .Title }} v.{{ .Version }}
