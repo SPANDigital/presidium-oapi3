@@ -19,6 +19,7 @@ type Operation struct {
 	Method string
 	*openapi3.Operation
 	MethodTitle bool
+	Weight      int
 }
 
 type Index struct {

@@ -61,6 +61,13 @@ func Sum(int1, int2 int) int {
 	return int1 + int2
 }
 
+func Slugify(s string) string {
+	s = strings.TrimSpace(s)
+	s = strings.ToLower(s)
+	s = NonSluggableRe.ReplaceAllString(s, "-")
+	return s
+}
+
 func FuncMap(refUrl string) template.FuncMap {
 	referenceURL = refUrl
 	return template.FuncMap{
@@ -73,5 +80,6 @@ func FuncMap(refUrl string) template.FuncMap {
 		"lower":          strings.ToLower,
 		"replace":        strings.ReplaceAll,
 		"sum":            Sum,
+		"slugify":        Slugify,
 	}
 }
