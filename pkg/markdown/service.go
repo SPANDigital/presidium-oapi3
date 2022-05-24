@@ -49,6 +49,10 @@ func NewMarkdownService(referenceURL, apiName string) (MarkdownService, error) {
 		}
 	}
 
+	if !strings.HasPrefix(referenceURL, "/") {
+		referenceURL = fmt.Sprintf("/%s", referenceURL)
+	}
+
 	return &markdownService{
 		templates:    templates,
 		referenceURL: referenceURL,
