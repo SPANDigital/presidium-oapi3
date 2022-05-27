@@ -212,9 +212,9 @@
     {{- if .MinProps }} **Minimum properties**: {{ .MinProps }}  {{- end -}}
     {{- if .AdditionalPropertiesAllowed }} **Additional properties allowed**: true  {{- end -}}
     {{- if gt (len .Enum) 0 -}}
-        **Enum**:
+        **Enum**:&nbsp;
         {{- range $idx, $value := .Enum -}}
-            {{- $value}}
+            {{- $value}}&nbsp;
         {{- end -}}
     {{- end -}}
 {{- end -}}
@@ -223,7 +223,7 @@
 {{- /* Render root name */ -}}
 {{- define "rootName" }}
     {{- if . -}}
-        {{- replace (lower .) "_" "-" -}}
+        {{- (slugify (lower .)) -}}
     {{- end -}}
 {{- end -}}
 {{- /* Render root name */ -}}

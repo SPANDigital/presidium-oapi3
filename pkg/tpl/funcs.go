@@ -3,6 +3,7 @@ package tpl
 import (
 	"errors"
 	"fmt"
+	"regexp"
 	"strings"
 	"text/template"
 
@@ -44,7 +45,7 @@ func GetSchemaLink(ref string) string {
 	refName := ref[idx+1:]
 	linkPath := ref[:idx]
 	linkPath = strings.ReplaceAll(linkPath, "#", fmt.Sprintf("/%s", referenceURL))
-	return fmt.Sprintf("[%s](%s/#%s)", strcase.ToCamel(refName), linkPath, strings.ToLower(refName))
+	return fmt.Sprintf("[%s](%s/#%s)", strcase.ToCamel(refName), linkPath, Slugify(refName))
 }
 
 func ToHTMLNewLines(str string) string {
@@ -62,10 +63,10 @@ func Sum(int1, int2 int) int {
 }
 
 func Slugify(s string) string {
-	s = strings.TrimSpace(s)
-	s = strings.ToLower(s)
-	s = NonSluggableRe.ReplaceAllString(s, "-")
-	return s
+	s = strcase.ToKebab(s)
+	var nonWordRe = regexp.MustCompile(`(?m)(\W|_)+`)
+	slug := nonWordRe.ReplaceAllString(s, "-")
+	return strings.Trim(slug, "-")
 }
 
 func FuncMap(refUrl string) template.FuncMap {
