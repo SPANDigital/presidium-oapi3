@@ -63,6 +63,10 @@ func (ms *markdownService) basePath() string {
 func (ms *markdownService) processSchemas(schemas map[string]*openapi3.SchemaRef) error {
 	for name, schema := range schemas {
 		log.Infof("Processing schema %s...", name)
+		if !strings.HasPrefix(ms.referenceURL, "/") {
+			ms.referenceURL = fmt.Sprintf("/%s", ms.referenceURL)
+		}
+
 		theSchema := Schema{
 			Name:            name,
 			PresidiumRefURL: ms.referenceURL,

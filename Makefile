@@ -4,8 +4,11 @@ devops_path=$DEFAULT_DEVOPS
 default:
 	rm -rf dist
 	mkdir -p dist
-	go generate go-bindata --nometadata -pkg tpl -o pkg/tpl/tpl.go templates/...
+	generate
 	go build -o dist/presidium-oapi3 main.go
+
+generate:
+	go-bindata --nometadata -pkg tpl -o pkg/tpl/tpl.go templates/...
 
 clean:
 	rm -rf dist
