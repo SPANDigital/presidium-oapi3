@@ -1,0 +1,5 @@
+---
+title: {{ .Name }}
+---
+
+{{ template "responseSchema" dict "ResponseRef" .ResponseRef "Name" .Name "PresidiumRefURL" .PresidiumRefURL }}

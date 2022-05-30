@@ -3,9 +3,11 @@ package tpl
 import (
 	"errors"
 	"fmt"
-	"github.com/iancoleman/strcase"
+	"regexp"
 	"strings"
 	"text/template"
+
+	"github.com/iancoleman/strcase"
 )
 
 var referenceURL string
@@ -42,16 +44,29 @@ func GetSchemaLink(ref string) string {
 	idx := strings.LastIndex(ref, "/")
 	refName := ref[idx+1:]
 	linkPath := ref[:idx]
-	linkPath = strings.ReplaceAll(linkPath, "#", fmt.Sprintf("%s%s", "{{site.baseurl}}", referenceURL))
-	return fmt.Sprintf("[%s](%s/#%s)", strcase.ToCamel(refName), linkPath, strings.ToLower(refName))
+	linkPath = strings.ReplaceAll(linkPath, "#", fmt.Sprintf("/%s", referenceURL))
+	return fmt.Sprintf("[%s](%s/#%s)", strcase.ToCamel(refName), linkPath, Slugify(refName))
 }
 
 func ToHTMLNewLines(str string) string {
-	return strings.ReplaceAll(str, "\n", "<br>")
+	replacement := "<br>"
+	replacer := strings.NewReplacer(
+		"\n", replacement,
+		"\\n", replacement,
+		"\\\n", replacement,
+	)
+	return replacer.Replace(str)
 }
 
 func Sum(int1, int2 int) int {
 	return int1 + int2
+}
+
+func Slugify(s string) string {
+	s = strcase.ToKebab(s)
+	var nonWordRe = regexp.MustCompile(`(?m)(\W|_)+`)
+	slug := nonWordRe.ReplaceAllString(s, "-")
+	return strings.Trim(slug, "-")
 }
 
 func FuncMap(refUrl string) template.FuncMap {
@@ -66,5 +81,6 @@ func FuncMap(refUrl string) template.FuncMap {
 		"lower":          strings.ToLower,
 		"replace":        strings.ReplaceAll,
 		"sum":            Sum,
+		"slugify":        Slugify,
 	}
 }

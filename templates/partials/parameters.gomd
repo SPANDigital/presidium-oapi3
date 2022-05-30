@@ -1,0 +1,44 @@
+{{- /* this template receives a ParameterRef which contains a Ref and a Parameter */ -}}
+{{- define "parameter" }}
+    {{- $parameter := .Value }}
+    {{- $ref := .Ref }}
+    {{- if $parameter }}
+        | **{{ $parameter.Name }}** | **{{ $parameter.In }}** {{ if $parameter.Required }} *required* {{end}} {{ if $parameter.Deprecated }}  *deprecated* {{end}} | {{- template "parameterType" $parameter.Schema }} | {{  $parameter.Description}} |
+    {{- end }}
+{{- end}}
+{{- /* End of parameter */ -}}
+
+{{- /* this template recieves a Schema for a parameter */ -}}
+{{- define "parameterType" }}
+    {{- $ref := .Ref }}
+    {{- $schema := .Value }}
+
+    {{- if $ref }}
+        {{- schemaLink $ref }}
+    {{- else if $schema }}
+        {{- if eq $schema.Type "array" -}}
+            {{- template "parameterType" $schema.Items -}}
+        {{- else if not $schema.Type -}}
+            {{ template "listQuantifiers" $schema }}
+        {{- else }}
+            {{- $schema.Type }} {{- if $schema.Format }} ({{$schema.Format}}) {{end}}
+        {{- end }}
+    {{- end }}
+{{- end }}
+{{- /*  parameterType */ -}}
+
+{{- /* this template receives a List of ParameterRef */ -}}
+{{- define "parametersList" }}
+    {{- if gt (len .) 0 }}
+
+        ## Request Parameters
+
+        | Name | In | Type | Description |
+        |------|----|------|-------------|
+        {{- range $index, $parameter := .}}
+            {{- template "parameter" $parameter }}
+        {{- end }}
+
+    {{ end }}
+{{ end }}
+{{- /* End of Parameters List */ -}}

@@ -1,20 +1,23 @@
 ---
 title: {{ .Title }}
+weight: 1
 ---
 
-###{{ .Title }} v.{{ .Version }}
+### {{ .Title }} v.{{ .Version }}
 
 {{ .Description }}
 
 {{- if .TermsOfService }}
 
     ## Terms of Service:
+
     <{{ .TermsOfService }}>
 
 {{- end }}
 {{- if .Contact }}
 
     ## Contact
+
     {{- if .Contact.Name }}
         **Name**: {{ .Contact.Name }}
 
