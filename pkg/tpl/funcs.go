@@ -69,6 +69,12 @@ func Slugify(s string) string {
 	return strings.Trim(slug, "-")
 }
 
+// BreakLine replaces new lines with <br>
+func BreakLine(s string) string {
+	var newLine = regexp.MustCompile(`\n`)
+	return newLine.ReplaceAllString(s, "<br>")
+}
+
 func FuncMap(refUrl string) template.FuncMap {
 	referenceURL = refUrl
 	return template.FuncMap{
@@ -82,5 +88,6 @@ func FuncMap(refUrl string) template.FuncMap {
 		"replace":        strings.ReplaceAll,
 		"sum":            Sum,
 		"slugify":        Slugify,
+		"breakLine":      BreakLine,
 	}
 }
