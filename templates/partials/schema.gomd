@@ -9,7 +9,7 @@
         {{- if and $schema $schema.Description }} **Description:**  {{ $schema.Description }}  {{ end }}
 
         {{ if $schema.Type }}
-            {{- if and $schema $schema.Type }} **Type:** {{ $schema.Type }}  {{ end -}} {{- if $schema.ReadOnly }} **Read Only**  {{- end -}} {{- if $schema.Nullable }} **Nullable**  {{- end -}}
+            {{- if and $schema $schema.Type }} **Type:** {{ $schema.Type }}<br>  {{ end -}} {{- if $schema.ReadOnly }} **Read Only**  {{- end -}} {{- if $schema.Nullable }} **Nullable**  {{- end -}}
 
             {{ template "restrictions" $schema }}
         {{- end -}}
@@ -70,7 +70,7 @@
         {{- if $value.ReadOnly }}  **Read Only** {{- end -}}
         {{- if $value.Nullable }}  **Nullable** {{- end -}}
     {{- end -}}
-    | {{ if $value.Description }} {{  $value.Description }} {{ end -}}
+    | {{ if $value.Description }} {{ breakLine $value.Description }} {{ end -}}
     | {{ template "restrictions" $value }} |
     {{- if not (and (not $theRef) (eq $value.Type "object") $value.Properties) }}
         {{- range $n, $p := $value.Properties }}
@@ -147,7 +147,7 @@
             {{- else }}
                 {{- template "schemaType" dict "Property" $property "Name" $name "RootName" $rootName "PresidiumRefURL" $url -}}
             {{- end -}}
-        | {{ if $value.Description }} {{  $value.Description }} {{ end -}}
+        | {{ if $value.Description }} {{ breakLine $value.Description }} {{ end -}}
         | {{ template "restrictions" $value }} |
     {{- end -}}
 
@@ -197,20 +197,20 @@
 {{- /* restrictions template */ -}}
 {{- define "restrictions" -}}
 {{- /* Render all restrictions */ -}}
-    {{- if .MultipleOf }} **Multiple of**: {{ .MultipleOf }}  {{- end -}}
-    {{- if .Max }} **Maximum**: {{ .Max }}  {{- end -}}
-    {{- if .ExclusiveMax }} **Exclusive maximum**: true  {{- end -}}
-    {{- if .Min }} **Minimum**: {{ .Min }}  {{- end -}}
-    {{- if .ExclusiveMin }} **Exclusive minimum**: true  {{- end -}}
-    {{- if .MaxLength }} **Maximum length**: {{ .MaxLength }}  {{- end -}}
-    {{- if .MinLength }} **Minimum length**: {{ .MinLength }}  {{- end -}}
-    {{- if .Pattern }} **Pattern**: {{ .Pattern }}  {{- end -}}
-    {{- if .MaxItems }} **Maximum items**: {{ .MaxItems }}  {{- end -}}
-    {{- if .MinItems }} **Minimum items**: {{ .MinItems }}  {{- end -}}
-    {{- if .UniqueItems }} **UniqueItems**: true  {{- end -}}
-    {{- if .MaxProps }} **Maximum properties**: {{ .MaxProps }}  {{- end -}}
-    {{- if .MinProps }} **Minimum properties**: {{ .MinProps }}  {{- end -}}
-    {{- if .AdditionalPropertiesAllowed }} **Additional properties allowed**: true  {{- end -}}
+    {{- if .MultipleOf }} **Multiple of**: {{ .MultipleOf }}<br>  {{- end -}}
+    {{- if .Max }} **Maximum**: {{ .Max }}<br>  {{- end -}}
+    {{- if .ExclusiveMax }} **Exclusive maximum**: true<br>  {{- end -}}
+    {{- if .Min }} **Minimum**: {{ .Min }}<br>  {{- end -}}
+    {{- if .ExclusiveMin }} **Exclusive minimum**: true<br>  {{- end -}}
+    {{- if .MaxLength }} **Maximum length**: {{ .MaxLength }}<br>  {{- end -}}
+    {{- if .MinLength }} **Minimum length**: {{ .MinLength }}<br>  {{- end -}}
+    {{- if .Pattern }} **Pattern**: {{ .Pattern }}<br>  {{- end -}}
+    {{- if .MaxItems }} **Maximum items**: {{ .MaxItems }}<br>  {{- end -}}
+    {{- if .MinItems }} **Minimum items**: {{ .MinItems }}<br>  {{- end -}}
+    {{- if .UniqueItems }} **UniqueItems**: true<br>  {{- end -}}
+    {{- if .MaxProps }} **Maximum properties**: {{ .MaxProps }}<br>  {{- end -}}
+    {{- if .MinProps }} **Minimum properties**: {{ .MinProps }}<br>  {{- end -}}
+    {{ if .AdditionalPropertiesAllowed }} **Additional properties allowed**: true<br>  {{- end -}}
     {{- if gt (len .Enum) 0 -}}
         **Enum**:&nbsp;
         {{- range $idx, $value := .Enum -}}

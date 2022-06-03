@@ -4,7 +4,6 @@ devops_path=$DEFAULT_DEVOPS
 default:
 	rm -rf dist
 	mkdir -p dist
-	generate
 	go build -o dist/presidium-oapi3 main.go
 
 generate:
