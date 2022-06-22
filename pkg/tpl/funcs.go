@@ -45,7 +45,7 @@ func GetSchemaLink(ref string) string {
 	refName := ref[idx+1:]
 	linkPath := ref[:idx]
 	linkPath = strings.ReplaceAll(linkPath, "#", fmt.Sprintf("/%s", referenceURL))
-	return fmt.Sprintf("[%s](%s/#%s)", strcase.ToCamel(refName), linkPath, Slugify(refName))
+	return fmt.Sprintf("[%s]({{%%baseurl%%}}/%s/#%s)", strcase.ToCamel(refName), linkPath, Slugify(refName))
 }
 
 func ToHTMLNewLines(str string) string {

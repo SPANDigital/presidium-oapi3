@@ -63,7 +63,7 @@
     {{- $theRef := $property.Ref }}
     | {{ $fullName -}}
     |   {{- if and (not $theRef) (eq $value.Type "object") $value.Properties -}}
-        [{{$name}}]({{$url}}/components/schemas/#{{- template "rootName" $rootName }}-{{ lower $name }})
+        [{{$name}}]({{"{{%baseurl%}}"}}{{$url}}/components/schemas/#{{- template "rootName" $rootName }}-{{ lower $name }})
     {{- else }}
         {{- template "schemaType" dict "Property" $property "Name" $name "RootName" $rootName "PresidiumRefURL" $url -}}
         {{- if (inStringSlice $required $name) }}  **Required** {{- end -}}
@@ -142,7 +142,7 @@
         {{- $theRef := $property.Ref }}
         |   {{- if and (not $theRef) (eq $value.Type "object") $value.Properties -}}
                 {{ printf "Spot 2: %#v" $url }}
-                [Inline Schema {{$inlineCount}}]({{$url}}/components/schemas/#{{- template "rootName" $rootName }}-{{lower $name}}-inline-schema-{{$inlineCount}})
+                [Inline Schema {{$inlineCount}}]({{"{{%baseurl%}}"}}{{$url}}/components/schemas/#{{- template "rootName" $rootName }}-{{lower $name}}-inline-schema-{{$inlineCount}})
                 {{- $inlineCount = sum $inlineCount 1 }}
             {{- else }}
                 {{- template "schemaType" dict "Property" $property "Name" $name "RootName" $rootName "PresidiumRefURL" $url -}}
@@ -186,7 +186,7 @@
         {{- else if eq $schema.Type "object" -}}
             {{- $name }}
         {{- else if not $schema.Type -}}
-            [{{$name}}]({{$url}}/components/schemas/#{{- template "rootName" $rootName }}-{{lower $name}})
+            [{{$name}}]({{"{{%baseurl%}}"}}{{$url}}/components/schemas/#{{- template "rootName" $rootName }}-{{lower $name}})
         {{- else }}
             {{- $schema.Type }} {{- if $schema.Format }} ({{$schema.Format}}) {{end}}
         {{- end }}
