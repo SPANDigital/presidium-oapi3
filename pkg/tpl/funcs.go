@@ -45,7 +45,7 @@ func GetSchemaLink(ref string) string {
 	refName := ref[idx+1:]
 	linkPath := ref[:idx]
 	linkPath = strings.ReplaceAll(linkPath, "#", fmt.Sprintf("/%s", referenceURL))
-	return fmt.Sprintf("[%s](%s/#%s)", strcase.ToCamel(refName), linkPath, Slugify(refName))
+	return fmt.Sprintf("[%s]({{%%baseurl%%}}/%s/#%s)", strcase.ToCamel(refName), linkPath, Slugify(refName))
 }
 
 func ToHTMLNewLines(str string) string {
@@ -69,6 +69,12 @@ func Slugify(s string) string {
 	return strings.Trim(slug, "-")
 }
 
+// BreakLine replaces new lines with <br>
+func BreakLine(s string) string {
+	var newLine = regexp.MustCompile(`\n`)
+	return newLine.ReplaceAllString(s, "<br>")
+}
+
 func FuncMap(refUrl string) template.FuncMap {
 	referenceURL = refUrl
 	return template.FuncMap{
@@ -82,5 +88,6 @@ func FuncMap(refUrl string) template.FuncMap {
 		"replace":        strings.ReplaceAll,
 		"sum":            Sum,
 		"slugify":        Slugify,
+		"breakLine":      BreakLine,
 	}
 }
