@@ -13,6 +13,7 @@ require (
 
 require (
 	github.com/ghodss/yaml v1.0.0 // indirect
+	github.com/go-bindata/go-bindata v3.1.2+incompatible // indirect
 	github.com/go-openapi/jsonpointer v0.19.5 // indirect
 	github.com/go-openapi/swag v0.21.1 // indirect
 	github.com/inconshreveable/mousetrap v1.0.0 // indirect
