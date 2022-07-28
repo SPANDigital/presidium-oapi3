@@ -15,7 +15,7 @@ weight: {{ .Weight }}
 
 {{ if .Summary }} >{{.Summary}} {{- end }}
 
-{{ if .Description }}{{ .Description }}{{ end }}
+{{ if .Description }}{{  .Description }}{{ end }}
 
 {{- template "parametersList" .Parameters }}
 {{- template "requestBody" .RequestBody }}

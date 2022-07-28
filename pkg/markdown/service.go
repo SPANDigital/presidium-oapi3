@@ -5,7 +5,9 @@ import (
 	"fmt"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
+	"io/fs"
 	"os"
+	"path/filepath"
 	"strings"
 	"text/template"
 
@@ -58,6 +60,10 @@ func NewMarkdownService(referenceURL, apiName string) (MarkdownService, error) {
 
 func (ms *markdownService) basePath() string {
 	return fmt.Sprintf("%s%s", ms.referenceURL, ms.apiName)
+}
+
+func (ms *markdownService) rootPath() string {
+	return filepath.Join(ms.outputDir, "content", ms.referenceURL)
 }
 
 func (ms *markdownService) processSchemas(schemas map[string]*openapi3.SchemaRef) error {
@@ -183,7 +189,7 @@ func (ms *markdownService) processTags(tags openapi3.Tags) error {
 
 func (ms *markdownService) processTemplate(dir string, name string, tpl string, obj interface{}) error {
 	path := fmt.Sprintf("%s/%s", strings.ToLower(dir), name)
-	err := os.MkdirAll(dir, os.ModePerm)
+	err := ms.createSubIndex(dir)
 	if err != nil {
 		return err
 	}
@@ -220,6 +226,31 @@ func (ms *markdownService) createIndexFiles() error {
 		}
 	}
 	return nil
+}
+
+func (ms *markdownService) createSubIndex(path string) error {
+	path = filepath.Clean(path)
+	log.Debugf("creating index: %s", path)
+	if ms.rootPath() == path {
+		return nil
+	}
+
+	indexPath := filepath.Join(path, "_index.md")
+	if _, err := os.Stat(indexPath); !os.IsNotExist(err) {
+		return nil
+	}
+
+	if err := os.MkdirAll(path, fs.ModePerm); err != nil {
+		return err
+	}
+
+	dirName := filepath.Base(path)
+	fm := fmt.Sprintf("---\ntitle: %s\n---", dirName)
+	if err := os.WriteFile(indexPath, []byte(fm), os.ModePerm); err != nil {
+		return err
+	}
+
+	return ms.createSubIndex(filepath.Dir(path))
 }
 
 func (ms *markdownService) ConvertToMarkdown(filename, outputDir string, methodTitle bool) error {

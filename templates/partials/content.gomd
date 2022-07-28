@@ -4,7 +4,7 @@
     {{- range $name, $mediaType := .Content }}
         **Format:** `{{$name}}`
 
-        {{ template "mediaType" dict "MediaType" $mediaType "PresidiumRefURL" $presidiumRefURL }}
+        {{ template "mediaType" dict "MediaType" $mediaType "PresidiumRefURL" $presidiumRefURL "Name" $.Name }}
     {{- end}}
 {{- end}}
 {{- /* End of Content template */ -}}
@@ -15,7 +15,7 @@
     {{- $presidiumRefURL := .PresidiumRefURL }}
 
     {{- if .MediaType.Schema }}
-        {{ template "schema" dict "SchemaRef" .MediaType.Schema "PresidiumRefURL" $presidiumRefURL }}
+        {{ template "schema" dict "SchemaRef" .MediaType.Schema "PresidiumRefURL" $presidiumRefURL "Name" .Name }}
     {{- end }}
 {{- end }}
 {{- /* End of request body */ -}}
