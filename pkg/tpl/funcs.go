@@ -75,6 +75,13 @@ func BreakLine(s string) string {
 	return newLine.ReplaceAllString(s, "<br>")
 }
 
+func Default(def interface{}, value interface{}) interface{} {
+	if value == nil {
+		return def
+	}
+	return value
+}
+
 func FuncMap(refUrl string) template.FuncMap {
 	referenceURL = refUrl
 	return template.FuncMap{
@@ -86,6 +93,7 @@ func FuncMap(refUrl string) template.FuncMap {
 		"toHTMLNewLines": ToHTMLNewLines,
 		"lower":          strings.ToLower,
 		"replace":        strings.ReplaceAll,
+		"default":        Default,
 		"sum":            Sum,
 		"slugify":        Slugify,
 		"breakLine":      BreakLine,

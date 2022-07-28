@@ -14,7 +14,7 @@
                 {{- if $mediaType.Schema }}
                     {{- $schemaRef := $mediaType.Schema.Ref}}
                     {{- $schema := $mediaType.Schema.Value}}
-                    | {{$name}} | {{ $requestBody.Description }} | {{ template "operationSchemaType" $mediaType.Schema }} |
+                    | {{$name}} | {{ breakLine $requestBody.Description }} | {{ template "operationSchemaType" $mediaType.Schema }} |
                 {{- end}}
             {{- end}}
 
