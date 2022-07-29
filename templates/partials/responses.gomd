@@ -5,20 +5,20 @@
     {{- $status := .Status }}
     {{- if and $ref $response.Content}}
         {{- range $name, $mediaType := $response.Content }}
-            | {{$status}} | {{ $response.Description }} | {{ $name }} | {{ schemaLink $ref }} |
+            | {{$status}} | {{ breakLine $response.Description }} | {{ $name }} | {{ schemaLink $ref }} |
         {{- end }}
     {{- else if  $ref}}
-        | {{$status}} | {{ $response.Description }} | - | {{ schemaLink $ref }} |
+        | {{$status}} | {{ breakLine $response.Description }} | - | {{ schemaLink $ref }} |
     {{- else if $response.Content }}
         {{- range $name, $mediaType := $response.Content }}
             {{- if $mediaType.Schema }}
                 {{- $schemaRef := $mediaType.Schema.Ref}}
                 {{- $schema := $mediaType.Schema.Value}}
-                | {{$status}} | {{  $response.Description }} | {{ $name }} | {{ template "operationSchemaType" $mediaType.Schema }} |
+                | {{$status}} | {{ breakLine $response.Description }} | {{ $name }} | {{ template "operationSchemaType" $mediaType.Schema }} |
             {{- end}}
         {{- end}}
     {{- else }}
-        | {{$status}} | {{ $response.Description }} | - | - |
+        | {{$status}} | {{ breakLine $response.Description }} | - | - |
     {{- end}}
 {{- end }}
 {{- /* End of Response template */ -}}
@@ -68,7 +68,7 @@
         {{- end }}
 
         {{ if gt (len $response.Content) 0 }}
-            {{ template "content" dict "Content" $response.Content "PresidiumRefURL" .PresidiumRefURL }}
+            {{ template "content" dict "Content" $response.Content "PresidiumRefURL" .PresidiumRefURL "Name" .Name }}
         {{- end }}
     {{- end }}
 {{- end }}
