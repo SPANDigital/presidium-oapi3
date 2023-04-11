@@ -3,13 +3,14 @@ package markdown
 import (
 	"bytes"
 	"fmt"
-	"golang.org/x/text/cases"
-	"golang.org/x/text/language"
 	"io/fs"
 	"os"
 	"path/filepath"
 	"strings"
 	"text/template"
+
+	"golang.org/x/text/cases"
+	"golang.org/x/text/language"
 
 	"github.com/SPANDigital/presidium-oapi3/pkg/log"
 	"github.com/SPANDigital/presidium-oapi3/pkg/tpl"
@@ -26,9 +27,10 @@ type markdownService struct {
 	outputDir    string
 	referenceURL string
 	apiName      string
+	sortFilePath bool
 }
 
-func NewMarkdownService(referenceURL, apiName string) (MarkdownService, error) {
+func NewMarkdownService(referenceURL, apiName string, sortFilePath bool) (MarkdownService, error) {
 	if apiName != "" {
 		apiName = fmt.Sprintf("/%s", apiName)
 	}
@@ -55,6 +57,7 @@ func NewMarkdownService(referenceURL, apiName string) (MarkdownService, error) {
 		templates:    templates,
 		referenceURL: referenceURL,
 		apiName:      apiName,
+		sortFilePath: sortFilePath,
 	}, nil
 }
 
@@ -127,9 +130,17 @@ func (ms markdownService) cleanForMarkdown(b bytes.Buffer) bytes.Buffer {
 }
 
 func (ms markdownService) processOperation(operation Operation, parentFolder string) error {
+	// Create filename with weight as prefix if flag selected
+	var name string
+	if ms.sortFilePath {
+		name = GetWeightedFilename(operation.Weight, operation.OperationID)
+		name = fmt.Sprintf("%s.md", strcase.ToSnake(name))
+	} else {
+		name = fmt.Sprintf("%s.md", strcase.ToSnake(operation.OperationID))
+	}
+
 	if len(operation.Tags) == 0 {
 		dir := fmt.Sprintf("%s/content/%s/operations/Default", ms.outputDir, parentFolder)
-		name := fmt.Sprintf("%s.md", strcase.ToSnake(operation.OperationID))
 		err := ms.processTemplate(dir, name, "templates/operation.gomd", operation)
 		if err != nil {
 			log.Error(err)
@@ -137,7 +148,6 @@ func (ms markdownService) processOperation(operation Operation, parentFolder str
 	} else {
 		for _, tag := range operation.Tags {
 			dir := fmt.Sprintf("%s/content/%s/operations/%s", ms.outputDir, parentFolder, tag)
-			name := fmt.Sprintf("%s.md", strcase.ToSnake(operation.OperationID))
 			err := ms.processTemplate(dir, name, "templates/operation.gomd", operation)
 			if err != nil {
 				log.Error(err)
