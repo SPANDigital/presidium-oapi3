@@ -1,7 +1,8 @@
 jobs:
   include:
   - stage: Tag code
-    if: branch IN (develop, master) AND type = push AND NOT (commit_message =~ /^.*\[NPM version\].*$/)
+    if: branch IN (develop, master) AND type = push AND NOT (commit_message =~ /^.*\[NPM
+      version\].*$/)
     language: go
     go:
     - 1.17.x
@@ -17,7 +18,7 @@ jobs:
     go:
     - 1.17.x
     script:
-      - curl -sfL https://goreleaser.com/static/run | bash -s -- check # check goreleaser config for deprecations
+    - curl -sfL https://goreleaser.com/static/run | bash -s -- check
     deploy:
     - provider: script
       skip_cleanup: true
@@ -37,4 +38,4 @@ jobs:
     - "./build/ci/tags_cleanup.sh"
 env:
   global:
-  - secure: FrVqRlM/5+p8+hdkeXbcsVXGNcnlDAJSDGkAv2KKgU7sKkwpKKrk1ZkHB7tvRk1yf2pgX8B+y7MUh4sBau5qbJeuyGjyThTjqtfrYYiBMZU9WYhG/VqDKlwYiE2ywvGhcSiGwPjWF1CR/ldgsOJ6pkOIhgzcAt7cO8S/7TZmnUxh8u/tfL7UgVi3aJ/XAZyjpBFhnKFKrAUb8j1lNC6R8kb9DFCSZLil7sKrpKsR0sXtLDI5PCQoHqtYc3U2z0WTSNiiQ9P+R2qlh8zjBPUn8Uzh2zpiG5PVOzPxjoBvIp7OCoCVJsmPPNxWAcqLu9aWC3yqwGeUgf/23cVaGqiA4B1S9IMnysh0R587q+CIUurJXgn3+OHky20lcAYNtDL0Y+qbldcCzp9dJ73Tp25o485DCZ9LAW7uxQLmeNA75YZMTHmY5rcbxA85Is6LhBalFNLKnOatq/o+7f0fhEvpS8cbXf6yZ+vL4e1O4qeGF1KnOEALnIffENAq76mmMoVW3S4iwtRL2AE5yzd4xB81EtOZ7XeWAz06t93BLoIvnZpVt3QSruRKh9+hUCdkQ0gS2cYimWgv0p/zVcpCAiXu1dsEjYLEJtz7UnvnZOfTV9ERRKpbcaFlSEXgooXdG7/SHK4dPZU9UAx7TFBJW+M+VJWf2D9MdayH36r/WJrILo0=
+  - secure: md2ipjVOZOF/bE8MiwiRtk1+t6MmLNN9BQri7bOERPsZb3QnCdHhkhvy2JSTEnZgUoa1xtwe35bsYMkpLMKxfNX9sdksi63CXPptszDSPhBQRX0iw7URV1SKJiNLbcWl1XaMSdZShDS1nri5V8TMU6gCqtIbN+5kktKUu28WTgyB0mNKKKoOHsHARCvzbGrqmDgrQSqVZQW3XUfxky0+yd0FCN5FLs2xRhSRpo671ZlvfZLofPlbusnnvqNldlujy8i7x7UMSTUfdzLpY10/Z6dv+BKE0zD08ggKNCkE+9yI7XJ4sdEe6/w5Frk9xirRGjcBD7BBEjwLNyEzO+0gXTWIgvTQPD3eR4FZzf3DQLCizfwhjKtNgX6crdOaE05iYqUNhMFhpOt4qN71Y/fxW7jpypSpEK8kwO13NwUhByyMJS6ch7AZwX94re7ZvRxOS/CaeKnW1by9e38zlbBIU0OBn9zzysQQGxf0hCafHDHWTVb59hQ6/mYTWOrl7RxmhKevIo/3qy9rL/TdSKiKuadxN+xlCNKHjIrj18UXyZFpra1RGjOdanW2amDFHxm2FTAQlr7Mhx6Gr4o7nDQMU6IqhAh4wHc1wH/SysW65KBqzqVvrIrbxxWn9g0N7SmiFjnKKKoIHzdrv4sO1QVSvlLat4/nWi0K0e0KcPKpXbQ=
