@@ -35,7 +35,7 @@ changelog:
       - '^docs:'
       - '^test:'
 brews:
-  - name: presidium-presidium-oapi3
+  - name: presidium-oapi3
     homepage: "https://github.com/spandigital/presidium"
     description: "Presidium is a software documentation management system for agile teams"
     tap:
