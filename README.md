@@ -3,10 +3,6 @@
 A Golang tool for importing your [OpenAPI 3](https://spec.openapis.org/oas/v3.0.3) spec into 
 [Presidium](http://presidium.spandigital.net) documentation.
 
-## Prerequisites
-
-- npm 6+
-
 ## Generation
 
 This tool can be run as a:
@@ -16,11 +12,20 @@ This tool can be run as a:
 
 ## Standalone
 
-Install presidium-oapi3 globally usin npm
+Install presidium-oapi3 globally
 
+With NPM
 ```shell
 npm install -g presidium-oapi-3
 ```
+
+With Brew
+```shell
+brew tap SPANDigital/homebrew-tap https://github.com/SPANDigital/homebrew-tap.git
+brew install presidium-json-schema
+
+```
+
 
 Execute presidium-oapi3 will print the usage:
 
