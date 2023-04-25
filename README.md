@@ -22,7 +22,7 @@ npm install -g presidium-oapi-3
 With Brew
 ```shell
 brew tap SPANDigital/homebrew-tap https://github.com/SPANDigital/homebrew-tap.git
-brew install presidium-json-schema
+brew install presidium-oapi3
 
 ```
 
