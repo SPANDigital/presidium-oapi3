@@ -19,10 +19,11 @@
 
             **Properties:**
 
-            {{ template "properties" dict "Schema" $schema "PresidiumRefURL" $presidiumRefURL "RootName" $rootName }}
+            {{ template "properties" dict "Schema" $schema "PresidiumRefURL" $presidiumRefURL "RootName" $rootName "InlineProperties" .InlineProperties }}
 
-            {{ template "inlineProperties" dict "Schema" $schema "PresidiumRefURL" $presidiumRefURL "RootName" $rootName }}
-
+            {{- if not .InlineProperties -}}
+                {{ template "nestedProperties" dict "Schema" $schema "PresidiumRefURL" $presidiumRefURL "RootName" $rootName }}
+            {{- end -}}
         {{ end }}
 
         {{ template "printQuantifiers" dict "Schema" $schema "PresidiumRefURL" $presidiumRefURL "RootName" $name "Name" $rootName }}
@@ -34,11 +35,12 @@
     {{- $required := .Schema.Required }}
     {{- $url := .PresidiumRefURL }}
     {{- $rootName := .RootName }}
+    {{- $inlineProperties := .InlineProperties }}
 
     | Name | Type | Description | Restrictions |
     |------|------|-------------|--------------|
     {{- range $name, $property := .Schema.Properties }}
-        {{- template "property" dict "Property" $property "FullName" $name "Name" $name "RootName" $rootName "PresidiumRefURL" $url -}}
+        {{- template "property" dict "Property" $property "FullName" $name "Name" $name "RootName" $rootName "PresidiumRefURL" $url "InlineProperties" $inlineProperties -}}
     {{- end -}}
 {{- end -}}
 
@@ -62,15 +64,18 @@
     {{- end -}}
     | {{ if $value.Description }} {{ breakLine $value.Description }} {{ end -}}
     | {{ template "restrictions" $value }} |
-    {{- if (and (not $theRef) (eq $value.Type "object") $value.Properties) }}
-        {{- range $n, $p := $value.Properties }}
-            {{- $fn := printf "%s > %s" $name $n }}
-            {{- template "property" dict "Property" $p "FullName" $fn "Name" $n "RootName" $rootName "PresidiumRefURL" $url -}}
+
+    {{- if .InlineProperties -}}
+        {{- if (and (not $theRef) (or (eq $value.Type "object") (not $value.Type)) $value.Properties) }}
+            {{- range $n, $p := $value.Properties }}
+                {{- $fn := printf "%s > %s" $name $n }}
+                {{- template "property" dict "Property" $p "FullName" $fn "Name" $n "RootName" $rootName "PresidiumRefURL" $url -}}
+            {{- end -}}
         {{- end -}}
     {{- end -}}
 {{- end -}}
 
-{{- define "inlineProperties" }}
+{{- define "nestedProperties" }}
     {{ $required := .Schema.Required }}
     {{ $url := .PresidiumRefURL }}
     {{ $rootName := .RootName }}
@@ -79,7 +84,7 @@
         {{- $ref := .Ref }}
         {{- $value := .Value }}
 
-        {{- if and (not $ref) (eq $value.Type "object") $value.Properties }}
+        {{- if and (not $ref) (or (eq $value.Type "object") (not $value.Type)) $value.Properties }}
             ## {{ $name }} { #{{- template "rootName" $rootName }}-{{ lower $name }} }
             {{ template "schema" dict "SchemaRef" $property "Name" $name "PresidiumRefURL" $url "Inline" true "RootName" $rootName }}
         {{- end -}}
