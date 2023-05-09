@@ -18,24 +18,26 @@ import (
 	"github.com/iancoleman/strcase"
 )
 
+const (
+	methodTitle = "methodTitle"
+	operationId = "operationId"
+)
+
 type MarkdownService interface {
-	ConvertToMarkdown(filename, outputDir string, methodTitle bool) error
+	ConvertToMarkdown(filename string) error
 }
 
 type markdownService struct {
-	templates    *template.Template
-	outputDir    string
-	referenceURL string
-	apiName      string
-	sortFilePath bool
+	templates *template.Template
+	cfg       Config
 }
 
-func NewMarkdownService(referenceURL, apiName string, sortFilePath bool) (MarkdownService, error) {
-	if apiName != "" {
-		apiName = fmt.Sprintf("/%s", apiName)
+func NewMarkdownService(cfg Config) (MarkdownService, error) {
+	if len(cfg.ApiName) > 0 {
+		cfg.ApiName = fmt.Sprintf("/%s", cfg.ApiName)
 	}
 
-	templates := template.New("").Funcs(tpl.FuncMap(fmt.Sprintf("%s%s", referenceURL, apiName)))
+	templates := template.New("").Funcs(tpl.FuncMap(fmt.Sprintf("%s%s", cfg.ReferenceURL, cfg.ApiName)))
 	for _, path := range tpl.AssetNames() {
 		tplResult, err := tpl.Asset(path)
 		if err != nil {
@@ -54,38 +56,76 @@ func NewMarkdownService(referenceURL, apiName string, sortFilePath bool) (Markdo
 	}
 
 	return &markdownService{
-		templates:    templates,
-		referenceURL: referenceURL,
-		apiName:      apiName,
-		sortFilePath: sortFilePath,
+		templates: templates,
+		cfg:       cfg,
 	}, nil
 }
 
+func (ms *markdownService) ConvertToMarkdown(filename string) error {
+	log.Infof("Loading swagger from file %s...", filename)
+	swagger, err := openapi3.NewLoader().LoadFromFile(filename)
+	if err != nil {
+		return err
+	}
+
+	err = ms.createIndexFiles()
+	if err != nil {
+		return err
+	}
+
+	sequence := 0
+	for path, item := range swagger.Paths {
+		_ = ms.processOperations(path, item.Operations(), sequence)
+		if err != nil {
+			return err
+		}
+		sequence++
+	}
+
+	err = ms.processSchemas(swagger.Components.Schemas)
+	if err != nil {
+		return err
+	}
+
+	err = ms.processResponses(swagger.Components.Responses)
+	if err != nil {
+		return err
+	}
+
+	err = ms.processInfo(swagger.Info)
+	if err != nil {
+		return err
+	}
+
+	return ms.processTags(swagger.Tags)
+}
+
 func (ms *markdownService) basePath() string {
-	return fmt.Sprintf("%s%s", ms.referenceURL, ms.apiName)
+	return filepath.Clean(fmt.Sprintf("%s%s", ms.cfg.ReferenceURL, ms.cfg.ApiName))
 }
 
 func (ms *markdownService) rootPath() string {
-	return filepath.Join(ms.outputDir, "content", ms.referenceURL)
+	return filepath.Join(ms.cfg.OutputDir, "content", ms.cfg.ReferenceURL)
 }
 
-func (ms *markdownService) processSchemas(schemas map[string]*openapi3.SchemaRef) error {
+func (ms *markdownService) processSchemas(schemas openapi3.Schemas) error {
 	for name, schema := range schemas {
 		log.Infof("Processing schema %s...", name)
-		if !strings.HasPrefix(ms.referenceURL, "/") {
-			ms.referenceURL = fmt.Sprintf("/%s", ms.referenceURL)
+		if !strings.HasPrefix(ms.cfg.ReferenceURL, "/") {
+			ms.cfg.ReferenceURL = fmt.Sprintf("/%s", ms.cfg.ReferenceURL)
 		}
 
 		theSchema := Schema{
-			Name:            name,
-			PresidiumRefURL: ms.referenceURL,
-			SchemaRef:       schema,
+			Name:             name,
+			PresidiumRefURL:  filepath.Clean(ms.cfg.ReferenceURL),
+			SchemaRef:        schema,
+			InlineProperties: ms.cfg.InlineProperties,
 		}
-		dir := fmt.Sprintf("%s/content/%s/components/schemas", ms.outputDir, ms.basePath())
+		dir := filepath.Clean(fmt.Sprintf("%s/content/%s/components/schemas", ms.cfg.OutputDir, ms.basePath()))
 		name := fmt.Sprintf("%s.md", strcase.ToSnake(name))
 		err := ms.processTemplate(dir, name, "templates/schemas.gomd", theSchema)
 		if err != nil {
-			log.Error(err)
+			return err
 		}
 	}
 	return nil
@@ -96,14 +136,14 @@ func (ms *markdownService) processResponses(responses map[string]*openapi3.Respo
 		log.Infof("Processing response %s...", name)
 		theResponse := Response{
 			Name:            name,
-			PresidiumRefURL: ms.referenceURL,
+			PresidiumRefURL: ms.cfg.ReferenceURL,
 			ResponseRef:     response,
 		}
-		dir := fmt.Sprintf("%s/content/%s/components/responses", ms.outputDir, ms.basePath())
+		dir := filepath.Clean(fmt.Sprintf("%s/content/%s/components/responses", ms.cfg.OutputDir, ms.basePath()))
 		name := fmt.Sprintf("%s.md", strcase.ToSnake(name))
 		err := ms.processTemplate(dir, name, "templates/responses.gomd", theResponse)
 		if err != nil {
-			log.Error(err)
+			return err
 		}
 	}
 	return nil
@@ -132,7 +172,7 @@ func (ms markdownService) cleanForMarkdown(b bytes.Buffer) bytes.Buffer {
 func (ms markdownService) processOperation(operation Operation, parentFolder string) error {
 	// Create filename with weight as prefix if flag selected
 	var name string
-	if ms.sortFilePath {
+	if ms.cfg.SortFilePath {
 		name = GetWeightedFilename(operation.Weight, operation.OperationID)
 		name = fmt.Sprintf("%s.md", strcase.ToSnake(name))
 	} else {
@@ -140,24 +180,24 @@ func (ms markdownService) processOperation(operation Operation, parentFolder str
 	}
 
 	if len(operation.Tags) == 0 {
-		dir := fmt.Sprintf("%s/content/%s/operations/Default", ms.outputDir, parentFolder)
+		dir := filepath.Clean(fmt.Sprintf("%s/content/%s/operations/Default", ms.cfg.OutputDir, parentFolder))
 		err := ms.processTemplate(dir, name, "templates/operation.gomd", operation)
 		if err != nil {
-			log.Error(err)
+			return err
 		}
 	} else {
 		for _, tag := range operation.Tags {
-			dir := fmt.Sprintf("%s/content/%s/operations/%s", ms.outputDir, parentFolder, tag)
+			dir := filepath.Clean(fmt.Sprintf("%s/content/%s/operations/%s", ms.cfg.OutputDir, parentFolder, tag))
 			err := ms.processTemplate(dir, name, "templates/operation.gomd", operation)
 			if err != nil {
-				log.Error(err)
+				return err
 			}
 		}
 	}
 	return nil
 }
 
-func (ms markdownService) processOperations(path string, operations map[string]*openapi3.Operation, methodTitle bool, count int) error {
+func (ms markdownService) processOperations(path string, operations map[string]*openapi3.Operation, count int) error {
 	log.Infof("Processing operations %s...", path)
 
 	for method, operation := range operations {
@@ -165,12 +205,12 @@ func (ms markdownService) processOperations(path string, operations map[string]*
 			Method:      method,
 			Name:        path,
 			Operation:   operation,
-			MethodTitle: methodTitle,
+			MethodTitle: ms.cfg.TitleFormat == methodTitle,
 			Weight:      count + 1,
 		}
 		err := ms.processOperation(tplOperation, ms.basePath())
 		if err != nil {
-			log.Fatal(err)
+			return err
 		}
 	}
 	return nil
@@ -178,7 +218,7 @@ func (ms markdownService) processOperations(path string, operations map[string]*
 
 func (ms *markdownService) processInfo(info *openapi3.Info) error {
 	log.Info("Processing info templates...")
-	dir := fmt.Sprintf("%s/content/%s/", ms.outputDir, ms.basePath())
+	dir := filepath.Clean(fmt.Sprintf("%s/content/%s/", ms.cfg.OutputDir, ms.basePath()))
 	name := "info.md"
 	err := ms.processTemplate(dir, name, "templates/info.gomd", info)
 	return err
@@ -187,7 +227,7 @@ func (ms *markdownService) processInfo(info *openapi3.Info) error {
 func (ms *markdownService) processTags(tags openapi3.Tags) error {
 	for _, tag := range tags {
 		log.Infof("Processing tag %s...", tag.Name)
-		dir := fmt.Sprintf("%s/content/%s/operations/%s", ms.outputDir, ms.basePath(), tag.Name)
+		dir := filepath.Clean(fmt.Sprintf("%s/content/%s/operations/%s", ms.cfg.OutputDir, ms.basePath(), tag.Name))
 		name := "_index.md"
 		err := ms.processTemplate(dir, name, "templates/tag.gomd", tag)
 		if err != nil {
@@ -224,12 +264,12 @@ func (ms *markdownService) createIndexFiles() error {
 		"components/schemas":   "Schemas",
 		"components/responses": "Responses",
 		"operations":           "Operations",
-		"":                     cases.Title(language.English).String(ms.referenceURL),
+		"":                     cases.Title(language.English).String(ms.cfg.ReferenceURL),
 	}
 
 	for dir, title := range dirs {
 		index := Index{Title: title}
-		baseDir := fmt.Sprintf("%s/content/%s/%s", ms.outputDir, ms.basePath(), dir)
+		baseDir := filepath.Clean(fmt.Sprintf("%s/content/%s/%s", ms.cfg.OutputDir, ms.basePath(), dir))
 		err := ms.processTemplate(baseDir, "_index.md", "templates/index.gomd", index)
 		if err != nil {
 			return err
@@ -261,41 +301,4 @@ func (ms *markdownService) createSubIndex(path string) error {
 	}
 
 	return ms.createSubIndex(filepath.Dir(path))
-}
-
-func (ms *markdownService) ConvertToMarkdown(filename, outputDir string, methodTitle bool) error {
-	log.Infof("Loading swagger from file %s...", filename)
-
-	swagger, err := openapi3.NewLoader().LoadFromFile(filename)
-	if err != nil {
-		log.Fatal(err)
-	}
-	ms.outputDir = outputDir
-
-	err = ms.createIndexFiles()
-	if err != nil {
-		return err
-	}
-	sequence := 0
-	for path, item := range swagger.Paths {
-		_ = ms.processOperations(path, item.Operations(), methodTitle, sequence)
-		if err != nil {
-			return err
-		}
-		sequence++
-	}
-	err = ms.processSchemas(swagger.Components.Schemas)
-	if err != nil {
-		return err
-	}
-	err = ms.processResponses(swagger.Components.Responses)
-	if err != nil {
-		return err
-	}
-	err = ms.processInfo(swagger.Info)
-	if err != nil {
-		return err
-	}
-	err = ms.processTags(swagger.Tags)
-	return err
 }
