@@ -10,22 +10,23 @@ This tool can be run as a:
 - Standalone executable:
 - Part of your Presidium Project
 
-## Standalone
+## Install
 
 Install presidium-oapi3 globally
 
-With NPM
-```shell
-npm install -g presidium-oapi-3
-```
-
-With Brew
+With Brew - Recommended for ARM64
 ```shell
 brew tap SPANDigital/homebrew-tap https://github.com/SPANDigital/homebrew-tap.git
 brew install presidium-oapi3
 
 ```
 
+With NPM
+```shell
+npm install -g presidium-oapi-3
+```
+
+## Run
 
 Execute presidium-oapi3 will print the usage:
 
@@ -50,10 +51,34 @@ Flags:
 Use "presidium-oapi3 [command] --help" for more information about a command.
 ```
 
-To convert a file you simply:
+To convert a file you can use the convert command:
 
+```text
+Usage:
+  presidium-oapi3 convert [flags]
+
+Flags:
+  -n, --apiName string        The name under which the generated docs will be grouped
+  -f, --file string           OpenAPI 3 spec file
+  -h, --help                  help for convert
+  -i, --inlineProperties      Inline properties in the request and response schemas
+  -o, --outputDir string      The output directory
+  -r, --referenceURL string   The reference URL (default "reference")
+  -s, --sortFilePath          Sort by filepath by prefixing a weight to the filename. Default is to use front matter weight
+  -t, --titleFormat string    The template format used to create the title for each operation.
+                              Valid options are:
+                              	- operationId: (Default) Uses the value of the operationId field.
+                              	- MethodURL: Uses a combination of the Method property and the URL.
+```
+
+Sample usage:
 ```shell
-presidium-oapi3 convert -f <YOUR_API_SPEC> -o <THE_OUTPUT_DIRECTORY> -r <THE_PRESIDIUM_REFERENCE_URL>
+presidium-oapi3 convert -f api-spec.yaml -o /project/root/path
+```
+
+The converter will store the Markdown under the `/reference` directory by default, but you can change it by using the `-r, --referenceURL` flag.
+```shell
+presidium-oapi3 convert -f example.yaml -o /project/root/path -r /custom/path
 ```
 
 ## Part Of Your Project
