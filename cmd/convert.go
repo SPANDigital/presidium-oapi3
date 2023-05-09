@@ -38,6 +38,7 @@ func init() {
 	convertCmd.Flags().StringVarP(&cfg.TitleFormat, "titleFormat", "t", "", "The template format used to create the title for each operation. \nValid options are: \n\t- operationId: (Default) Uses the value of the operationId field.\n\t- MethodURL: Uses a combination of the Method property and the URL.")
 	convertCmd.Flags().BoolVarP(&cfg.SortFilePath, "sortFilePath", "s", false, "Sort by filepath by prefixing a weight to the filename. Default is to use front matter weight")
 	convertCmd.Flags().BoolVarP(&cfg.InlineProperties, "inlineProperties", "i", false, "Inline properties in the request and response schemas")
+	convertCmd.Flags().BoolVarP(&cfg.AllowExternalRefs, "allowExternalRefs", "e", false, "Allow external references in the OpenAPI spec. ")
 
 	// Required flags
 	_ = convertCmd.MarkFlagRequired("file")

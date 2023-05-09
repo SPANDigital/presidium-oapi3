@@ -2,6 +2,7 @@ package markdown
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"io/fs"
 	"os"
@@ -63,7 +64,9 @@ func NewMarkdownService(cfg Config) (MarkdownService, error) {
 
 func (ms *markdownService) ConvertToMarkdown(filename string) error {
 	log.Infof("Loading swagger from file %s...", filename)
-	swagger, err := openapi3.NewLoader().LoadFromFile(filename)
+
+	loader := &openapi3.Loader{Context: context.Background(), IsExternalRefsAllowed: ms.cfg.AllowExternalRefs}
+	swagger, err := loader.LoadFromFile(filename)
 	if err != nil {
 		return err
 	}

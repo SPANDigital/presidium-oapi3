@@ -58,6 +58,7 @@ Usage:
   presidium-oapi3 convert [flags]
 
 Flags:
+  -e, --allowExternalRefs     Allow external references in the OpenAPI spec. 
   -n, --apiName string        The name under which the generated docs will be grouped
   -f, --file string           OpenAPI 3 spec file
   -h, --help                  help for convert
@@ -65,10 +66,10 @@ Flags:
   -o, --outputDir string      The output directory
   -r, --referenceURL string   The reference URL (default "reference")
   -s, --sortFilePath          Sort by filepath by prefixing a weight to the filename. Default is to use front matter weight
-  -t, --titleFormat string    The template format used to create the title for each operation.
-                              Valid options are:
-                              	- operationId: (Default) Uses the value of the operationId field.
-                              	- MethodURL: Uses a combination of the Method property and the URL.
+  -t, --titleFormat string    The template format used to create the title for each operation. 
+                              Valid options are: 
+                                - operationId: (Default) Uses the value of the operationId field.
+                                - MethodURL: Uses a combination of the Method property and the URL.
 ```
 
 Sample usage:
