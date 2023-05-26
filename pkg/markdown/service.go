@@ -24,11 +24,7 @@ const (
 	operationId = "operationId"
 )
 
-type MarkdownService interface {
-	ConvertToMarkdown(filename string) error
-}
-
-type markdownService struct {
+type MarkdownService struct {
 	templates *template.Template
 	cfg       Config
 }
@@ -56,13 +52,13 @@ func NewMarkdownService(cfg Config) (MarkdownService, error) {
 		}
 	}
 
-	return &markdownService{
+	return MarkdownService{
 		templates: templates,
 		cfg:       cfg,
 	}, nil
 }
 
-func (ms *markdownService) ConvertToMarkdown(filename string) error {
+func (ms *MarkdownService) ConvertToMarkdown(filename string) error {
 	log.Infof("Loading swagger from file %s...", filename)
 
 	loader := &openapi3.Loader{Context: context.Background(), IsExternalRefsAllowed: ms.cfg.AllowExternalRefs}
@@ -103,15 +99,15 @@ func (ms *markdownService) ConvertToMarkdown(filename string) error {
 	return ms.processTags(swagger.Tags)
 }
 
-func (ms *markdownService) basePath() string {
+func (ms *MarkdownService) basePath() string {
 	return filepath.Clean(fmt.Sprintf("%s%s", ms.cfg.ReferenceURL, ms.cfg.ApiName))
 }
 
-func (ms *markdownService) rootPath() string {
+func (ms *MarkdownService) rootPath() string {
 	return filepath.Join(ms.cfg.OutputDir, "content", ms.cfg.ReferenceURL)
 }
 
-func (ms *markdownService) processSchemas(schemas openapi3.Schemas) error {
+func (ms *MarkdownService) processSchemas(schemas openapi3.Schemas) error {
 	for name, schema := range schemas {
 		log.Infof("Processing schema %s...", name)
 		if !strings.HasPrefix(ms.cfg.ReferenceURL, "/") {
@@ -134,7 +130,7 @@ func (ms *markdownService) processSchemas(schemas openapi3.Schemas) error {
 	return nil
 }
 
-func (ms *markdownService) processResponses(responses map[string]*openapi3.ResponseRef) error {
+func (ms *MarkdownService) processResponses(responses map[string]*openapi3.ResponseRef) error {
 	for name, response := range responses {
 		log.Infof("Processing response %s...", name)
 		theResponse := Response{
@@ -155,7 +151,7 @@ func (ms *markdownService) processResponses(responses map[string]*openapi3.Respo
 // cleanForMarkdown ensures what is written to the markdown file is clean:
 // - trimmed line spaces
 // - empty lines
-func (ms markdownService) cleanForMarkdown(b bytes.Buffer) bytes.Buffer {
+func (ms MarkdownService) cleanForMarkdown(b bytes.Buffer) bytes.Buffer {
 	var result bytes.Buffer
 	var previousLine = ""
 	for _, line := range strings.Split(b.String(), "\n") {
@@ -172,7 +168,7 @@ func (ms markdownService) cleanForMarkdown(b bytes.Buffer) bytes.Buffer {
 	return result
 }
 
-func (ms markdownService) processOperation(operation Operation, parentFolder string) error {
+func (ms MarkdownService) processOperation(operation Operation, parentFolder string) error {
 	// Create filename with weight as prefix if flag selected
 	var name string
 	if ms.cfg.SortFilePath {
@@ -200,7 +196,7 @@ func (ms markdownService) processOperation(operation Operation, parentFolder str
 	return nil
 }
 
-func (ms markdownService) processOperations(path string, operations map[string]*openapi3.Operation, count int) error {
+func (ms MarkdownService) processOperations(path string, operations map[string]*openapi3.Operation, count int) error {
 	log.Infof("Processing operations %s...", path)
 
 	for method, operation := range operations {
@@ -219,7 +215,7 @@ func (ms markdownService) processOperations(path string, operations map[string]*
 	return nil
 }
 
-func (ms *markdownService) processInfo(info *openapi3.Info) error {
+func (ms *MarkdownService) processInfo(info *openapi3.Info) error {
 	log.Info("Processing info templates...")
 	dir := filepath.Clean(fmt.Sprintf("%s/content/%s/", ms.cfg.OutputDir, ms.basePath()))
 	name := "info.md"
@@ -227,7 +223,7 @@ func (ms *markdownService) processInfo(info *openapi3.Info) error {
 	return err
 }
 
-func (ms *markdownService) processTags(tags openapi3.Tags) error {
+func (ms *MarkdownService) processTags(tags openapi3.Tags) error {
 	for _, tag := range tags {
 		log.Infof("Processing tag %s...", tag.Name)
 		dir := filepath.Clean(fmt.Sprintf("%s/content/%s/operations/%s", ms.cfg.OutputDir, ms.basePath(), tag.Name))
@@ -240,7 +236,7 @@ func (ms *markdownService) processTags(tags openapi3.Tags) error {
 	return nil
 }
 
-func (ms *markdownService) processTemplate(dir string, name string, tpl string, obj interface{}) error {
+func (ms *MarkdownService) processTemplate(dir string, name string, tpl string, obj interface{}) error {
 	path := fmt.Sprintf("%s/%s", strings.ToLower(dir), name)
 	err := ms.createSubIndex(dir)
 	if err != nil {
@@ -260,7 +256,7 @@ func (ms *markdownService) processTemplate(dir string, name string, tpl string, 
 	return err
 }
 
-func (ms *markdownService) createIndexFiles() error {
+func (ms *MarkdownService) createIndexFiles() error {
 	log.Info("Creating index files...")
 	dirs := map[string]string{
 		"components":           "Components",
@@ -281,7 +277,7 @@ func (ms *markdownService) createIndexFiles() error {
 	return nil
 }
 
-func (ms *markdownService) createSubIndex(path string) error {
+func (ms *MarkdownService) createSubIndex(path string) error {
 	path = filepath.Clean(path)
 	log.Debugf("creating index: %s", path)
 	if ms.rootPath() == path {
