@@ -40,6 +40,14 @@ func InStringSlice(list []string, elem string) bool {
 	return false
 }
 
+func GetRefRootSchema(ref string) string {
+	refSplit := strings.Split(ref, "schemas/")
+	if len(refSplit) > 0 {
+		refSplit = strings.Split(refSplit[1], "/")
+	}
+	return refSplit[0]
+}
+
 func GetSchemaLink(ref string) string {
 	idx := strings.LastIndex(ref, "/")
 	refName := ref[idx+1:]
@@ -85,17 +93,18 @@ func Default(def interface{}, value interface{}) interface{} {
 func FuncMap(refUrl string) template.FuncMap {
 	referenceURL = refUrl
 	return template.FuncMap{
-		"join":           Join,
-		"dict":           Dict,
-		"inStringSlice":  InStringSlice,
-		"schemaLink":     GetSchemaLink,
-		"toCamel":        strcase.ToCamel,
-		"toHTMLNewLines": ToHTMLNewLines,
-		"lower":          strings.ToLower,
-		"replace":        strings.ReplaceAll,
-		"default":        Default,
-		"sum":            Sum,
-		"slugify":        Slugify,
-		"breakLine":      BreakLine,
+		"join":             Join,
+		"dict":             Dict,
+		"inStringSlice":    InStringSlice,
+		"schemaLink":       GetSchemaLink,
+		"toCamel":          strcase.ToCamel,
+		"toHTMLNewLines":   ToHTMLNewLines,
+		"lower":            strings.ToLower,
+		"replace":          strings.ReplaceAll,
+		"default":          Default,
+		"sum":              Sum,
+		"slugify":          Slugify,
+		"breakLine":        BreakLine,
+		"getRefRootSchema": GetRefRootSchema,
 	}
 }
