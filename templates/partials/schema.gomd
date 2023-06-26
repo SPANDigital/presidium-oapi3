@@ -19,9 +19,9 @@
 
             **Properties:**
 
-            {{ template "properties" dict "Schema" $schema "PresidiumRefURL" $presidiumRefURL "RootName" $rootName "InlineProperties" .InlineProperties }}
+            {{ template "properties" dict "Schema" $schema "PresidiumRefURL" $presidiumRefURL "RootName" $rootName "Config" .Config }}
 
-            {{- if not .InlineProperties -}}
+            {{- if not .Config.InlineProperties -}}
                 {{ template "nestedProperties" dict "Schema" $schema "PresidiumRefURL" $presidiumRefURL "RootName" $rootName }}
             {{- end -}}
         {{ end }}
@@ -35,12 +35,19 @@
     {{- $required := .Schema.Required }}
     {{- $url := .PresidiumRefURL }}
     {{- $rootName := .RootName }}
-    {{- $inlineProperties := .InlineProperties }}
+    {{- $config := .Config }}
+    {{- $cols := slice "Name" "Type" "Description" -}}
+    {{- if $config.IncludeExamples -}}
+        {{ $cols = append $cols "Example" }}
+    {{- end -}}
+    {{- if $config.IncludeRestrictions -}}
+        {{ $cols = append $cols "Restrictions" }}
+    {{- end -}}
 
-    | Name | Type | Description | Restrictions |
-    |------|------|-------------|--------------|
+    {{ tableHeader $cols }}
+
     {{- range $name, $property := .Schema.Properties }}
-        {{- template "property" dict "Property" $property "FullName" $name "Name" $name "RootName" $rootName "PresidiumRefURL" $url "InlineProperties" $inlineProperties -}}
+        {{- template "property" dict "Property" $property "FullName" $name "Name" $name "RootName" $rootName "PresidiumRefURL" $url "Config" $config -}}
     {{- end -}}
 {{- end -}}
 
@@ -53,9 +60,10 @@
     {{- $rootName := .RootName }}
     {{- $value := $property.Value }}
     {{- $theRef := $property.Ref }}
+    {{- $config := .Config }}
     | {{ $fullName -}}
     |   {{- if and (not $theRef) (eq $value.Type "object") $value.Properties -}}
-        [{{$name}}]({{"{{%baseurl%}}"}}{{$url}}/components/schemas/#{{- template "rootName" $rootName }}-{{ lower $name }})
+        [{{$name}}](#{{- template "anchor" . -}})
     {{- else }}
         {{- template "schemaType" dict "Property" $property "Name" $name "RootName" $rootName "PresidiumRefURL" $url -}}
         {{- if (inStringSlice $required $name) }}  **Required** {{- end -}}
@@ -63,13 +71,20 @@
         {{- if $value.Nullable }}  **Nullable** {{- end -}}
     {{- end -}}
     | {{ if $value.Description }} {{ breakLine $value.Description }} {{ end -}}
-    | {{ template "restrictions" $value }} |
+    {{- if $config.IncludeExamples -}}
+    | {{- marshalInline $value.Example -}}
+    {{- end -}}
+    {{- if $config.IncludeRestrictions -}}
+    | {{ template "restrictions" $value }}
+    {{- end -}}
+    |
 
-    {{- if .InlineProperties -}}
+
+    {{- if $config.InlineProperties -}}
         {{- if (and (not $theRef) (or (eq $value.Type "object") (not $value.Type)) $value.Properties) }}
             {{- range $n, $p := $value.Properties }}
                 {{- $fn := printf "%s > %s" $name $n }}
-                {{- template "property" dict "Property" $p "FullName" $fn "Name" $n "RootName" $rootName "PresidiumRefURL" $url -}}
+                {{- template "property" dict "Property" $p "FullName" $fn "Name" $n "RootName" $rootName "PresidiumRefURL" $url "Config" $config -}}
             {{- end -}}
         {{- end -}}
     {{- end -}}
@@ -83,46 +98,25 @@
     {{- range $name, $property := .Schema.Properties }}
         {{- $ref := .Ref }}
         {{- $value := .Value }}
-        {{- $additionalProp := $value.AdditionalProperties }}
-        {{- $items := $value.Items }}
 
         {{- if and (not $ref) (or (eq $value.Type "object") (not $value.Type)) $value.Properties }}
             ## {{ $name }} { #{{- template "rootName" $rootName }}-{{ lower $name }} }
             {{ template "schema" dict "SchemaRef" $property "Name" $name "PresidiumRefURL" $url "Inline" true "RootName" $rootName }}
         {{- end -}}
 
-        {{- if and $additionalProp }}
-            {{ $nestedRef := $additionalProp.Ref }}
-            {{ $nestedValue := $additionalProp.Value }}
-
-            {{- if and (not $nestedRef) (or (eq $nestedValue.Type "object") (not $nestedValue.Type)) }}
-                ## {{ $name }} { #{{- template "rootName" $rootName }}-{{ lower $name }} }
-                {{ template "schema" dict "SchemaRef" $additionalProp "Name" $name "PresidiumRefURL" $url "Inline" true "RootName" $rootName }}
-            {{- end -}}
-        {{- end -}}
-
-        {{- if $items }}
-            {{ $itemRef := $items.Ref }}
-            {{ $itemValue := $items.Value }}
-
-            {{- if and (not $itemRef) (or (eq $itemValue.Type "object") (not $itemValue.Type)) }}
-                ## {{ $name }} { #{{- template "rootName" $rootName }}-{{ lower $name }} }
-                {{ template "schema" dict "SchemaRef" $items "Name" $name "PresidiumRefURL" $url "Inline" true "RootName" $rootName }}
-            {{- end -}}
-        {{- end -}}
-
-    {{- end -}}
-
-    {{- range $name, $property := .Schema.Properties }}
-        {{- $ref := .Ref }}
-        {{- $value := .Value }}
         {{ if and (or $value.AllOf $value.AnyOf $value.OneOf) (not $ref) }}
             ## {{ $name }} { #{{- template "rootName" $rootName }}-{{ lower $name }} }
             {{ if $value.Description }} {{  $value.Description }} {{ end -}}
 
             {{ template "printQuantifiers" dict "Schema" $value "PresidiumRefURL" $url "RootName" $rootName "Name" $name }}
         {{ end }}
+
+        {{- if and $value.Items $value.Items.Value.Properties -}}
+            ## {{ $name }} { #{{- template "rootName" $rootName }}-{{ lower $name }} }
+            {{ template "schema" dict "SchemaRef" $value.Items "Name" $name "PresidiumRefURL" $url "Inline" true "RootName" $rootName }}
+        {{- end -}}
     {{- end -}}
+
 {{- end -}}
 
 {{- define "printQuantifiers" }}
@@ -188,32 +182,22 @@
     {{- $name := .Name }}
     {{- $rootName := .RootName }}
     {{- $url := .PresidiumRefURL }}
-    {{- $additionalProp := $schema.AdditionalProperties }}
-
     {{- if $ref }}
-
         {{- schemaLink $ref }}
-
     {{- else if $schema }}
         {{- if eq $schema.Type "array" -}}
             {{- $items := $schema.Items -}}
             {{- if or $items.Value.AnyOf $items.Value.AllOf $items.Value.OneOf -}}
                 {{- template "listQuantifiers" $items.Value -}}
             {{- else -}}
-                {{- if $items.Ref -}}
-                    {{- $rootName = getRefRootSchema $items.Ref -}}
-                    [[{{$name}}]({{"{{%baseurl%}}"}}{{$url}}/components/schemas/#{{- template "rootName" $rootName }}-{{lower $name}})]
-                {{- else -}}
-                    [{{- template "schemaType" dict "Property" $schema.Items "Name" $name "RootName" $rootName "PresidiumRefURL" $url -}}]
-                {{- end -}}
+                [{{- template "schemaType" dict "Property" $schema.Items "Name" $name "RootName" $rootName "PresidiumRefURL" $url -}}]
             {{- end -}}
         {{- else if eq $schema.Type "object" -}}
-            [{{$name}}]({{"{{%baseurl%}}"}}{{$url}}/components/schemas/#{{- template "rootName" $rootName }}-{{lower $name}})
+            [{{- $name }}](#{{- template "anchor" . }})
+        {{- else if $schema.AdditionalProperties -}}
+            object
         {{- else if not $schema.Type -}}
-            {{- if and $additionalProp.Ref -}}
-                {{- $rootName = getRefRootSchema $additionalProp.Ref }}
-            {{- end -}}
-            [{{$name}}]({{"{{%baseurl%}}"}}{{$url}}/components/schemas/#{{- template "rootName" $rootName }}-{{lower $name}})
+            [{{- $name }}](#{{- template "anchor" . }})
         {{- else }}
             {{- $schema.Type }} {{- if $schema.Format }} ({{$schema.Format}}) {{end}}
         {{- end }}
@@ -254,6 +238,10 @@
     {{- end -}}
 {{- end -}}
 {{- /* Render root name */ -}}
+
+{{- define "anchor" -}}
+    {{- (slugify (lower .RootName)) -}}-{{lower .Name}}
+{{- end -}}
 
 {{- /* operationSchemaType Template */ -}}
 {{- define "operationSchemaType" }}

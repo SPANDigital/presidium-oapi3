@@ -115,10 +115,10 @@ func (ms *MarkdownService) processSchemas(schemas openapi3.Schemas) error {
 		}
 
 		theSchema := Schema{
-			Name:             name,
-			PresidiumRefURL:  filepath.Clean(ms.cfg.ReferenceURL),
-			SchemaRef:        schema,
-			InlineProperties: ms.cfg.InlineProperties,
+			Name:            name,
+			PresidiumRefURL: filepath.Clean(ms.cfg.ReferenceURL),
+			SchemaRef:       schema,
+			Config:          ms.cfg,
 		}
 		dir := filepath.Clean(fmt.Sprintf("%s/content/%s/components/schemas", ms.cfg.OutputDir, ms.basePath()))
 		name := fmt.Sprintf("%s.md", strcase.ToSnake(name))
