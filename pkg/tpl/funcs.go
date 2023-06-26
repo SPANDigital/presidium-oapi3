@@ -126,7 +126,7 @@ func TableHeader(columns []string) string {
 	}
 	header += "|\n"
 	header += divider
-	header += "|\n"
+	header += "|"
 	return header
 }
 

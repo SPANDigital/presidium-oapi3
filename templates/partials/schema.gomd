@@ -44,8 +44,7 @@
         {{ $cols = append $cols "Restrictions" }}
     {{- end -}}
 
-    {{ tableHeader $cols }}
-
+    {{ tableHeader $cols -}}
     {{- range $name, $property := .Schema.Properties }}
         {{- template "property" dict "Property" $property "FullName" $name "Name" $name "RootName" $rootName "PresidiumRefURL" $url "Config" $config -}}
     {{- end -}}
@@ -78,7 +77,6 @@
     | {{ template "restrictions" $value }}
     {{- end -}}
     |
-
 
     {{- if $config.InlineProperties -}}
         {{- if (and (not $theRef) (or (eq $value.Type "object") (not $value.Type)) $value.Properties) }}
