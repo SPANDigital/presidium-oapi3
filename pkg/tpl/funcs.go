@@ -1,6 +1,7 @@
 package tpl
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
 	"regexp"
@@ -90,6 +91,55 @@ func Default(def interface{}, value interface{}) interface{} {
 	return value
 }
 
+func Marshal(value interface{}) string {
+	if value == nil {
+		return ""
+	}
+
+	v, err := json.MarshalIndent(value, "", "  ")
+	if err != nil {
+		return ""
+	}
+
+	return fmt.Sprintf("```json\n%s\n```", string(v))
+}
+
+func MarshalInline(value interface{}) string {
+	if value == nil {
+		return ""
+	}
+
+	v, err := json.Marshal(value)
+	if err != nil {
+		return ""
+	}
+
+	return fmt.Sprintf("`%s`", string(v))
+}
+
+func TableHeader(columns []string) string {
+	var header string
+	var divider string
+	for _, col := range columns {
+		header += fmt.Sprintf("| %s ", col)
+		divider += fmt.Sprintf("|%s", strings.Repeat("-", len(col)+2))
+	}
+	header += "|\n"
+	header += divider
+	header += "|"
+	return header
+}
+
+func Slice(items ...string) []string {
+	var s []string
+	s = append(s, items...)
+	return s
+}
+
+func Append(slice []string, value ...string) []string {
+	return append(slice, value...)
+}
+
 func FuncMap(refUrl string) template.FuncMap {
 	referenceURL = refUrl
 	return template.FuncMap{
@@ -102,9 +152,14 @@ func FuncMap(refUrl string) template.FuncMap {
 		"lower":            strings.ToLower,
 		"replace":          strings.ReplaceAll,
 		"default":          Default,
+		"marshal":          Marshal,
+		"marshalInline":    MarshalInline,
 		"sum":              Sum,
 		"slugify":          Slugify,
 		"breakLine":        BreakLine,
+		"tableHeader":      TableHeader,
 		"getRefRootSchema": GetRefRootSchema,
+		"slice":            Slice,
+		"append":           Append,
 	}
 }

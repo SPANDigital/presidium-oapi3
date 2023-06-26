@@ -3,9 +3,9 @@ package markdown
 import "github.com/getkin/kin-openapi/openapi3"
 
 type Schema struct {
-	Name             string
-	PresidiumRefURL  string
-	InlineProperties bool
+	Name            string
+	PresidiumRefURL string
+	Config          Config
 	*openapi3.SchemaRef
 }
 
