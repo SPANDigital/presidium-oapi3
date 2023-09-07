@@ -67,7 +67,7 @@ func (ms *MarkdownService) ConvertToMarkdown(filename string) error {
 		return err
 	}
 
-	err = ms.createIndexFiles()
+	err = ms.createIndexFiles(swagger)
 	if err != nil {
 		return err
 	}
@@ -256,7 +256,7 @@ func (ms *MarkdownService) processTemplate(dir string, name string, tpl string, 
 	return err
 }
 
-func (ms *MarkdownService) createIndexFiles() error {
+func (ms *MarkdownService) createIndexFiles(schema *openapi3.T) error {
 	log.Info("Creating index files...")
 	dirs := map[string]string{
 		"components":           "Components",
@@ -264,6 +264,14 @@ func (ms *MarkdownService) createIndexFiles() error {
 		"components/responses": "Responses",
 		"operations":           "Operations",
 		"":                     cases.Title(language.English).String(ms.cfg.ReferenceURL),
+	}
+
+	if len(schema.Components.Responses) == 0 {
+		delete(dirs, "components/responses")
+	}
+
+	if len(schema.Components.Schemas) == 0 {
+		delete(dirs, "components/schemas")
 	}
 
 	for dir, title := range dirs {
