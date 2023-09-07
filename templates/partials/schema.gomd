@@ -195,10 +195,7 @@
         {{- else if $schema.AdditionalProperties -}}
             object
         {{- else if not $schema.Type -}}
-            {{- if and $additionalProp $additionalProp.Ref -}}
-                {{- $rootName = getRefRootSchema $additionalProp.Ref }}
-            {{- end -}}
-            [{{$name}}]({{"{{%baseurl%}}"}}{{$url}}/components/schemas/#{{- template "rootName" $rootName }}-{{lower $name}})
+            [{{- $name }}](#{{- template "anchor" . }})
         {{- else }}
             {{- $schema.Type }} {{- if $schema.Format }} ({{$schema.Format}}) {{end}}
         {{- end }}
