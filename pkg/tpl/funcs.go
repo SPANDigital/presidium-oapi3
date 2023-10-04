@@ -1,8 +1,10 @@
 package tpl
 
 import (
+	"encoding/json"
 	"errors"
 	"fmt"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"text/template"
@@ -40,12 +42,22 @@ func InStringSlice(list []string, elem string) bool {
 	return false
 }
 
+func GetRefRootSchema(ref string) string {
+	refSplit := strings.Split(ref, "schemas/")
+	if len(refSplit) > 0 {
+		refSplit = strings.Split(refSplit[1], "/")
+	}
+	return refSplit[0]
+}
+
 func GetSchemaLink(ref string) string {
 	idx := strings.LastIndex(ref, "/")
 	refName := ref[idx+1:]
 	linkPath := ref[:idx]
 	linkPath = strings.ReplaceAll(linkPath, "#", fmt.Sprintf("/%s", referenceURL))
-	return fmt.Sprintf("[%s]({{%%baseurl%%}}/%s/#%s)", strcase.ToCamel(refName), linkPath, Slugify(refName))
+	linkPath = filepath.Join(linkPath, fmt.Sprintf("#%s", Slugify(refName)))
+	linkPath = strings.TrimPrefix(linkPath, "/")
+	return fmt.Sprintf("[%s]({{%%baseurl%%}}/%s)", strcase.ToCamel(refName), linkPath)
 }
 
 func ToHTMLNewLines(str string) string {
@@ -82,20 +94,89 @@ func Default(def interface{}, value interface{}) interface{} {
 	return value
 }
 
+func Marshal(value interface{}) string {
+	if value == nil {
+		return ""
+	}
+
+	v, err := json.MarshalIndent(value, "", "  ")
+	if err != nil {
+		return ""
+	}
+
+	return fmt.Sprintf("```json\n%s\n```", string(v))
+}
+
+func MarshalInline(value interface{}) string {
+	if value == nil {
+		return ""
+	}
+
+	v, err := json.Marshal(value)
+	if err != nil {
+		return ""
+	}
+
+	return fmt.Sprintf("`%s`", string(v))
+}
+
+func TableHeader(columns []string) string {
+	var header string
+	var divider string
+	for _, col := range columns {
+		header += fmt.Sprintf("| %s ", col)
+		divider += fmt.Sprintf("|%s", strings.Repeat("-", len(col)+2))
+	}
+	header += "|\n"
+	header += divider
+	header += "|"
+	return header
+}
+
+func Slice(items ...string) []string {
+	var s []string
+	s = append(s, items...)
+	return s
+}
+
+func Append(slice []string, value ...string) []string {
+	return append(slice, value...)
+}
+
+func NotEmpty(value interface{}) bool {
+	switch v := value.(type) {
+	case string:
+		return len(v) > 0
+	case []interface{}:
+		return v != nil && len(v) > 0
+	case map[interface{}]interface{}:
+		return v != nil && len(v) > 0
+	default:
+		return false
+	}
+}
+
 func FuncMap(refUrl string) template.FuncMap {
 	referenceURL = refUrl
 	return template.FuncMap{
-		"join":           Join,
-		"dict":           Dict,
-		"inStringSlice":  InStringSlice,
-		"schemaLink":     GetSchemaLink,
-		"toCamel":        strcase.ToCamel,
-		"toHTMLNewLines": ToHTMLNewLines,
-		"lower":          strings.ToLower,
-		"replace":        strings.ReplaceAll,
-		"default":        Default,
-		"sum":            Sum,
-		"slugify":        Slugify,
-		"breakLine":      BreakLine,
+		"join":             Join,
+		"dict":             Dict,
+		"inStringSlice":    InStringSlice,
+		"schemaLink":       GetSchemaLink,
+		"toCamel":          strcase.ToCamel,
+		"toHTMLNewLines":   ToHTMLNewLines,
+		"lower":            strings.ToLower,
+		"replace":          strings.ReplaceAll,
+		"default":          Default,
+		"marshal":          Marshal,
+		"marshalInline":    MarshalInline,
+		"sum":              Sum,
+		"slugify":          Slugify,
+		"breakLine":        BreakLine,
+		"tableHeader":      TableHeader,
+		"getRefRootSchema": GetRefRootSchema,
+		"slice":            Slice,
+		"notEmpty":         NotEmpty,
+		"append":           Append,
 	}
 }

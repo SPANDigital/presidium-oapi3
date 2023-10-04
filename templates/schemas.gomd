@@ -2,4 +2,4 @@
 title: {{ .Name }}
 ---
 
-{{ template "schema" dict "SchemaRef" .SchemaRef "Name" .Name "PresidiumRefURL" .PresidiumRefURL "InlineProperties" .InlineProperties }}
+{{ template "schema" dict "SchemaRef" .SchemaRef "Name" .Name "PresidiumRefURL" .PresidiumRefURL "Config" .Config }}
