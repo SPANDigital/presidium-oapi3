@@ -218,7 +218,7 @@ func (ms MarkdownService) processOperations(path string, operations map[string]*
 func (ms *MarkdownService) processInfo(info *openapi3.Info) error {
 	log.Info("Processing info templates...")
 	dir := filepath.Clean(fmt.Sprintf("%s/content/%s/", ms.cfg.OutputDir, ms.basePath()))
-	name := "info.md"
+	name := "_index.md"
 	err := ms.processTemplate(dir, name, "templates/info.gomd", info)
 	return err
 }

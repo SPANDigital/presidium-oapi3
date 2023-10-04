@@ -3,6 +3,7 @@
     {{- $schema := .SchemaRef.Value }}
     {{- $presidiumRefURL := .PresidiumRefURL }}
     {{- $name := .Name }}
+    {{- $config := .Config }}
     {{- $rootName := .RootName | default .Name -}}
     {{- /* If this schema is a reference */ -}}
     {{- if not $ref }}
@@ -19,10 +20,10 @@
 
             **Properties:**
 
-            {{ template "properties" dict "Schema" $schema "PresidiumRefURL" $presidiumRefURL "RootName" $rootName "Config" .Config }}
+            {{ template "properties" dict "Schema" $schema "PresidiumRefURL" $presidiumRefURL "RootName" $rootName "Config" $config }}
 
             {{- if not .Config.InlineProperties -}}
-                {{ template "nestedProperties" dict "Schema" $schema "PresidiumRefURL" $presidiumRefURL "RootName" $rootName }}
+                {{ template "nestedProperties" dict "Schema" $schema "PresidiumRefURL" $presidiumRefURL "RootName" $rootName "Config" $config }}
             {{- end -}}
         {{ end }}
 
@@ -92,6 +93,7 @@
     {{ $required := .Schema.Required }}
     {{ $url := .PresidiumRefURL }}
     {{ $rootName := .RootName }}
+    {{ $config := .Config }}
 
     {{- range $name, $property := .Schema.Properties }}
         {{- $ref := .Ref }}
@@ -99,7 +101,7 @@
 
         {{- if and (not $ref) (or (eq $value.Type "object") (not $value.Type)) $value.Properties }}
             ## {{ $name }} { #{{- template "rootName" $rootName }}-{{ lower $name }} }
-            {{ template "schema" dict "SchemaRef" $property "Name" $name "PresidiumRefURL" $url "Inline" true "RootName" $rootName }}
+            {{ template "schema" dict "SchemaRef" $property "Name" $name "PresidiumRefURL" $url "Inline" true "RootName" $rootName "Config" $config }}
         {{- end -}}
 
         {{ if and (or $value.AllOf $value.AnyOf $value.OneOf) (not $ref) }}
@@ -109,9 +111,9 @@
             {{ template "printQuantifiers" dict "Schema" $value "PresidiumRefURL" $url "RootName" $rootName "Name" $name }}
         {{ end }}
 
-        {{- if and $value.Items $value.Items.Value.Properties -}}
+        {{- if and (notEmpty $value.Items) $value.Items.Value.Properties -}}
             ## {{ $name }} { #{{- template "rootName" $rootName }}-{{ lower $name }} }
-            {{ template "schema" dict "SchemaRef" $value.Items "Name" $name "PresidiumRefURL" $url "Inline" true "RootName" $rootName }}
+            {{ template "schema" dict "SchemaRef" $value.Items "Name" $name "PresidiumRefURL" $url "Inline" true "RootName" $rootName "Config" $config }}
         {{- end -}}
     {{- end -}}
 
@@ -188,7 +190,7 @@
             {{- if or $items.Value.AnyOf $items.Value.AllOf $items.Value.OneOf -}}
                 {{- template "listQuantifiers" $items.Value -}}
             {{- else -}}
-                [{{- template "schemaType" dict "Property" $schema.Items "Name" $name "RootName" $rootName "PresidiumRefURL" $url -}}]
+                {{- template "schemaType" dict "Property" $schema.Items "Name" $name "RootName" $rootName "PresidiumRefURL" $url -}}
             {{- end -}}
         {{- else if eq $schema.Type "object" -}}
             [{{- $name }}](#{{- template "anchor" . }})
