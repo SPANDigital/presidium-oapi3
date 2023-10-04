@@ -40,7 +40,7 @@ func init() {
 	convertCmd.Flags().BoolVarP(&cfg.InlineProperties, "inlineProperties", "i", false, "Inline properties in the request and response schemas")
 	convertCmd.Flags().BoolVarP(&cfg.AllowExternalRefs, "allowExternalRefs", "e", false, "Allow external references in the OpenAPI spec. ")
 	convertCmd.Flags().BoolVar(&cfg.IncludeRestrictions, "includeRestrictions", true, "Include a column on the schema for restrictions")
-	convertCmd.Flags().BoolVar(&cfg.IncludeExamples, "includeExamples", true, "Include a column on the schema for examples")
+	convertCmd.Flags().BoolVar(&cfg.IncludeExamples, "includeExamples", false, "Include a column on the schema for examples")
 
 	// Required flags
 	_ = convertCmd.MarkFlagRequired("file")

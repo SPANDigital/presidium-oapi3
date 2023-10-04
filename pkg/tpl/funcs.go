@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"path/filepath"
 	"regexp"
 	"strings"
 	"text/template"
@@ -54,7 +55,9 @@ func GetSchemaLink(ref string) string {
 	refName := ref[idx+1:]
 	linkPath := ref[:idx]
 	linkPath = strings.ReplaceAll(linkPath, "#", fmt.Sprintf("/%s", referenceURL))
-	return fmt.Sprintf("[%s]({{%%baseurl%%}}/%s/#%s)", strcase.ToCamel(refName), linkPath, Slugify(refName))
+	linkPath = filepath.Join(linkPath, fmt.Sprintf("#%s", Slugify(refName)))
+	linkPath = strings.TrimPrefix(linkPath, "/")
+	return fmt.Sprintf("[%s]({{%%baseurl%%}}/%s)", strcase.ToCamel(refName), linkPath)
 }
 
 func ToHTMLNewLines(str string) string {
@@ -140,6 +143,19 @@ func Append(slice []string, value ...string) []string {
 	return append(slice, value...)
 }
 
+func NotEmpty(value interface{}) bool {
+	switch v := value.(type) {
+	case string:
+		return len(v) > 0
+	case []interface{}:
+		return v != nil && len(v) > 0
+	case map[interface{}]interface{}:
+		return v != nil && len(v) > 0
+	default:
+		return false
+	}
+}
+
 func FuncMap(refUrl string) template.FuncMap {
 	referenceURL = refUrl
 	return template.FuncMap{
@@ -160,6 +176,7 @@ func FuncMap(refUrl string) template.FuncMap {
 		"tableHeader":      TableHeader,
 		"getRefRootSchema": GetRefRootSchema,
 		"slice":            Slice,
+		"notEmpty":         NotEmpty,
 		"append":           Append,
 	}
 }
