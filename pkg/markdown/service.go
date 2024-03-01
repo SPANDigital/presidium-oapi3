@@ -3,6 +3,7 @@ package markdown
 import (
 	"bytes"
 	"context"
+	"embed"
 	"fmt"
 	"io/fs"
 	"os"
@@ -29,21 +30,41 @@ type MarkdownService struct {
 	cfg       Config
 }
 
+//go:embed all:templates
+var templatesFS embed.FS
+
 func NewMarkdownService(cfg Config) (MarkdownService, error) {
 	if len(cfg.ApiName) > 0 {
 		cfg.ApiName = fmt.Sprintf("/%s", cfg.ApiName)
 	}
 
 	templates := template.New("").Funcs(tpl.FuncMap(fmt.Sprintf("%s%s", cfg.ReferenceURL, cfg.ApiName)))
-	for _, path := range tpl.AssetNames() {
-		tplResult, err := tpl.Asset(path)
-		if err != nil {
-			log.PanicWithFields("unable to obtain asset", log.Fields{
-				"path":  path,
-				"error": err,
-			})
+
+	getTemplatesFromFS("templates", templates)
+
+	return MarkdownService{
+		templates: templates,
+		cfg:       cfg,
+	}, nil
+}
+
+func getTemplatesFromFS(filepath string, templates *template.Template) {
+	entries, err := templatesFS.ReadDir(filepath)
+	if err != nil {
+		log.Panic("unable to parse embedded file system")
+	}
+
+	for _, entry := range entries {
+		if entry.IsDir() {
+			getTemplatesFromFS(filepath+"/"+entry.Name(), templates)
+			continue
 		}
-		_, err = templates.New(path).Parse(string(tplResult))
+		path := filepath + "/" + entry.Name()
+		data, err := templatesFS.ReadFile(path)
+		if err != nil {
+			log.Panic("unable to parse embedded file")
+		}
+		_, err = templates.New(path).Parse(string(data))
 		if err != nil {
 			log.PanicWithFields("unable to parse template", log.Fields{
 				"path":  path,
@@ -51,11 +72,6 @@ func NewMarkdownService(cfg Config) (MarkdownService, error) {
 			})
 		}
 	}
-
-	return MarkdownService{
-		templates: templates,
-		cfg:       cfg,
-	}, nil
 }
 
 func (ms *MarkdownService) ConvertToMarkdown(filename string) error {
