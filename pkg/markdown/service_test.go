@@ -3,15 +3,15 @@ package markdown
 import (
 	"bytes"
 	"fmt"
+	"os"
+	"path/filepath"
+	"testing"
+
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/iancoleman/strcase"
 	"github.com/stretchr/testify/assert"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
-	"io/ioutil"
-	"os"
-	"path/filepath"
-	"testing"
 )
 
 var config = Config{
@@ -239,7 +239,7 @@ func TestProcessTemplate(t *testing.T) {
 	assert.NoError(t, err)
 
 	// Ensure that we can read the file and it is cleaned properly.
-	b, err := ioutil.ReadFile(fmt.Sprintf("%s/%s", dir, name))
+	b, err := os.ReadFile(fmt.Sprintf("%s/%s", dir, name))
 	assert.NoError(t, err)
 
 	// Remove newlines from expected output.
