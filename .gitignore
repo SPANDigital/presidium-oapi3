@@ -7,3 +7,4 @@ out/dist
 out/content
 dist
 node_modules
+.vscode
