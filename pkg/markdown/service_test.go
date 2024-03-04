@@ -16,9 +16,6 @@ import (
 	"golang.org/x/text/language"
 )
 
-// FIX:
-// Broken tests x2
-
 var config = Config{
 	ReferenceURL:      "http://example.com",
 	ApiName:           "api",
