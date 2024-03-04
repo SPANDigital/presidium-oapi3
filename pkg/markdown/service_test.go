@@ -2,6 +2,7 @@ package markdown
 
 import (
 	"bytes"
+	"context"
 	"fmt"
 	"os"
 	"path/filepath"
@@ -10,9 +11,13 @@ import (
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/iancoleman/strcase"
 	"github.com/stretchr/testify/assert"
+	"github.com/stretchr/testify/require"
 	"golang.org/x/text/cases"
 	"golang.org/x/text/language"
 )
+
+// FIX:
+// Broken tests x2
 
 var config = Config{
 	ReferenceURL:      "http://example.com",
@@ -43,6 +48,8 @@ func TestNewMarkdownService(t *testing.T) {
 }
 
 func TestConvertToMarkdown(t *testing.T) {
+	config.OutputDir = t.TempDir()
+
 	ms, err := NewMarkdownService(config)
 	assert.NoError(t, err, "Unexpected error from NewMarkdownService: %v", err)
 	// Success case
@@ -51,8 +58,6 @@ func TestConvertToMarkdown(t *testing.T) {
 	// Fail case
 	err = ms.ConvertToMarkdown("./testdata/invalid-file.yaml")
 	assert.Error(t, err)
-
-	os.RemoveAll(config.OutputDir)
 }
 
 func TestBasePath(t *testing.T) {
@@ -76,6 +81,8 @@ func TestRootPath(t *testing.T) {
 }
 
 func TestProcessSchemas(t *testing.T) {
+	config.OutputDir = t.TempDir()
+
 	ms, err := NewMarkdownService(config)
 	assert.NoError(t, err, "Unexpected error from NewMarkdownService: %v", err)
 
@@ -90,11 +97,11 @@ func TestProcessSchemas(t *testing.T) {
 		"schema1": {Value: schema1},
 	})
 	assert.NoError(t, err)
-
-	os.RemoveAll(config.OutputDir)
 }
 
 func TestProcessResponses(t *testing.T) {
+	config.OutputDir = t.TempDir()
+
 	ms, err := NewMarkdownService(config)
 	assert.NoError(t, err, "Unexpected error from NewMarkdownService: %v", err)
 
@@ -119,8 +126,6 @@ func TestProcessResponses(t *testing.T) {
 		"response2": responseWithDescription,
 	})
 	assert.NoError(t, err)
-
-	os.RemoveAll(config.OutputDir)
 }
 
 func TestCleanForMarkdown(t *testing.T) {
@@ -134,6 +139,8 @@ func TestCleanForMarkdown(t *testing.T) {
 }
 
 func TestProcessOperation(t *testing.T) {
+	config.OutputDir = t.TempDir()
+
 	ms, err := NewMarkdownService(config)
 	assert.NoError(t, err, "Unexpected error from NewMarkdownService: %v", err)
 
@@ -160,13 +167,11 @@ func TestProcessOperation(t *testing.T) {
 	filePath2 := filepath.Clean(fmt.Sprintf("%s/content/%s/operations/%s/%s.md", ms.cfg.OutputDir, parentFolder, operation.Operation.Tags[1], strcase.ToSnake(operationID)))
 	_, err = os.Stat(filePath2)
 	assert.NoError(t, err)
-
-	os.Remove("./_index.md")
-	os.Remove("./testdata/_index.md")
-	os.RemoveAll(config.OutputDir)
 }
 
 func TestProcessOperations(t *testing.T) {
+	config.OutputDir = t.TempDir()
+
 	ms, err := NewMarkdownService(config)
 	assert.NoError(t, err, "Unexpected error from NewMarkdownService: %v", err)
 
@@ -178,11 +183,11 @@ func TestProcessOperations(t *testing.T) {
 
 	err = ms.processOperations(ms.cfg.OutputDir, nil, 0)
 	assert.NoError(t, err)
-
-	os.RemoveAll(config.OutputDir)
 }
 
 func TestProcessInfo(t *testing.T) {
+	config.OutputDir = t.TempDir()
+
 	ms, err := NewMarkdownService(config)
 	assert.NoError(t, err, "Unexpected error from NewMarkdownService: %v", err)
 
@@ -192,14 +197,14 @@ func TestProcessInfo(t *testing.T) {
 	err = ms.processInfo(info)
 	assert.NoError(t, err)
 	// Check if file exists
-	filePath := fmt.Sprintf("%s/content/%s/info.md", ms.cfg.OutputDir, ms.basePath())
+	filePath := fmt.Sprintf("%s/content/%s/_index.md", ms.cfg.OutputDir, ms.basePath())
 	_, err = os.Stat(filePath)
 	assert.NoError(t, err)
-
-	os.RemoveAll(config.OutputDir)
 }
 
 func TestProcessTags(t *testing.T) {
+	config.OutputDir = t.TempDir()
+
 	ms, err := NewMarkdownService(config)
 	assert.NoError(t, err, "Unexpected error from NewMarkdownService: %v", err)
 
@@ -216,11 +221,11 @@ func TestProcessTags(t *testing.T) {
 	filePath2 := fmt.Sprintf("%s/content/%s/operations/tag2/_index.md", ms.cfg.OutputDir, ms.basePath())
 	_, err = os.Stat(filePath2)
 	assert.NoError(t, err)
-
-	os.RemoveAll(config.OutputDir)
 }
 
 func TestProcessTemplate(t *testing.T) {
+	config.OutputDir = t.TempDir()
+
 	ms, err := NewMarkdownService(config)
 	assert.NoError(t, err, "Unexpected error from NewMarkdownService: %v", err)
 
@@ -247,17 +252,18 @@ func TestProcessTemplate(t *testing.T) {
 
 	// Assert that the file was created correctly.
 	assert.Equal(t, expected, b)
-
-	os.Remove("./_index.md")
-	os.Remove("./testdata/_index.md")
-	os.RemoveAll(config.OutputDir)
 }
 
 func TestCreateIndexFiles(t *testing.T) {
+	config.OutputDir = t.TempDir()
 	ms, err := NewMarkdownService(config)
 	assert.NoError(t, err, "Unexpected error from NewMarkdownService: %v", err)
 
-	err = ms.createIndexFiles()
+	loader := &openapi3.Loader{Context: context.Background(), IsExternalRefsAllowed: ms.cfg.AllowExternalRefs}
+	swagger, err := loader.LoadFromFile("../../swagger.yml")
+	require.NoError(t, err)
+
+	err = ms.createIndexFiles(swagger)
 	assert.NoError(t, err)
 	// Check if files exist
 	dirs := map[string]string{
@@ -267,16 +273,23 @@ func TestCreateIndexFiles(t *testing.T) {
 		"operations":           "Operations",
 		"":                     cases.Title(language.English).String(ms.cfg.ReferenceURL),
 	}
+	if len(swagger.Components.Responses) == 0 {
+		delete(dirs, "components/responses")
+	}
+
+	if len(swagger.Components.Schemas) == 0 {
+		delete(dirs, "components/schemas")
+	}
 	for dir := range dirs {
 		filePath := fmt.Sprintf("%s/content/%s/%s/_index.md", ms.cfg.OutputDir, ms.basePath(), dir)
 		_, err = os.Stat(filePath)
 		assert.NoError(t, err)
 	}
-
-	os.RemoveAll(config.OutputDir)
 }
 
 func TestCreateSubIndex(t *testing.T) {
+	config.OutputDir = t.TempDir()
+
 	ms, err := NewMarkdownService(config)
 	assert.NoError(t, err, "Unexpected error from NewMarkdownService: %v", err)
 
@@ -288,8 +301,4 @@ func TestCreateSubIndex(t *testing.T) {
 	// create an index file for an existing path
 	err = ms.createSubIndex(filePath)
 	assert.NoError(t, err)
-
-	os.Remove("./_index.md")
-	os.Remove("./testdata/_index.md")
-	os.RemoveAll(config.OutputDir)
 }
