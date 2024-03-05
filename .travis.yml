@@ -53,3 +53,5 @@ env:
   global:
   - secure: f6yCpw7i53fgcDO3vKRn5wTvU1v9zXkaFgCAKNOIlA5GhZG5eQuQuyFecNlh499XYxOofgYhozI4XMll3j9PitM+d+dapd9HSyu0b2BsDxt8+SqW5eQtKg7xXHPpx8NCvliz0Xtx2wM+kuaE3w4NKQLEL9q/r50TpVX+dT1Jyx8FaWMCTn9Kh/kIdsFfjXBTq11PZXSU33lWHwE81bUguBvLxQv3ck2E3RA9E6GDdsmYkr35cxoWgxR9kA0qHb5QwbT1nW0jk+umUmcMvviq+XObj8/2YaiuNmhQu6Wbmmdm+/s8md3sA+dV/HKljmD4vKetRGgHs3aeqkDvchlv5bHhTEAYv5iLMc2slWmgZAmTBLFC6NtpC1KxQdQp2pc6+fylaGhh4KUkMcdoOOhatYc1pYs59tE3/UUOvK5tBy/qee2eZjBDJsxePVrRZTcXV4yGR57fUzWwqZsnwcfEW0G9OvW/Z6Xwo88mY9TEjpRwRKoEfScEChWyLcp8LdyKgCovt7+nTpdufBwh0+XjP9BL0BnqabyfCZ0r/QS5SLHrw376IT/KIvilaELWu93bmoNmLau4G1GqbmAqkVxGNFntNBOg0+uQ8xxcW5AsQX4wL0WZ5fG6NX7UT46hsXZkQOMCWEgVy+3AxThIq1KbdL6P/ZjZyvGvp//K0rEmnWY=
   - TMPDIR=/tmp
+  - CACHE_DIR=$HOME/.cache
+  - CACHE_FILE_GO=$CACHE_DIR/go-alpine.tar.gz
