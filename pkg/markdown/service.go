@@ -64,11 +64,11 @@ func getTemplatesFromFS(filepath string, templates *template.Template) error {
 			continue
 		}
 		path := filepath + "/" + entry.Name()
-		data, err := templatesFS.ReadFile(path)
+		tplResult, err := templatesFS.ReadFile(path)
 		if err != nil {
 			return errors.Wrap(err, "unable to parse embedded file")
 		}
-		_, err = templates.New(path).Parse(string(data))
+		_, err = templates.New(path).Parse(string(tplResult))
 		if err != nil {
 			log.InfoWithFields("unable to parse template", log.Fields{
 				"path":  path,
