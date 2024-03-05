@@ -55,3 +55,4 @@ env:
   - TMPDIR=/tmp
   - CACHE_DIR=$HOME/.cache
   - CACHE_FILE_GO=$CACHE_DIR/go-alpine.tar.gz
+  - GO111MODULE=on
