@@ -31,7 +31,7 @@ type MarkdownService struct {
 	cfg       Config
 }
 
-//go:embed all:templates
+//go:embed templates
 var templatesFS embed.FS
 
 func NewMarkdownService(cfg Config) (MarkdownService, error) {
