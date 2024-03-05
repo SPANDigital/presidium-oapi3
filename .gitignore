@@ -8,3 +8,4 @@ out/content
 dist
 node_modules
 .vscode
+reports/
