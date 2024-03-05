@@ -18,6 +18,7 @@ import (
 	"github.com/SPANDigital/presidium-oapi3/pkg/tpl"
 	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/iancoleman/strcase"
+	"github.com/pkg/errors"
 )
 
 const (
@@ -40,7 +41,10 @@ func NewMarkdownService(cfg Config) (MarkdownService, error) {
 
 	templates := template.New("").Funcs(tpl.FuncMap(fmt.Sprintf("%s%s", cfg.ReferenceURL, cfg.ApiName)))
 
-	getTemplatesFromFS("templates", templates)
+	err := getTemplatesFromFS("templates", templates)
+	if err != nil {
+		return MarkdownService{}, err
+	}
 
 	return MarkdownService{
 		templates: templates,
@@ -48,10 +52,10 @@ func NewMarkdownService(cfg Config) (MarkdownService, error) {
 	}, nil
 }
 
-func getTemplatesFromFS(filepath string, templates *template.Template) {
+func getTemplatesFromFS(filepath string, templates *template.Template) error {
 	entries, err := templatesFS.ReadDir(filepath)
 	if err != nil {
-		log.Panic("unable to parse embedded file system")
+		return errors.Wrap(err, "unable to parse embedded file system")
 	}
 
 	for _, entry := range entries {
@@ -62,16 +66,19 @@ func getTemplatesFromFS(filepath string, templates *template.Template) {
 		path := filepath + "/" + entry.Name()
 		data, err := templatesFS.ReadFile(path)
 		if err != nil {
-			log.Panic("unable to parse embedded file")
+			return errors.Wrap(err, "unable to parse embedded file")
 		}
 		_, err = templates.New(path).Parse(string(data))
 		if err != nil {
-			log.PanicWithFields("unable to parse template", log.Fields{
+			log.InfoWithFields("unable to parse template", log.Fields{
 				"path":  path,
 				"error": err,
 			})
+			return err
 		}
 	}
+
+	return nil
 }
 
 func (ms *MarkdownService) ConvertToMarkdown(filename string) error {
