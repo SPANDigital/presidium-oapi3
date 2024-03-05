@@ -16,36 +16,32 @@ import (
 	"golang.org/x/text/language"
 )
 
-var config = Config{
-	ReferenceURL:      "http://example.com",
-	ApiName:           "api",
-	TitleFormat:       "methodTitle",
-	SortFilePath:      false,
-	InlineProperties:  false,
-	OutputDir:         "./testdata/tmp",
-	AllowExternalRefs: false,
-}
-
-func TestNewMarkdownService(t *testing.T) {
-	resultConfig := Config{
+func getConfig(t *testing.T) Config {
+	return Config{
 		ReferenceURL:      "http://example.com",
-		ApiName:           "/api",
+		ApiName:           "api",
 		TitleFormat:       "methodTitle",
 		SortFilePath:      false,
 		InlineProperties:  false,
-		OutputDir:         "./testdata/tmp",
+		OutputDir:         t.TempDir(),
 		AllowExternalRefs: false,
 	}
+}
+
+func TestNewMarkdownService(t *testing.T) {
+	config := getConfig(t)
+	expected := config
+	expected.ApiName = "/api"
 
 	ms, err := NewMarkdownService(config)
 
 	assert.NoError(t, err, "Unexpected error from NewMarkdownService: %v", err)
 	assert.NotNil(t, ms.templates, "Expected templates to be non-nil, but got nil")
-	assert.Equal(t, ms.cfg, resultConfig, "Expected config to be %+v, but got %+v", config, ms.cfg)
+	assert.Equal(t, ms.cfg, expected, "Config does not match")
 }
 
 func TestConvertToMarkdown(t *testing.T) {
-	config.OutputDir = t.TempDir()
+	config := getConfig(t)
 
 	ms, err := NewMarkdownService(config)
 	assert.NoError(t, err, "Unexpected error from NewMarkdownService: %v", err)
@@ -58,6 +54,8 @@ func TestConvertToMarkdown(t *testing.T) {
 }
 
 func TestBasePath(t *testing.T) {
+	config := getConfig(t)
+
 	ms, err := NewMarkdownService(config)
 	assert.NoError(t, err, "Unexpected error from NewMarkdownService: %v", err)
 
@@ -68,6 +66,8 @@ func TestBasePath(t *testing.T) {
 }
 
 func TestRootPath(t *testing.T) {
+	config := getConfig(t)
+
 	ms, err := NewMarkdownService(config)
 	assert.NoError(t, err, "Unexpected error from NewMarkdownService: %v", err)
 
@@ -78,7 +78,7 @@ func TestRootPath(t *testing.T) {
 }
 
 func TestProcessSchemas(t *testing.T) {
-	config.OutputDir = t.TempDir()
+	config := getConfig(t)
 
 	ms, err := NewMarkdownService(config)
 	assert.NoError(t, err, "Unexpected error from NewMarkdownService: %v", err)
@@ -97,7 +97,7 @@ func TestProcessSchemas(t *testing.T) {
 }
 
 func TestProcessResponses(t *testing.T) {
-	config.OutputDir = t.TempDir()
+	config := getConfig(t)
 
 	ms, err := NewMarkdownService(config)
 	assert.NoError(t, err, "Unexpected error from NewMarkdownService: %v", err)
@@ -126,6 +126,8 @@ func TestProcessResponses(t *testing.T) {
 }
 
 func TestCleanForMarkdown(t *testing.T) {
+	config := getConfig(t)
+
 	ms, err := NewMarkdownService(config)
 	assert.NoError(t, err, "Unexpected error from NewMarkdownService: %v", err)
 
@@ -136,7 +138,7 @@ func TestCleanForMarkdown(t *testing.T) {
 }
 
 func TestProcessOperation(t *testing.T) {
-	config.OutputDir = t.TempDir()
+	config := getConfig(t)
 
 	ms, err := NewMarkdownService(config)
 	assert.NoError(t, err, "Unexpected error from NewMarkdownService: %v", err)
@@ -167,7 +169,7 @@ func TestProcessOperation(t *testing.T) {
 }
 
 func TestProcessOperations(t *testing.T) {
-	config.OutputDir = t.TempDir()
+	config := getConfig(t)
 
 	ms, err := NewMarkdownService(config)
 	assert.NoError(t, err, "Unexpected error from NewMarkdownService: %v", err)
@@ -183,7 +185,7 @@ func TestProcessOperations(t *testing.T) {
 }
 
 func TestProcessInfo(t *testing.T) {
-	config.OutputDir = t.TempDir()
+	config := getConfig(t)
 
 	ms, err := NewMarkdownService(config)
 	assert.NoError(t, err, "Unexpected error from NewMarkdownService: %v", err)
@@ -200,7 +202,7 @@ func TestProcessInfo(t *testing.T) {
 }
 
 func TestProcessTags(t *testing.T) {
-	config.OutputDir = t.TempDir()
+	config := getConfig(t)
 
 	ms, err := NewMarkdownService(config)
 	assert.NoError(t, err, "Unexpected error from NewMarkdownService: %v", err)
@@ -221,7 +223,7 @@ func TestProcessTags(t *testing.T) {
 }
 
 func TestProcessTemplate(t *testing.T) {
-	config.OutputDir = t.TempDir()
+	config := getConfig(t)
 
 	ms, err := NewMarkdownService(config)
 	assert.NoError(t, err, "Unexpected error from NewMarkdownService: %v", err)
@@ -252,7 +254,7 @@ func TestProcessTemplate(t *testing.T) {
 }
 
 func TestCreateIndexFiles(t *testing.T) {
-	config.OutputDir = t.TempDir()
+	config := getConfig(t)
 	ms, err := NewMarkdownService(config)
 	assert.NoError(t, err, "Unexpected error from NewMarkdownService: %v", err)
 
@@ -285,7 +287,7 @@ func TestCreateIndexFiles(t *testing.T) {
 }
 
 func TestCreateSubIndex(t *testing.T) {
-	config.OutputDir = t.TempDir()
+	config := getConfig(t)
 
 	ms, err := NewMarkdownService(config)
 	assert.NoError(t, err, "Unexpected error from NewMarkdownService: %v", err)
