@@ -14,15 +14,13 @@ clean:
 	rm -rf reports
 	rm -rf tmp
 
-
-# test runs all tests
 test:
-	@mkdir -p reports
-	go test -failfast -p 1 -v $(TESTDIRS) -coverprofile=reports/tests-cov.out
+	@mkdir -p reports	
+	go test -failfast -coverprofile reports/coverage.out -v ./...
 
 test_reports:
 	@mkdir -p reports
-	@go test -p 1 -v $(TESTDIRS) -coverprofile=reports/tests-cov.out -json > reports/tests.json
+	@go test -v $(TESTDIRS) -coverprofile=reports/tests-cov.out -json > reports/tests.json
 
 coverage_report:
 	@go tool cover -html=reports/tests-cov.out
