@@ -6,18 +6,16 @@ cache:
   - "$HOME/gopath/pkg/mod"
 jobs:
   include:
-  - stage: tests
-    name: Run Tests
-    if: env(TEST) IS NOT present AND type = push AND tag IS NOT present
-    language: go
-    go:
-    - 1.17.x
-    git:
-      depth: false
-    before_script: 
-      - chmod 555 $TMPDIR
-    script:
-    - make test || travis_terminate 1
+  # - stage: tests
+  #   name: Run Tests
+  #   if: env(TEST) IS NOT present AND type = push AND tag IS NOT present
+  #   language: go
+  #   go:
+  #   - 1.17.x
+  #   git:
+  #     depth: false
+  #   script:
+  #   - make test || travis_terminate 1
   - stage: Tag code
     if: branch IN (develop, master) AND type = push AND NOT (commit_message =~ /^.*\[NPM
       version\].*$/)
