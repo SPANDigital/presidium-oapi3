@@ -1,3 +1,6 @@
+cache:
+  directories:
+  - "$HOME/gopath/pkg/mod"
 jobs:
   include:
   - stage: tests
