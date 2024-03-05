@@ -18,7 +18,7 @@ clean:
 # test runs all tests
 test:
 	@mkdir -p reports
-	go test -p 1 -v $(TESTDIRS) -coverprofile=reports/tests-cov.out
+	go test -failfast -p 1 -v $(TESTDIRS) -coverprofile=reports/tests-cov.out
 
 test_reports:
 	@mkdir -p reports
