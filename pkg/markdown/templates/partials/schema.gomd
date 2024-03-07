@@ -223,9 +223,9 @@
     {{- if .MinProps }} **Minimum properties**: {{ .MinProps }}<br>  {{- end -}}
     {{ if .AdditionalPropertiesAllowed }} **Additional properties allowed**: true<br>  {{- end -}}
     {{- if gt (len .Enum) 0 -}}
-        **Enum**:&nbsp;
+        **Enum**:<br>{{"\n"}}
         {{- range $idx, $value := .Enum -}}
-            {{- $value}}&nbsp;
+            {{$value}}<br>{{"\n"}}
         {{- end -}}
     {{- end -}}
 {{- end -}}
