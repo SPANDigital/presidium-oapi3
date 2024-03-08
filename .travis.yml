@@ -17,7 +17,7 @@ jobs:
   #   script:
   #   - make test || travis_terminate 1
   - stage: Tag code
-    if: branch IN (develop, master) AND type = push AND NOT (commit_message =~ /^.*\[NPM
+    if: branch IN (develop, main) AND type = push AND NOT (commit_message =~ /^.*\[NPM
       version\].*$/)
     language: go
     go:
