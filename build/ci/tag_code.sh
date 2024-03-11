@@ -8,15 +8,15 @@ source "${DIR}"/include.sh
 git checkout "${TRAVIS_BRANCH}"
 
 f_info_log "Calculating tag ${TRAVIS_BRANCH} branch..."
-if [ "${TRAVIS_BRANCH}" = "master" ]; then
+if [ "${TRAVIS_BRANCH}" = "main" ]; then
   tag=v$(docker run --rm -v "$(pwd):/repo" gittools/gitversion:5.6.4-debian.9-x64-5.0 /repo -output json -showvariable MajorMinorPatch)
 elif [ "${TRAVIS_BRANCH}" = "develop" ]; then
   tag=v$(docker run --rm -v "$(pwd):/repo" gittools/gitversion:5.6.4-debian.9-x64-5.0 /repo -output json -showvariable SemVer)
 fi
 f_info_log "The tag for current source code is: ${tag}"
 
-# Bump up npm version if is a master release
-if [ "${TRAVIS_BRANCH}" = "master" ]; then
+# Bump up npm version if is a main release
+if [ "${TRAVIS_BRANCH}" = "main" ]; then
   npm version "$tag" --no-git-tag-version --allow-same-version
   git add package.json
   git commit -m "[NPM version] Bump up NPM version to ${tag}"
