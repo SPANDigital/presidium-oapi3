@@ -4,7 +4,7 @@
 # * Golang-alpine docker stage to compile presidium-oapi3 for alpine
 #===================================================================================================#
 
-FROM golang:1.14-alpine AS builder
+FROM golang:1.20-alpine AS builder
 
 WORKDIR /presidium-oapi3
 COPY go.mod .

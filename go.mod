@@ -1,6 +1,6 @@
 module github.com/SPANDigital/presidium-oapi3
 
-go 1.17
+go 1.20
 
 require (
 	github.com/antonfisher/nested-logrus-formatter v1.3.1
