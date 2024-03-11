@@ -5,7 +5,11 @@ branches:
     mode: ContinuousDeployment
     tag: rfv
     increment: Patch
+    regex: (^develop$|^origin\/develop$)
+    source-branches: []
   master:
     mode: ContinuousDelivery
+    regex: (^main$|^origin\/main$)
+    source-branches: []
 ignore:
   sha: []
