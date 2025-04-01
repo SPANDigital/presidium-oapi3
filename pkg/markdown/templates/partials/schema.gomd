@@ -27,7 +27,7 @@
             {{- end -}}
         {{ end }}
 
-        {{ template "printQuantifiers" dict "Schema" $schema "PresidiumRefURL" $presidiumRefURL "RootName" $name "Name" $rootName }}
+        {{ template "printQuantifiers" dict "Schema" $schema "PresidiumRefURL" $presidiumRefURL "RootName" $name "Name" $rootName "Config" $config }}
 
     {{- end }}
 {{- end -}}
@@ -98,7 +98,6 @@
     {{- range $name, $property := .Schema.Properties }}
         {{- $ref := .Ref }}
         {{- $value := .Value }}
-
         {{- if and (not $ref) (or (eq $value.Type "object") (not $value.Type)) $value.Properties }}
             ## {{ $name }} { #{{- template "rootName" $rootName }}-{{ lower $name }} }
             {{ template "schema" dict "SchemaRef" $property "Name" $name "PresidiumRefURL" $url "Inline" true "RootName" $rootName "Config" $config }}
@@ -108,7 +107,7 @@
             ## {{ $name }} { #{{- template "rootName" $rootName }}-{{ lower $name }} }
             {{ if $value.Description }} {{  $value.Description }} {{ end -}}
 
-            {{ template "printQuantifiers" dict "Schema" $value "PresidiumRefURL" $url "RootName" $rootName "Name" $name }}
+            {{ template "printQuantifiers" dict "Schema" $value "PresidiumRefURL" $url "RootName" $rootName "Name" $name "Config" $config }}
         {{ end }}
 
         {{- if and (notEmpty $value.Items) $value.Items.Value.Properties -}}
@@ -124,19 +123,21 @@
     {{ $presidiumRefURL := .PresidiumRefURL }}
     {{ $name := .Name }}
     {{ $rootName := .RootName }}
+    {{ $config := .Config }}
+
     {{ if $schema.OneOf }}
     **One Of:**
-    {{ template "quantifiers" dict "Schemas" $schema.OneOf "PresidiumRefURL" $presidiumRefURL "RootName" $rootName "Name" $name }}
+    {{ template "quantifiers" dict "Schemas" $schema.OneOf "PresidiumRefURL" $presidiumRefURL "RootName" $rootName "Name" $name "Config" $config }}
     {{ end }}
 
     {{ if $schema.AllOf }}
     **All Of:**
-    {{ template "quantifiers" dict "Schemas" $schema.AllOf "PresidiumRefURL" $presidiumRefURL "RootName" $rootName "Name" $name }}
+    {{ template "quantifiers" dict "Schemas" $schema.AllOf "PresidiumRefURL" $presidiumRefURL "RootName" $rootName "Name" $name "Config" $config }}
     {{ end }}
 
     {{ if $schema.AnyOf }}
     **Any Of:**
-    {{ template "quantifiers" dict "Schemas" $schema.AnyOf "PresidiumRefURL" $presidiumRefURL "RootName" $rootName "Name" $name }}
+    {{ template "quantifiers" dict "Schemas" $schema.AnyOf "PresidiumRefURL" $presidiumRefURL "RootName" $rootName "Name" $name "Config" $config }}
     {{ end }}
 {{- end -}}
 
@@ -145,6 +146,8 @@
     {{ $url := .PresidiumRefURL }}
     {{ $rootName := .RootName }}
     {{ $name := .Name }}
+    {{ $config := .Config }}
+
     | Type | Description | Restrictions |
     |------|-------------|--------------|
     {{- range $idx, $property := .Schemas }}
@@ -170,7 +173,7 @@
         {{- if and (not $ref) (eq $value.Type "object") $value.Properties }}
 
             ### Inline Schema {{ $inlineCount }} { #{{- template "rootName" $rootName }}-{{lower $name}}-inline-schema-{{$inlineCount}} }
-            {{ template "schema" dict "SchemaRef" $property "Name" $rootName "PresidiumRefURL" $url }}
+            {{ template "schema" dict "SchemaRef" $property "Name" $rootName "PresidiumRefURL" $url "Config" $config }}
         {{- end -}}
     {{- end -}}
 {{- end -}}
