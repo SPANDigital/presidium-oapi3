@@ -42,14 +42,14 @@ jobs:
       on:
         tags: true
         condition: "${TRAVIS_TAG} =~ ^v[0-9]+\\.[0-9]+\\.[0-9]+$"
-    - provider: npm
-      email: presidium@spandigital.com
-      api_key:
-        secure: YnHUaE/DF4nIrcUz6prrIMM4tbZRD3l0Gai3Rt6kufALxqhhuWwm3Y2Ub3Wu9xKvzdO0rSdtLABAVSnCfWi6bupy+YkE0uhdwOqsrSt9X+BVov/3XCNy7vHK0sif1XdSgfcud2y4EXnVchu7VsKl+ZZaNqQ36HRkpe8szWF5UujWEEHxiLrp6/WpY5lTp2NXfhbTAzmi74K0Eqg4Q0JhX5NvHAQUQVIjJszaugC8ZCQ30ODftW7/QgNxgtvXh3DdOwYs15yCfLInAkYpA3VJK/08pnGzCgWChoJ9J0pzhvYeIIUEFZIbBcsCsaVsxgwdC53EkFo3A7xTQJm2TQBrgYVN0uHngW+pXjQ56Am85YLS7qwzSmPTrwdUQFEwwW4yyirwstSV0B/Iw7QtyzXBF6ozR0tvJtiNXFN7zmhA5yRxcduEcmggClqt3KnaPuqk3F9Ne71OxE/ToqZW1k9JBEXKkwjXT/kVxhrR6SBiTf01Ze3gdDjqHifA16NAd/0pP32xA2Db1TPiBqxnqLRKTMVXpvJ8Rgg4Sj/CGeEFqM0kuCFO7AbBSTmqAVWSuMlOdtfbOG2vACD6sBoO33sF+kpM8yoIH9IvcMQUfzndqKR6iUOtjIXrZB/KKPNsDvNoDJHO8/3mTdmTKRdq/nX4B4fibUr+cHeqvdbhx9J8PvI=
-      on:
-        tags: true
-        repo: SPANDigital/presidium-oapi3
-        condition: "${TRAVIS_TAG} =~ ^v[0-9]+\\.[0-9]+\\.[0-9]+$"
+  #  - provider: npm
+  #    email: presidium@spandigital.com
+  #    api_key:
+  #      secure: YnHUaE/DF4nIrcUz6prrIMM4tbZRD3l0Gai3Rt6kufALxqhhuWwm3Y2Ub3Wu9xKvzdO0rSdtLABAVSnCfWi6bupy+YkE0uhdwOqsrSt9X+BVov/3XCNy7vHK0sif1XdSgfcud2y4EXnVchu7VsKl+ZZaNqQ36HRkpe8szWF5UujWEEHxiLrp6/WpY5lTp2NXfhbTAzmi74K0Eqg4Q0JhX5NvHAQUQVIjJszaugC8ZCQ30ODftW7/QgNxgtvXh3DdOwYs15yCfLInAkYpA3VJK/08pnGzCgWChoJ9J0pzhvYeIIUEFZIbBcsCsaVsxgwdC53EkFo3A7xTQJm2TQBrgYVN0uHngW+pXjQ56Am85YLS7qwzSmPTrwdUQFEwwW4yyirwstSV0B/Iw7QtyzXBF6ozR0tvJtiNXFN7zmhA5yRxcduEcmggClqt3KnaPuqk3F9Ne71OxE/ToqZW1k9JBEXKkwjXT/kVxhrR6SBiTf01Ze3gdDjqHifA16NAd/0pP32xA2Db1TPiBqxnqLRKTMVXpvJ8Rgg4Sj/CGeEFqM0kuCFO7AbBSTmqAVWSuMlOdtfbOG2vACD6sBoO33sF+kpM8yoIH9IvcMQUfzndqKR6iUOtjIXrZB/KKPNsDvNoDJHO8/3mTdmTKRdq/nX4B4fibUr+cHeqvdbhx9J8PvI=
+  #    on:
+  #      tags: true
+  #      repo: SPANDigital/presidium-oapi3
+  #      condition: "${TRAVIS_TAG} =~ ^v[0-9]+\\.[0-9]+\\.[0-9]+$"
     after_deploy:
     - "./build/ci/tags_cleanup.sh"
 env:
