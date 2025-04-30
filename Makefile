@@ -27,3 +27,10 @@ coverage_report:
 
 
 .PHONY: default clean test test_reports coverage_report
+
+# Markdown linting
+markdown-lint:
+	docker run -v $(shell pwd):/workdir ghcr.io/igorshubovych/markdownlint-cli:latest README.md
+
+markdown-lint-fix:
+	docker run -v $(shell pwd):/workdir ghcr.io/igorshubovych/markdownlint-cli:latest README.md --fix
