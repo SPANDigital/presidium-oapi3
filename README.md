@@ -1,6 +1,6 @@
 # Presidium OpenAPI 3
 
-A Golang tool for importing your [OpenAPI 3](https://spec.openapis.org/oas/v3.0.3) spec into 
+A Golang tool for importing your [OpenAPI 3](https://spec.openapis.org/oas/v3.0.3) spec into
 [Presidium](http://presidium.spandigital.net) documentation.
 
 ## Generation
@@ -14,16 +14,12 @@ This tool can be run as a:
 
 Install presidium-oapi3 globally
 
-With Brew - Recommended for ARM64
+Use brew to install presidium-oapi3:
+
 ```shell
 brew tap SPANDigital/homebrew-tap https://github.com/SPANDigital/homebrew-tap.git
 brew install presidium-oapi3
 
-```
-
-With NPM
-```shell
-npm install -g presidium-oapi-3
 ```
 
 ## Run
@@ -74,24 +70,13 @@ Flags:
 ```
 
 Sample usage:
+
 ```shell
 presidium-oapi3 convert -f api-spec.yaml -o /project/root/path
 ```
 
 The converter will store the Markdown under the `/reference` directory by default, but you can change it by using the `-r, --referenceURL` flag.
+
 ```shell
 presidium-oapi3 convert -f example.yaml -o /project/root/path -r /custom/path
-```
-
-## Part Of Your Project
-
-Include as part of the npm build building your Presidium site as in the following sample:
-
-```json
-"scripts" : {
-    "import-open-api-3" : "presidium-oapi3 convert -f <YOUR_API_SPEC> -o <THE_OUTPUT_DIRECTORY> -r <THE_PRESIDIUM_REFERENCE_URL>"
-},
-"devDependencies": {
-    "presidium-oapi-3" : "#.#.#"
-}
 ```
