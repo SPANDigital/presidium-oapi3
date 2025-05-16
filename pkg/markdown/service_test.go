@@ -177,10 +177,10 @@ func TestProcessOperations(t *testing.T) {
 	err = ms.processOperations(ms.cfg.OutputDir, map[string]*openapi3.Operation{
 		"get":  {},
 		"post": {},
-	}, 1)
+	}, 1, nil)
 	assert.NoError(t, err)
 
-	err = ms.processOperations(ms.cfg.OutputDir, nil, 0)
+	err = ms.processOperations(ms.cfg.OutputDir, nil, 0, nil)
 	assert.NoError(t, err)
 }
 

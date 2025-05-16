@@ -1,0 +1,81 @@
+{{- /* Security flow schema template */ -}}
+{{- define "securityFlowSchema"}}
+    {{- if .AuthorizationURL}}
+        Authorization URL: `{{.AuthorizationURL}}`<br>
+    {{- end}}
+    {{- if .TokenURL}}
+        Token URL: `{{.TokenURL}}`<br>
+    {{- end}}
+    {{- if .RefreshURL}}
+        Refresh URL: `{{.RefreshURL}}`<br>
+    {{- end}}
+    {{- if .Scopes}}
+        {{- if gt (len .Scopes) 0 }}
+            **Scopes:**<br>
+            |Name|Description|
+            |----|-----------|
+            {{- range $name, $value := .Scopes }}
+               | {{ $name}} | {{ $value }} |
+            {{- end}}
+        {{- end}}
+    {{- end}}
+
+{{- end }}
+
+{{- /* Security schema template */ -}}
+{{- define "securitySchema"}}
+    {{- $schema := .SecuritySchemeRef.Value }}
+
+    {{- if $schema.Description}}
+        {{$schema.Description}}<br>
+    {{- end}}
+    {{- if $schema.Name}}
+        Name: `{{$schema.Name}}`<br>
+    {{- end}}
+    {{- if $schema.Type}}
+        Type: `{{$schema.Type}}`<br>
+    {{- end}}
+    {{- if $schema.Scheme}}
+        Scheme: `{{$schema.Scheme}}`<br>
+    {{- end}}
+    {{- if $schema.In}}
+        In: `{{$schema.In}}`<br>
+    {{- end}}
+    {{- if $schema.BearerFormat}}
+        Bearer Format: `{{$schema.BearerFormat}}`<br>
+    {{- end}}
+    {{- if $schema.OpenIdConnectUrl}}
+        OpenId Connect Url: `{{$schema.OpenIdConnectUrl}}`
+    {{- end}}
+
+    {{- if $schema.Flows}}
+        ##### Flows:
+        {{- if $schema.Flows.Implicit }}
+            ##### Implicit
+            {{ template "securityFlowSchema" $schema.Flows.Implicit}}
+            
+        {{- end }}
+
+        {{- if $schema.Flows.Password }}
+            ##### Password
+            {{ template "securityFlowSchema" $schema.Flows.Password}}
+
+        {{- end }}
+
+        {{- if $schema.Flows.ClientCredentials }}
+            ##### ClientCredentials
+            {{ template "securityFlowSchema" $schema.Flows.ClientCredentials}}
+
+        {{- end }}
+
+        {{- if $schema.Flows.AuthorizationCode }}
+            ##### AuthorizationCode
+            {{ template "securityFlowSchema" $schema.Flows.AuthorizationCode}}
+
+        {{- end }}
+    {{- end}}
+
+{{- end }}
+{{- /* End of Security template */ -}}
+
+

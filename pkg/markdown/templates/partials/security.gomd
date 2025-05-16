@@ -1,22 +1,24 @@
 {{- /* Security Template */ -}}
 {{- define "security" -}}
-{{- range $name, $scopes := . }}
-| {{ $name }} | {{ join $scopes ", " }} |
-{{- end}}
+    {{- $url := .PresidiumRefURL }}
+    url: {{$url}}
+    {{- range $name, $scopes := .Security }}
+        url2: {{$url}}
+        | [{{ $name }}](/{{$url}}/components/securitySchemas#{{- (slugify (lower $name)) -}}) | {{ join $scopes ", " }} |
+    {{- end}}
 {{- end}}
 {{- /* End of Security Template */ -}}
 
 {{- /* SecurityList Template */ -}}
 {{ define "securityList" }}
-    {{- if . }}
-        {{- if gt (len .) 0 }}
-
+    {{- $url := .PresidiumRefURL }}
+    {{- if .Security }}
+        {{- if gt (len .Security) 0 }}
             ## Authentication
-
             |Name|Scopes|
             |----|------|
-            {{- range $index, $security := . }}
-                {{- template "security" $security }}
+            {{- range $index, $security := .Security }}
+                {{- template "security" dict "Security" $security "PresidiumRefURL" $url }}
             {{- end}}
         {{- end}}
     {{- end}}
