@@ -1,0 +1,5 @@
+---
+title: {{ .Name }}
+---
+
+{{ template "securitySchema" dict "SecuritySchemeRef" .SecuritySchemeRef "Name" .Name "PresidiumRefURL" .PresidiumRefURL }}

@@ -97,7 +97,7 @@ func (ms *MarkdownService) ConvertToMarkdown(filename string) error {
 
 	sequence := 0
 	for path, item := range swagger.Paths {
-		_ = ms.processOperations(path, item.Operations(), sequence)
+		_ = ms.processOperations(path, item.Operations(), sequence, swagger.Security)
 		if err != nil {
 			return err
 		}
@@ -110,6 +110,11 @@ func (ms *MarkdownService) ConvertToMarkdown(filename string) error {
 	}
 
 	err = ms.processResponses(swagger.Components.Responses)
+	if err != nil {
+		return err
+	}
+
+	err = ms.processSecuritySchemas(swagger.Components.SecuritySchemes)
 	if err != nil {
 		return err
 	}
@@ -171,6 +176,24 @@ func (ms *MarkdownService) processResponses(responses map[string]*openapi3.Respo
 	return nil
 }
 
+func (ms *MarkdownService) processSecuritySchemas(schemas map[string]*openapi3.SecuritySchemeRef) error {
+	for name, schema := range schemas {
+		log.Infof("Processing security schema %s...", name)
+		theSecuritySchema := SecuritySchema{
+			Name:              name,
+			PresidiumRefURL:   ms.cfg.ReferenceURL,
+			SecuritySchemeRef: schema,
+		}
+		dir := filepath.Clean(fmt.Sprintf("%s/content/%s/components/securitySchemas", ms.cfg.OutputDir, ms.basePath()))
+		name := fmt.Sprintf("%s.md", strcase.ToSnake(name))
+		err := ms.processTemplate(dir, name, "templates/securitySchemas.gomd", theSecuritySchema)
+		if err != nil {
+			return err
+		}
+	}
+	return nil
+}
+
 // cleanForMarkdown ensures what is written to the markdown file is clean:
 // - trimmed line spaces
 // - empty lines
@@ -219,16 +242,18 @@ func (ms MarkdownService) processOperation(operation Operation, parentFolder str
 	return nil
 }
 
-func (ms MarkdownService) processOperations(path string, operations map[string]*openapi3.Operation, count int) error {
+func (ms MarkdownService) processOperations(path string, operations map[string]*openapi3.Operation, count int, globalSecurity openapi3.SecurityRequirements) error {
 	log.Infof("Processing operations %s...", path)
 
 	for method, operation := range operations {
 		tplOperation := Operation{
-			Method:      method,
-			Name:        path,
-			Operation:   operation,
-			MethodTitle: ms.cfg.TitleFormat == methodTitle,
-			Weight:      count + 1,
+			Method:          method,
+			Name:            path,
+			Operation:       operation,
+			MethodTitle:     ms.cfg.TitleFormat == methodTitle,
+			Weight:          count + 1,
+			GlobalSecurity:  globalSecurity,
+			PresidiumRefURL: filepath.Clean(ms.cfg.ReferenceURL),
 		}
 		err := ms.processOperation(tplOperation, ms.basePath())
 		if err != nil {
@@ -282,11 +307,12 @@ func (ms *MarkdownService) processTemplate(dir string, name string, tpl string, 
 func (ms *MarkdownService) createIndexFiles(schema *openapi3.T) error {
 	log.Info("Creating index files...")
 	dirs := map[string]string{
-		"components":           "Components",
-		"components/schemas":   "Schemas",
-		"components/responses": "Responses",
-		"operations":           "Operations",
-		"":                     cases.Title(language.English).String(ms.cfg.ReferenceURL),
+		"components":                 "Components",
+		"components/schemas":         "Schemas",
+		"components/responses":       "Responses",
+		"components/securitySchemas": "Security Schemas",
+		"operations":                 "Operations",
+		"":                           cases.Title(language.English).String(ms.cfg.ReferenceURL),
 	}
 
 	if len(schema.Components.Responses) == 0 {
@@ -295,6 +321,10 @@ func (ms *MarkdownService) createIndexFiles(schema *openapi3.T) error {
 
 	if len(schema.Components.Schemas) == 0 {
 		delete(dirs, "components/schemas")
+	}
+
+	if len(schema.Components.SecuritySchemes) == 0 {
+		delete(dirs, "components/securitySchemas")
 	}
 
 	for dir, title := range dirs {
