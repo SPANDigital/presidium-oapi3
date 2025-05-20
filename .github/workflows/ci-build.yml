@@ -1,0 +1,81 @@
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - '**'
+      - dev
+      - develop   # This is actually the project's `main` branch
+
+env:
+  # See https://github.blog/changelog/2024-03-07-github-actions-all-actions-will-run-on-node20-instead-of-node16-by-default/
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE20: true
+
+jobs:
+  call-ci-checks:
+    uses: ./.github/workflows/lint-and-format-on-push.yml
+
+  release:
+    name: Release
+    needs: call-ci-checks
+    runs-on:
+      - ubuntu-latest
+    outputs:
+      version: ${{ steps.create-release.outputs.version }}
+    permissions:
+      id-token: write
+      issues: write
+      contents: write
+    steps:
+      - id: checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - name: Create Release
+        id: create-release
+        uses: SPANDigital/span-github-actions/.github/actions/create-release@main
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: release
+    steps:
+      - uses: actions/checkout@v4
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.9'
+      - run: echo "🎉 The ci-build was automatically triggered by a ${{ github.event_name }} event."
+      - run: echo "🐧 This ci-build is now running on a ${{ runner.os }} server hosted by GitHub!"
+      - run: echo "🔎 The name of your branch is ${{ github.ref }} and your repository is ${{ github.repository }}."
+
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libssl-dev libxmlsec1 libxmlsec1-dev libxmlsec1-openssl
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+
+  package-and-publish:
+    name: Package and Publish
+    needs:
+      - release
+      - build
+    runs-on:
+      - ubuntu-latest
+    permissions:
+      id-token: write
+      contents: read
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      - name: Build and push multi-arch image
+        uses: SPANDigital/span-github-actions/.github/actions/build-and-publish-dockerfile@main
+        with:
+          aws-region: us-east-2
+          aws-registry: 735283066345.dkr.ecr.us-east-2.amazonaws.com
+          aws-repository: spandigital/portal
+          version: ${{ needs.release.outputs.version }}
+          aws-role: ${{ secrets.AWS_GITHUB_ACTIONS_ROLE }}
