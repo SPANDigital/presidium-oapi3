@@ -1,5 +1,5 @@
 {
-  "name": "presidium-oapi-3",
+  "name": "@SPANDigital/presidium-oapi-3",
   "version": "2.11.13",
   "description": "A Golang based tool for importing your Open API v3 spec into Presidium Documentation",
   "homepage": "http://presidium.spandigital.net/",
@@ -11,6 +11,9 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/SPANDigital/presidium-oapi3.git"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
   },
   "keywords": [
     "OpenAPI",
