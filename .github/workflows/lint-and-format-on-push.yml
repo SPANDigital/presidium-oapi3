@@ -1,0 +1,16 @@
+name: run-ci-checks
+run-name: ${{ github.actor }} - Running checks on the code 🚀
+on:
+  workflow_call:
+
+jobs:
+  Basic-Check:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository code
+        uses: actions/checkout@v4
+      - run: echo "--------------------------------------------------------------------------------------"
+      - run: echo "👋 The repository has been checked out successfully."
+      - run: echo "Go linting will be added in the future."
+      - run: echo "--------------------------------------------------------------------------------------"
+      - run: echo "🍏 This job's status is ${{ job.status }}."
