@@ -125,6 +125,41 @@ func TestProcessResponses(t *testing.T) {
 	assert.NoError(t, err)
 }
 
+func TestProcessSecuritySchemas(t *testing.T) {
+	config := getConfig(t)
+
+	ms, err := NewMarkdownService(config)
+	assert.NoError(t, err, "Unexpected error from NewMarkdownService: %v", err)
+
+	err = ms.processSecuritySchemas(map[string]*openapi3.SecuritySchemeRef{})
+	assert.NoError(t, err)
+
+	emptySchema := &openapi3.SecuritySchemeRef{
+		Value: &openapi3.SecurityScheme{},
+	}
+	err = ms.processSecuritySchemas(map[string]*openapi3.SecuritySchemeRef{
+		"schema": emptySchema,
+	})
+	assert.NoError(t, err)
+
+	schema := &openapi3.SecuritySchemeRef{
+		Value: &openapi3.SecurityScheme{
+			Type:             "http",
+			Description:      "auth",
+			Name:             "bearer auth",
+			In:               "x-API",
+			Scheme:           "bearer",
+			BearerFormat:     "jwt",
+			Flows:            nil,
+			OpenIdConnectUrl: "",
+		},
+	}
+	err = ms.processSecuritySchemas(map[string]*openapi3.SecuritySchemeRef{
+		"schema": schema,
+	})
+	assert.NoError(t, err)
+}
+
 func TestCleanForMarkdown(t *testing.T) {
 	config := getConfig(t)
 
@@ -153,6 +188,9 @@ func TestProcessOperation(t *testing.T) {
 		},
 		MethodTitle: false,
 		Weight:      100,
+		GlobalSecurity: openapi3.SecurityRequirements{
+			{"bearer": {"scope1", "scope2"}},
+		},
 	}
 
 	parentFolder := "parent"
@@ -177,10 +215,10 @@ func TestProcessOperations(t *testing.T) {
 	err = ms.processOperations(ms.cfg.OutputDir, map[string]*openapi3.Operation{
 		"get":  {},
 		"post": {},
-	}, 1)
+	}, 1, nil)
 	assert.NoError(t, err)
 
-	err = ms.processOperations(ms.cfg.OutputDir, nil, 0)
+	err = ms.processOperations(ms.cfg.OutputDir, nil, 0, nil)
 	assert.NoError(t, err)
 }
 
