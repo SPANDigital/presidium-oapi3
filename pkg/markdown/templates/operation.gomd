@@ -20,4 +20,9 @@ weight: {{ .Weight }}
 {{- template "parametersList" .Parameters }}
 {{- template "requestBody" .RequestBody }}
 {{- template "responseList" .Responses }}
-{{- template "securityList" .Security }}
+
+{{ if .Security }}
+    {{- template "securityList" dict "Security" .Security "PresidiumRefURL" .PresidiumRefURL }}
+{{ else }}
+    {{- template "securityList" dict "Security" .GlobalSecurity "PresidiumRefURL" .PresidiumRefURL }}
+{{ end }}
