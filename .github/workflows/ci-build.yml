@@ -7,6 +7,11 @@ on:
     tags:
       - 'v*'
 
+# Add concurrency to prevent multiple workflows from running on the same ref
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 env:
   FORCE_JAVASCRIPT_ACTIONS_TO_NODE20: true
   GO111MODULE: on
@@ -27,7 +32,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.20.x'
+          go-version: '1.22.x'
           cache: true
       - name: Tag Code
         if: "!contains(github.event.head_commit.message, '[NPM version]')"
@@ -74,7 +79,7 @@ jobs:
       - name: Set up Go
         uses: actions/setup-go@v4
         with:
-          go-version: '1.20.x'
+          go-version: '1.22.x'
           cache: true
       - name: GoReleaser
         uses: goreleaser/goreleaser-action@v4
@@ -98,10 +103,25 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
-          node-version: '18'
+          node-version: '20.x'
           registry-url: 'https://npm.pkg.github.com'
           scope: '@SPANDigital'
+          cache: 'npm'
+      - name: Install dependencies
+        run: npm ci
+      - name: Check package version matches tag
+        run: |
+          PACKAGE_VERSION=$(node -p "require('./package.json').version")
+          TAG_VERSION="${{ github.ref_name }}"
+          TAG_VERSION="${TAG_VERSION#v}"
+          if [ "$PACKAGE_VERSION" != "$TAG_VERSION" ]; then
+            echo "Package version ($PACKAGE_VERSION) does not match tag version ($TAG_VERSION)"
+            exit 1
+          fi
       - name: Publish to GitHub Packages
-        run: npm publish
+        id: publish
+        run: |
+          npm publish
+          echo "version=$(node -p "require('./package.json').version")" >> $GITHUB_OUTPUT
         env:
           NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
