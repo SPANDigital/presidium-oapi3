@@ -12,14 +12,10 @@ This tool can be run as a:
 
 ## Install
 
-Install presidium-oapi3 globally
-
-Use brew to install presidium-oapi3:
+Use brew to install `presidium-oapi3`:
 
 ```shell
-brew tap SPANDigital/homebrew-tap https://github.com/SPANDigital/homebrew-tap.git
-brew install presidium-oapi3
-
+brew install SPANDigital/tap/presidium-oapi3
 ```
 
 ## Run
