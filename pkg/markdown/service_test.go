@@ -18,7 +18,7 @@ import (
 
 func getConfig(t *testing.T) Config {
 	return Config{
-		ReferenceURL:      "http://example.com",
+		ReferenceURL:      "example.com",
 		ApiName:           "api",
 		TitleFormat:       "methodTitle",
 		SortFilePath:      false,
@@ -62,7 +62,7 @@ func TestBasePath(t *testing.T) {
 	expectedPath := filepath.Clean(fmt.Sprintf("%s%s", config.ReferenceURL, filepath.Join("/", config.ApiName)))
 	actualPath := ms.basePath()
 
-	assert.Equal(t, expectedPath, actualPath, "Expected basePath() to return %q, but got %q", expectedPath, expectedPath)
+	assert.Equal(t, expectedPath, actualPath, "Expected basePath() to return %q, but got %q", expectedPath, actualPath)
 }
 
 func TestRootPath(t *testing.T) {
@@ -74,7 +74,7 @@ func TestRootPath(t *testing.T) {
 	expectedPath := filepath.Join(config.OutputDir, "content", config.ReferenceURL)
 	actualPath := ms.rootPath()
 
-	assert.Equal(t, expectedPath, actualPath, "Expected rootPath() to return %q, but got %q", expectedPath, expectedPath)
+	assert.Equal(t, expectedPath, actualPath, "Expected rootPath() to return %q, but got %q", expectedPath, actualPath)
 }
 
 func TestProcessSchemas(t *testing.T) {

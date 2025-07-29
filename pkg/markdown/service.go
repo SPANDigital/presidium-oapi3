@@ -128,11 +128,21 @@ func (ms *MarkdownService) ConvertToMarkdown(filename string) error {
 }
 
 func (ms *MarkdownService) basePath() string {
-	return filepath.Clean(fmt.Sprintf("%s%s", ms.cfg.ReferenceURL, ms.cfg.ApiName))
+	return filepath.Clean(fmt.Sprintf("%s%s", ms.sanitizeReferenceURL(), ms.cfg.ApiName))
 }
 
 func (ms *MarkdownService) rootPath() string {
-	return filepath.Join(ms.cfg.OutputDir, "content", ms.cfg.ReferenceURL)
+	return filepath.Join(ms.cfg.OutputDir, "content", ms.sanitizeReferenceURL())
+}
+
+// sanitizeReferenceURL removes characters that are invalid in filesystem paths
+func (ms *MarkdownService) sanitizeReferenceURL() string {
+	// Remove protocol and replace invalid filesystem characters
+	sanitized := strings.TrimPrefix(ms.cfg.ReferenceURL, "http://")
+	sanitized = strings.TrimPrefix(sanitized, "https://")
+	sanitized = strings.ReplaceAll(sanitized, ":", "_")
+	sanitized = strings.ReplaceAll(sanitized, "/", "_")
+	return sanitized
 }
 
 func (ms *MarkdownService) processSchemas(schemas openapi3.Schemas) error {
