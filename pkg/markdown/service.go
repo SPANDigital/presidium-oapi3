@@ -132,7 +132,18 @@ func (ms *MarkdownService) basePath() string {
 }
 
 func (ms *MarkdownService) rootPath() string {
-	return filepath.Join(ms.cfg.OutputDir, "content", ms.sanitizeReferenceURL())
+	path := filepath.Join(ms.cfg.OutputDir, "content", ms.sanitizeReferenceURL())
+	
+	// Apply the same selective lowercasing as processTemplate for consistency
+	contentIndex := strings.Index(path, "/content/")
+	if contentIndex != -1 {
+		// Keep the system path part as-is, lowercase only the content structure
+		systemPath := path[:contentIndex+9] // include "/content/"
+		contentPath := path[contentIndex+9:]
+		path = systemPath + strings.ToLower(contentPath)
+	}
+	
+	return path
 }
 
 // sanitizeReferenceURL removes characters that are invalid in filesystem paths
