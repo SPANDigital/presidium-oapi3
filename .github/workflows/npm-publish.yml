@@ -1,4 +1,4 @@
-name: Publish to NPM
+name: Publish to GitHub Packages
 
 on:
   workflow_run:
@@ -21,7 +21,7 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '18'
-          registry-url: 'https://registry.npmjs.org'
+          registry-url: 'https://npm.pkg.github.com'
 
       - name: Get release version from tag
         id: get_version
@@ -63,22 +63,22 @@ jobs:
             "https://api.github.com/repos/${{ github.repository }}/releases/tags/v$VERSION" > /dev/null
           echo "Release v$VERSION exists"
 
-      - name: Publish to NPM
+      - name: Publish to GitHub Packages
         run: |
           npm publish --access public
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NODE_AUTH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Create NPM release summary
+      - name: Create GitHub Packages release summary
         run: |
           VERSION="${{ steps.get_version.outputs.version }}"
-          echo "## NPM Package Published 📦" >> $GITHUB_STEP_SUMMARY
+          echo "## GitHub Package Published 📦" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
-          echo "Successfully published **@spandigital/presidium-oapi3@$VERSION** to NPM!" >> $GITHUB_STEP_SUMMARY
+          echo "Successfully published **@spandigital/presidium-oapi3@$VERSION** to GitHub Packages!" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Installation" >> $GITHUB_STEP_SUMMARY
           echo '```bash' >> $GITHUB_STEP_SUMMARY
-          echo "npm install -g @spandigital/presidium-oapi3@$VERSION" >> $GITHUB_STEP_SUMMARY
+          echo "npm install -g @spandigital/presidium-oapi3@$VERSION --registry=https://npm.pkg.github.com" >> $GITHUB_STEP_SUMMARY
           echo '```' >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### Usage" >> $GITHUB_STEP_SUMMARY
