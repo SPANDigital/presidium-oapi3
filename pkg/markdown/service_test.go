@@ -18,7 +18,7 @@ import (
 
 func getConfig(t *testing.T) Config {
 	return Config{
-		ReferenceURL:      "example.com",
+		ReferenceURL:      "http://example.com",
 		ApiName:           "api",
 		TitleFormat:       "methodTitle",
 		SortFilePath:      false,
@@ -59,7 +59,8 @@ func TestBasePath(t *testing.T) {
 	ms, err := NewMarkdownService(config)
 	assert.NoError(t, err, "Unexpected error from NewMarkdownService: %v", err)
 
-	expectedPath := filepath.Clean(fmt.Sprintf("%s%s", config.ReferenceURL, filepath.Join("/", config.ApiName)))
+	// Expect sanitized ReferenceURL (http:// removed) + API name
+	expectedPath := "example.com/api"
 	actualPath := ms.basePath()
 
 	assert.Equal(t, expectedPath, actualPath, "Expected basePath() to return %q, but got %q", expectedPath, actualPath)
@@ -71,7 +72,8 @@ func TestRootPath(t *testing.T) {
 	ms, err := NewMarkdownService(config)
 	assert.NoError(t, err, "Unexpected error from NewMarkdownService: %v", err)
 
-	expectedPath := filepath.Join(config.OutputDir, "content", config.ReferenceURL)
+	// Expect sanitized ReferenceURL (http:// removed)
+	expectedPath := filepath.Join(config.OutputDir, "content", "example.com")
 	actualPath := ms.rootPath()
 
 	assert.Equal(t, expectedPath, actualPath, "Expected rootPath() to return %q, but got %q", expectedPath, actualPath)
