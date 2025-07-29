@@ -1,0 +1,77 @@
+name: Publish to NPM
+
+on:
+  workflow_run:
+    workflows: ["Release"]
+    types:
+      - completed
+    branches:
+      - main
+
+jobs:
+  npm-publish:
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' }}
+    
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          registry-url: 'https://registry.npmjs.org'
+
+      - name: Get release version from tag
+        id: get_version
+        run: |
+          # Extract version from the tag that triggered the release workflow
+          TAG_NAME="${{ github.event.workflow_run.head_branch }}"
+          if [[ $TAG_NAME =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            VERSION=${TAG_NAME#v}
+            echo "version=$VERSION" >> $GITHUB_OUTPUT
+            echo "Found version: $VERSION"
+          else
+            echo "No valid version tag found"
+            exit 1
+          fi
+
+      - name: Update package.json version
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          npm version $VERSION --no-git-tag-version
+          echo "Updated package.json to version $VERSION"
+
+      - name: Verify release exists
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          # Check if the GitHub release exists and has assets
+          curl -f -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+            "https://api.github.com/repos/${{ github.repository }}/releases/tags/v$VERSION" > /dev/null
+          echo "Release v$VERSION exists"
+
+      - name: Publish to NPM
+        run: |
+          npm publish --access public
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+
+      - name: Create NPM release summary
+        run: |
+          VERSION="${{ steps.get_version.outputs.version }}"
+          echo "## NPM Package Published 📦" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Successfully published **@spandigital/presidium-oapi3@$VERSION** to NPM!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Installation" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "npm install -g @spandigital/presidium-oapi3@$VERSION" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### Usage" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "presidium-oapi3 --help" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY

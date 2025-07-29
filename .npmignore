@@ -1,10 +1,34 @@
-build
-cmd
-dist
-node_modules
-out
-pkg
+# Source code and build files
+*.go
+go.mod
+go.sum
+main.go
+cmd/
+pkg/
+build/
+dist/
+.github/
 .goreleaser.yml
 .travis.yml
 GitVersion.yml
-main.go
+Makefile
+
+# Development files
+.git
+.gitignore
+*.log
+*.tmp
+.DS_Store
+node_modules/
+out/
+
+# Documentation that's not needed in npm package
+pull_request_template.md
+NOTICE
+
+# Keep these files for npm
+!README.md
+!LICENSE
+!package.json
+!bin/
+!scripts/

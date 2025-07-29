@@ -1,0 +1,39 @@
+{
+  "name": "@spandigital/presidium-oapi3",
+  "version": "2.11.17",
+  "description": "Presidium is a software documentation management system for agile teams",
+  "main": "bin/presidium-oapi3",
+  "bin": {
+    "presidium-oapi3": "bin/presidium-oapi3"
+  },
+  "scripts": {
+    "postinstall": "node scripts/install.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/spandigital/presidium-oapi3.git"
+  },
+  "bugs": {
+    "url": "https://github.com/spandigital/presidium-oapi3/issues"
+  },
+  "homepage": "https://github.com/spandigital/presidium",
+  "author": "SPAN Digital <info@spandigital.com>",
+  "license": "MIT",
+  "keywords": [
+    "presidium",
+    "documentation",
+    "openapi",
+    "swagger",
+    "markdown",
+    "cli"
+  ],
+  "engines": {
+    "node": ">=14"
+  },
+  "files": [
+    "bin/",
+    "scripts/",
+    "README.md",
+    "LICENSE"
+  ]
+}

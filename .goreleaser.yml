@@ -43,21 +43,3 @@ brews:
       owner: spandigital
       name: homebrew-tap
     directory: Formula
-
-npms:
-  - name: "@spandigital/presidium-oapi3"
-    description: "Presidium is a software documentation management system for agile teams"
-    homepage: "https://github.com/spandigital/presidium"
-    license: "MIT"
-    author: "SPAN Digital <info@spandigital.com>"
-    repository: "https://github.com/spandigital/presidium-oapi3"
-    bugs: "https://github.com/spandigital/presidium-oapi3/issues"
-    keywords:
-      - presidium
-      - documentation
-      - openapi
-      - swagger
-      - markdown
-      - cli
-    access: public
-    format: tar.gz
