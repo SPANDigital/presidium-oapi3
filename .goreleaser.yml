@@ -42,4 +42,5 @@ brews:
     repository:
       owner: spandigital
       name: homebrew-tap
+      token: "{{ .Env.TAP_GITHUB_TOKEN }}"
     directory: Formula
