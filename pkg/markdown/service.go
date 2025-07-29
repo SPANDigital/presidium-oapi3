@@ -148,7 +148,7 @@ func (ms *MarkdownService) sanitizeReferenceURL() string {
 func (ms *MarkdownService) processSchemas(schemas openapi3.Schemas) error {
 	for name, schema := range schemas {
 		log.Infof("Processing schema %s...", name)
-		
+
 		theSchema := Schema{
 			Name:            name,
 			PresidiumRefURL: ms.cfg.ReferenceURL,
@@ -292,8 +292,16 @@ func (ms *MarkdownService) processTags(tags openapi3.Tags) error {
 }
 
 func (ms *MarkdownService) processTemplate(dir string, name string, tpl string, obj interface{}) error {
-	// Ensure consistent case for both directory creation and file path
-	dir = strings.ToLower(dir)
+	// Only lowercase the content part, not the entire system path
+	// Find the "/content/" part and only lowercase after that
+	contentIndex := strings.Index(dir, "/content/")
+	if contentIndex != -1 {
+		// Keep the system path part as-is, lowercase only the content structure
+		systemPath := dir[:contentIndex+9] // include "/content/"
+		contentPath := dir[contentIndex+9:]
+		dir = systemPath + strings.ToLower(contentPath)
+	}
+	
 	path := fmt.Sprintf("%s/%s", dir, name)
 	err := ms.createSubIndex(dir)
 	if err != nil {
