@@ -338,7 +338,12 @@ func (ms *MarkdownService) createIndexFiles(schema *openapi3.T) error {
 
 	for dir, title := range dirs {
 		index := Index{Title: title}
-		baseDir := filepath.Clean(fmt.Sprintf("%s/content/%s/%s", ms.cfg.OutputDir, ms.basePath(), dir))
+		var baseDir string
+		if dir == "" {
+			baseDir = filepath.Clean(fmt.Sprintf("%s/content/%s", ms.cfg.OutputDir, ms.basePath()))
+		} else {
+			baseDir = filepath.Clean(fmt.Sprintf("%s/content/%s/%s", ms.cfg.OutputDir, ms.basePath(), dir))
+		}
 		err := ms.processTemplate(baseDir, "_index.md", "templates/index.gomd", index)
 		if err != nil {
 			return err

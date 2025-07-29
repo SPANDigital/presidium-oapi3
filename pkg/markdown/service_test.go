@@ -318,7 +318,12 @@ func TestCreateIndexFiles(t *testing.T) {
 		delete(dirs, "components/schemas")
 	}
 	for dir := range dirs {
-		filePath := fmt.Sprintf("%s/content/%s/%s/_index.md", ms.cfg.OutputDir, ms.basePath(), dir)
+		var filePath string
+		if dir == "" {
+			filePath = fmt.Sprintf("%s/content/%s/_index.md", ms.cfg.OutputDir, ms.basePath())
+		} else {
+			filePath = fmt.Sprintf("%s/content/%s/%s/_index.md", ms.cfg.OutputDir, ms.basePath(), dir)
+		}
 		_, err = os.Stat(filePath)
 		assert.NoError(t, err)
 	}
