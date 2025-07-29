@@ -5,8 +5,6 @@ on:
     workflows: ["Release"]
     types:
       - completed
-    branches:
-      - main
 
 jobs:
   npm-publish:
@@ -30,12 +28,24 @@ jobs:
         run: |
           # Extract version from the tag that triggered the release workflow
           TAG_NAME="${{ github.event.workflow_run.head_branch }}"
+          echo "Head branch from workflow_run: $TAG_NAME"
+          
+          # If head_branch doesn't contain the tag, try to get it from the API
+          if [[ ! $TAG_NAME =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+            echo "Head branch is not a version tag, fetching from API..."
+            # Get the latest release
+            RELEASE_DATA=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
+              "https://api.github.com/repos/${{ github.repository }}/releases/latest")
+            TAG_NAME=$(echo "$RELEASE_DATA" | jq -r '.tag_name')
+            echo "Latest release tag: $TAG_NAME"
+          fi
+          
           if [[ $TAG_NAME =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
             VERSION=${TAG_NAME#v}
             echo "version=$VERSION" >> $GITHUB_OUTPUT
             echo "Found version: $VERSION"
           else
-            echo "No valid version tag found"
+            echo "No valid version tag found: $TAG_NAME"
             exit 1
           fi
 
