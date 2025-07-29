@@ -148,13 +148,10 @@ func (ms *MarkdownService) sanitizeReferenceURL() string {
 func (ms *MarkdownService) processSchemas(schemas openapi3.Schemas) error {
 	for name, schema := range schemas {
 		log.Infof("Processing schema %s...", name)
-		if !strings.HasPrefix(ms.cfg.ReferenceURL, "/") {
-			ms.cfg.ReferenceURL = fmt.Sprintf("/%s", ms.cfg.ReferenceURL)
-		}
-
+		
 		theSchema := Schema{
 			Name:            name,
-			PresidiumRefURL: filepath.Clean(ms.cfg.ReferenceURL),
+			PresidiumRefURL: ms.cfg.ReferenceURL,
 			SchemaRef:       schema,
 			Config:          ms.cfg,
 		}
