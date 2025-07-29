@@ -292,7 +292,9 @@ func (ms *MarkdownService) processTags(tags openapi3.Tags) error {
 }
 
 func (ms *MarkdownService) processTemplate(dir string, name string, tpl string, obj interface{}) error {
-	path := fmt.Sprintf("%s/%s", strings.ToLower(dir), name)
+	// Ensure consistent case for both directory creation and file path
+	dir = strings.ToLower(dir)
+	path := fmt.Sprintf("%s/%s", dir, name)
 	err := ms.createSubIndex(dir)
 	if err != nil {
 		return err
