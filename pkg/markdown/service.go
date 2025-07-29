@@ -133,7 +133,7 @@ func (ms *MarkdownService) basePath() string {
 
 func (ms *MarkdownService) rootPath() string {
 	path := filepath.Join(ms.cfg.OutputDir, "content", ms.sanitizeReferenceURL())
-	
+
 	// Apply the same selective lowercasing as processTemplate for consistency
 	contentIndex := strings.Index(path, "/content/")
 	if contentIndex != -1 {
@@ -142,7 +142,7 @@ func (ms *MarkdownService) rootPath() string {
 		contentPath := path[contentIndex+9:]
 		path = systemPath + strings.ToLower(contentPath)
 	}
-	
+
 	return path
 }
 
@@ -312,7 +312,7 @@ func (ms *MarkdownService) processTemplate(dir string, name string, tpl string, 
 		contentPath := dir[contentIndex+9:]
 		dir = systemPath + strings.ToLower(contentPath)
 	}
-	
+
 	path := fmt.Sprintf("%s/%s", dir, name)
 	err := ms.createSubIndex(dir)
 	if err != nil {
