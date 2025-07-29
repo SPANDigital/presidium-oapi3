@@ -43,3 +43,6 @@ brews:
       owner: spandigital
       name: homebrew-tap
     directory: Formula
+npms:
+  - name: @spandigital/presidium-oapi3
+    repository: https://npm.pkg.github.com/spandigital

@@ -1,0 +1,47 @@
+name: Release
+
+on:
+  push:
+    # Trigger the workflow only when a tag is pushed
+    tags:
+      - "v*"
+
+permissions:
+  contents: write    # Required for uploading archives as GitHub Releases
+  packages: write    # Required for pushing Docker images to GitHub Packages (if needed)
+  issues: write      # Required for milestone closing capability
+  id-token: write    # Required for cosign signing with GitHub OIDC
+
+jobs:
+  goreleaser:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          # Important: fetch full history for changelog generation
+          fetch-depth: 0
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: stable
+
+      - name: Run tests
+        run: go test -v ./...
+
+      - name: Run GoReleaser
+        uses: goreleaser/goreleaser-action@v6
+        with:
+          # Use the standard GoReleaser distribution
+          distribution: goreleaser
+          # Use version 2.x (latest stable)
+          version: "~> v2"
+          # Clean dist folder before building
+          args: release --clean
+        env:
+          # GitHub token for creating releases and uploading assets
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Optional: If you need to push to Homebrew tap in another repo,
+          # you'll need a Personal Access Token with repo permissions
+          # TAP_GITHUB_TOKEN: ${{ secrets.TAP_GITHUB_TOKEN }}
