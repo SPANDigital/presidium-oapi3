@@ -35,8 +35,8 @@ jobs:
         with:
           # Use the standard GoReleaser distribution
           distribution: goreleaser
-          # Use version 2.x (latest stable)
-          version: "~> v2"
+          # Use latest version that supports npm
+          version: latest
           # Clean dist folder before building
           args: release --clean
         env:
