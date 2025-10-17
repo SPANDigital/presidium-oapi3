@@ -1,6 +1,6 @@
 {
   "name": "@spandigital/presidium-oapi3",
-  "version": "2.11.17",
+  "version": "2.11.21",
   "description": "Presidium is a software documentation management system for agile teams",
   "main": "bin/presidium-oapi3",
   "bin": {
