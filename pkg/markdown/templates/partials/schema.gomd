@@ -113,6 +113,12 @@
         {{- if $value.Items -}}
             {{- $itemRef := $value.Items.Ref -}}
             {{- $itemValue := $value.Items.Value -}}
+            {{- /* Render nested properties only for inline schemas (not references).
+                   A SchemaRef has either:
+                   - Ref (reference): points to another schema via $ref
+                   - Value (inline): contains the schema definition inline
+                   We check (not $itemRef) to ensure it's not a reference, and $itemValue
+                   to ensure the inline schema exists before rendering. */ -}}
             {{- if and (not $itemRef) $itemValue -}}
                 {{- if (notEmpty $itemValue.Properties) -}}
                     ## {{ $name }} { #{{- template "rootName" $rootName }}-{{ lower $name }} }
