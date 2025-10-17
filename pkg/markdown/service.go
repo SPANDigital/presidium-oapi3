@@ -374,13 +374,13 @@ func (ms *MarkdownService) createIndexFiles(schema *openapi3.T) error {
 func (ms *MarkdownService) createSubIndex(path string) error {
 	path = filepath.Clean(path)
 	log.Debugf("creating index: %s", path)
-	
+
 	// Defensive check: never allow operations on root filesystem or empty paths
 	if path == "/" || path == "" || path == "." {
 		log.Debugf("stopping index creation at invalid path: %s", path)
 		return nil
 	}
-	
+
 	rootPath := ms.rootPath()
 	if rootPath == path {
 		return nil
