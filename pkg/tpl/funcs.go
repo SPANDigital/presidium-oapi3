@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"path/filepath"
+	"reflect"
 	"regexp"
 	"strings"
 	"text/template"
@@ -144,15 +145,30 @@ func Append(slice []string, value ...string) []string {
 }
 
 func NotEmpty(value interface{}) bool {
-	switch v := value.(type) {
-	case string:
-		return len(v) > 0
-	case []interface{}:
-		return v != nil && len(v) > 0
-	case map[interface{}]interface{}:
-		return v != nil && len(v) > 0
-	default:
+	if value == nil {
 		return false
+	}
+
+	// Use reflection to check if the underlying value is nil (for pointers, slices, maps, etc.)
+	v := reflect.ValueOf(value)
+	switch v.Kind() {
+	case reflect.Ptr, reflect.Slice, reflect.Map, reflect.Chan, reflect.Func, reflect.Interface:
+		if v.IsNil() {
+			return false
+		}
+	}
+
+	switch val := value.(type) {
+	case string:
+		return len(val) > 0
+	case []interface{}:
+		return len(val) > 0
+	case map[interface{}]interface{}:
+		return len(val) > 0
+	default:
+		// For any other non-nil type (including non-nil pointers to structs like *openapi3.SchemaRef),
+		// return true
+		return true
 	}
 }
 

@@ -110,9 +110,15 @@
             {{ template "printQuantifiers" dict "Schema" $value "PresidiumRefURL" $url "RootName" $rootName "Name" $name "Config" $config }}
         {{ end }}
 
-        {{- if and (notEmpty $value.Items) $value.Items.Value.Properties -}}
-            ## {{ $name }} { #{{- template "rootName" $rootName }}-{{ lower $name }} }
-            {{ template "schema" dict "SchemaRef" $value.Items "Name" $name "PresidiumRefURL" $url "Inline" true "RootName" $rootName "Config" $config }}
+        {{- if $value.Items -}}
+            {{- $itemRef := $value.Items.Ref -}}
+            {{- $itemValue := $value.Items.Value -}}
+            {{- if and (not $itemRef) $itemValue -}}
+                {{- if (notEmpty $itemValue.Properties) -}}
+                    ## {{ $name }} { #{{- template "rootName" $rootName }}-{{ lower $name }} }
+                    {{ template "schema" dict "SchemaRef" $value.Items "Name" $name "PresidiumRefURL" $url "Inline" true "RootName" $rootName "Config" $config }}
+                {{- end -}}
+            {{- end -}}
         {{- end -}}
     {{- end -}}
 
