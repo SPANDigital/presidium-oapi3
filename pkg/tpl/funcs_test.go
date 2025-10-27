@@ -77,7 +77,7 @@ func TestNotEmpty(t *testing.T) {
 			name: "non-nil SchemaRef pointer with Value",
 			value: &openapi3.SchemaRef{
 				Value: &openapi3.Schema{
-					Type: "object",
+					Type: &openapi3.Types{"object"},
 				},
 			},
 			expected: true,
@@ -92,7 +92,7 @@ func TestNotEmpty(t *testing.T) {
 		{
 			name: "non-nil Schema pointer",
 			value: &openapi3.Schema{
-				Type: "string",
+				Type: &openapi3.Types{"string"},
 			},
 			expected: true,
 		},
@@ -124,13 +124,13 @@ func TestNotEmptyWithSchemaRefInTemplate(t *testing.T) {
 
 	// Test case 1: Array with items that have a Value (should be rendered)
 	schemaWithItems := &openapi3.Schema{
-		Type: "array",
+		Type: &openapi3.Types{"array"},
 		Items: &openapi3.SchemaRef{
 			Value: &openapi3.Schema{
-				Type: "object",
+				Type: &openapi3.Types{"object"},
 				Properties: openapi3.Schemas{
 					"name": {
-						Value: &openapi3.Schema{Type: "string"},
+						Value: &openapi3.Schema{Type: &openapi3.Types{"string"}},
 					},
 				},
 			},
@@ -141,7 +141,7 @@ func TestNotEmptyWithSchemaRefInTemplate(t *testing.T) {
 
 	// Test case 2: Array with items that are a reference (should not be rendered as nested)
 	schemaWithRef := &openapi3.Schema{
-		Type: "array",
+		Type: &openapi3.Types{"array"},
 		Items: &openapi3.SchemaRef{
 			Ref: "#/components/schemas/ExternalSchema",
 		},
@@ -152,7 +152,7 @@ func TestNotEmptyWithSchemaRefInTemplate(t *testing.T) {
 	// Test case 3: Array with nil items
 	// When Items field is explicitly nil, NotEmpty should return false
 	schemaWithNilItems := &openapi3.Schema{
-		Type:  "array",
+		Type:  &openapi3.Types{"array"},
 		Items: nil,
 	}
 

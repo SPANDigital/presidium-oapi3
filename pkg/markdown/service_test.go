@@ -357,38 +357,38 @@ func TestProcessSchemasWithArrayOfObjectsWithProperties(t *testing.T) {
 	// Create a schema similar to EditorialItem with canvases array
 	// This tests the fix for arrays of objects with nested properties
 	editorialItemSchema := openapi3.NewObjectSchema()
-	editorialItemSchema.Type = "object"
+	editorialItemSchema.Type = &openapi3.Types{"object"}
 	editorialItemSchema.Description = "Editorial Item Dataset - Complete Editorial Item information from Apple App Store."
 
 	// Create the canvases array property with items containing nested object properties
 	canvasItemSchema := openapi3.NewObjectSchema()
-	canvasItemSchema.Type = "object"
+	canvasItemSchema.Type = &openapi3.Types{"object"}
 	canvasItemSchema.Description = "Display canvas for editorial item."
 	canvasItemSchema.Properties = openapi3.Schemas{
 		"storefronts": {
 			Value: &openapi3.Schema{
-				Type:        "array",
+				Type:        &openapi3.Types{"array"},
 				Description: "(Required) Array of storefronts where this canvas is displayed.",
 				Items: &openapi3.SchemaRef{
 					Value: &openapi3.Schema{
-						Type: "string",
+						Type: &openapi3.Types{"string"},
 					},
 				},
 			},
 		},
 		"shelves": {
 			Value: &openapi3.Schema{
-				Type:        "object",
+				Type:        &openapi3.Types{"object"},
 				Description: "(Required) Canvas shelves, listed in order of display.",
 				Properties: openapi3.Schemas{
 					"textBlockShelf": {
 						Value: &openapi3.Schema{
-							Type:        "object",
+							Type:        &openapi3.Types{"object"},
 							Description: "A text block shelf to display.",
 							Properties: openapi3.Schemas{
 								"editorialCopy": {
 									Value: &openapi3.Schema{
-										Type:        "string",
+										Type:        &openapi3.Types{"string"},
 										Description: "Map of locale to text.",
 									},
 								},
@@ -403,13 +403,13 @@ func TestProcessSchemasWithArrayOfObjectsWithProperties(t *testing.T) {
 	editorialItemSchema.Properties = openapi3.Schemas{
 		"id": {
 			Value: &openapi3.Schema{
-				Type:        "string",
+				Type:        &openapi3.Types{"string"},
 				Description: "(Required) The ID for the editorial item.",
 			},
 		},
 		"canvases": {
 			Value: &openapi3.Schema{
-				Type:        "array",
+				Type:        &openapi3.Types{"array"},
 				Description: "(Required) Displayable canvases for this editorial item.",
 				Items:       &openapi3.SchemaRef{Value: canvasItemSchema},
 			},
@@ -471,14 +471,14 @@ func TestNotEmptyWithSchemaRef(t *testing.T) {
 	schema.Properties = openapi3.Schemas{
 		"items": {
 			Value: &openapi3.Schema{
-				Type: "array",
+				Type: &openapi3.Types{"array"},
 				Items: &openapi3.SchemaRef{
 					Value: &openapi3.Schema{
-						Type: "object",
+						Type: &openapi3.Types{"object"},
 						Properties: openapi3.Schemas{
 							"name": {
 								Value: &openapi3.Schema{
-									Type: "string",
+									Type: &openapi3.Types{"string"},
 								},
 							},
 						},

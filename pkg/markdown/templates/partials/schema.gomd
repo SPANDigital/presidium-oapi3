@@ -62,7 +62,7 @@
     {{- $theRef := $property.Ref }}
     {{- $config := .Config }}
     | {{ $fullName -}}
-    |   {{- if and (not $theRef) (eq $value.Type "object") $value.Properties -}}
+    |   {{- if and (not $theRef) (typeIs $value.Type "object") $value.Properties -}}
         [{{$name}}](#{{- template "anchor" . -}})
     {{- else }}
         {{- template "schemaType" dict "Property" $property "Name" $name "RootName" $rootName "PresidiumRefURL" $url -}}
@@ -80,7 +80,7 @@
     |
 
     {{- if $config.InlineProperties -}}
-        {{- if (and (not $theRef) (or (eq $value.Type "object") (not $value.Type)) $value.Properties) }}
+        {{- if (and (not $theRef) (or (typeIs $value.Type "object") (not $value.Type)) $value.Properties) }}
             {{- range $n, $p := $value.Properties }}
                 {{- $fn := printf "%s > %s" $name $n }}
                 {{- template "property" dict "Property" $p "FullName" $fn "Name" $n "RootName" $rootName "PresidiumRefURL" $url "Config" $config -}}
@@ -98,7 +98,7 @@
     {{- range $name, $property := .Schema.Properties }}
         {{- $ref := .Ref }}
         {{- $value := .Value }}
-        {{- if and (not $ref) (or (eq $value.Type "object") (not $value.Type)) $value.Properties }}
+        {{- if and (not $ref) (or (typeIs $value.Type "object") (not $value.Type)) $value.Properties }}
             ## {{ $name }} { #{{- template "rootName" $rootName }}-{{ lower $name }} }
             {{ template "schema" dict "SchemaRef" $property "Name" $name "PresidiumRefURL" $url "Inline" true "RootName" $rootName "Config" $config }}
         {{- end -}}
@@ -166,7 +166,7 @@
         {{- $inlineCount := 1}}
         {{- $value := $property.Value }}
         {{- $theRef := $property.Ref }}
-        |   {{- if and (not $theRef) (eq $value.Type "object") $value.Properties -}}
+        |   {{- if and (not $theRef) (typeIs $value.Type "object") $value.Properties -}}
                 [Inline Schema {{$inlineCount}}]({{"{{%baseurl%}}"}}{{$url}}/components/schemas/#{{- template "rootName" $rootName }}-{{lower $name}}-inline-schema-{{$inlineCount}})
                 {{- $inlineCount = sum $inlineCount 1 }}
             {{- else }}
@@ -181,7 +181,7 @@
         {{- $ref := .Ref }}
         {{- $value := .Value }}
 
-        {{- if and (not $ref) (eq $value.Type "object") $value.Properties }}
+        {{- if and (not $ref) (typeIs $value.Type "object") $value.Properties }}
 
             ### Inline Schema {{ $inlineCount }} { #{{- template "rootName" $rootName }}-{{lower $name}}-inline-schema-{{$inlineCount}} }
             {{ template "schema" dict "SchemaRef" $property "Name" $rootName "PresidiumRefURL" $url "Config" $config }}
@@ -199,14 +199,14 @@
     {{- if $ref }}
         {{- schemaLink $ref }}
     {{- else if $schema }}
-        {{- if eq $schema.Type "array" -}}
+        {{- if typeIs $schema.Type "array" -}}
             {{- $items := $schema.Items -}}
             {{- if or $items.Value.AnyOf $items.Value.AllOf $items.Value.OneOf -}}
                 {{- template "listQuantifiers" $items.Value -}}
             {{- else -}}
                 {{- template "schemaType" dict "Property" $schema.Items "Name" $name "RootName" $rootName "PresidiumRefURL" $url -}}
             {{- end -}}
-        {{- else if eq $schema.Type "object" -}}
+        {{- else if typeIs $schema.Type "object" -}}
             [{{- $name }}](#{{- template "anchor" . }})
         {{- else if $schema.AdditionalProperties -}}
             object
@@ -268,7 +268,7 @@
         {{- if $schema.Title -}}
             {{- $schema.Title -}}
         {{- else -}}
-            {{- if eq $schema.Type "array" -}}
+            {{- if typeIs $schema.Type "array" -}}
                 [{{- template "operationSchemaType" $schema.Items -}}]
             {{- else if not $schema.Type -}}
                 {{ template "listQuantifiers" $schema }}

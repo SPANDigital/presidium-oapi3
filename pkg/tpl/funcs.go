@@ -10,6 +10,7 @@ import (
 	"strings"
 	"text/template"
 
+	"github.com/getkin/kin-openapi/openapi3"
 	"github.com/iancoleman/strcase"
 )
 
@@ -184,6 +185,33 @@ func Deref(ptr *bool) bool {
 	return *ptr
 }
 
+// TypeIs checks if an openapi3.Types pointer contains a specific type string
+func TypeIs(types interface{}, expectedType string) bool {
+	if types == nil {
+		return false
+	}
+
+	// Handle *openapi3.Types
+	if typesPtr, ok := types.(*openapi3.Types); ok {
+		if typesPtr == nil {
+			return false
+		}
+		for _, t := range *typesPtr {
+			if t == expectedType {
+				return true
+			}
+		}
+		return false
+	}
+
+	// For backward compatibility, also handle string type
+	if typeStr, ok := types.(string); ok {
+		return typeStr == expectedType
+	}
+
+	return false
+}
+
 func FuncMap(refUrl string) template.FuncMap {
 	referenceURL = refUrl
 	return template.FuncMap{
@@ -207,5 +235,6 @@ func FuncMap(refUrl string) template.FuncMap {
 		"notEmpty":         NotEmpty,
 		"append":           Append,
 		"deref":            Deref,
+		"typeIs":           TypeIs,
 	}
 }
