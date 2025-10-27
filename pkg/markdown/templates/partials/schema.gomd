@@ -11,7 +11,7 @@
         {{- if and $schema $schema.Description }} **Description:**  {{ $schema.Description }}  {{ end }}
 
         {{ if $schema.Type }}
-            {{- if and $schema $schema.Type }} **Type:** {{ $schema.Type }}<br>  {{ end -}} {{- if $schema.ReadOnly }} **Read Only**  {{- end -}} {{- if $schema.Nullable }} **Nullable**  {{- end -}}
+            {{- if and $schema $schema.Type }} **Type:** {{ firstType $schema.Type }}<br>  {{ end -}} {{- if $schema.ReadOnly }} **Read Only**  {{- end -}} {{- if $schema.Nullable }} **Nullable**  {{- end -}}
 
             {{ template "restrictions" $schema }}
         {{- end -}}
@@ -208,12 +208,12 @@
             {{- end -}}
         {{- else if typeIs $schema.Type "object" -}}
             [{{- $name }}](#{{- template "anchor" . }})
-        {{- else if $schema.AdditionalProperties -}}
+        {{- else if and $schema.AdditionalProperties.Has (deref $schema.AdditionalProperties.Has) -}}
             object
         {{- else if not $schema.Type -}}
             [{{- $name }}](#{{- template "anchor" . }})
         {{- else }}
-            {{- $schema.Type }} {{- if $schema.Format }} ({{$schema.Format}}) {{end}}
+            {{- firstType $schema.Type }} {{- if $schema.Format }} ({{$schema.Format}}) {{end}}
         {{- end }}
     {{- end}}
 {{- end }}
@@ -273,7 +273,7 @@
             {{- else if not $schema.Type -}}
                 {{ template "listQuantifiers" $schema }}
             {{- else }}
-                {{- $schema.Type }} {{- if $schema.Format }} ({{$schema.Format}}) {{end}}
+                {{- firstType $schema.Type }} {{- if $schema.Format }} ({{$schema.Format}}) {{end}}
             {{- end }}
         {{- end }}
     {{- end -}}

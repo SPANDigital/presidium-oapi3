@@ -21,7 +21,7 @@
         {{- else if not $schema.Type -}}
             {{ template "listQuantifiers" $schema }}
         {{- else }}
-            {{- $schema.Type }} {{- if $schema.Format }} ({{$schema.Format}}) {{end}}
+            {{- firstType $schema.Type }} {{- if $schema.Format }} ({{$schema.Format}}) {{end}}
         {{- end }}
     {{- end }}
 {{- end }}

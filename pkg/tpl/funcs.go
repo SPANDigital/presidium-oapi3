@@ -212,6 +212,29 @@ func TypeIs(types interface{}, expectedType string) bool {
 	return false
 }
 
+// FirstType returns the first type string from an openapi3.Types pointer
+// Returns empty string if types is nil or empty
+func FirstType(types interface{}) string {
+	if types == nil {
+		return ""
+	}
+
+	// Handle *openapi3.Types
+	if typesPtr, ok := types.(*openapi3.Types); ok {
+		if typesPtr == nil || len(*typesPtr) == 0 {
+			return ""
+		}
+		return (*typesPtr)[0]
+	}
+
+	// For backward compatibility, also handle string type
+	if typeStr, ok := types.(string); ok {
+		return typeStr
+	}
+
+	return ""
+}
+
 func FuncMap(refUrl string) template.FuncMap {
 	referenceURL = refUrl
 	return template.FuncMap{
@@ -236,5 +259,6 @@ func FuncMap(refUrl string) template.FuncMap {
 		"append":           Append,
 		"deref":            Deref,
 		"typeIs":           TypeIs,
+		"firstType":        FirstType,
 	}
 }
