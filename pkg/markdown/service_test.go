@@ -358,17 +358,17 @@ func TestProcessSchemasWithArrayOfObjectsWithProperties(t *testing.T) {
 	// This tests the fix for arrays of objects with nested properties
 	editorialItemSchema := openapi3.NewObjectSchema()
 	editorialItemSchema.Type = "object"
-	editorialItemSchema.Description = "Editorial Item Dataset - Complete Editorial Item information from Apple App Store."
+	editorialItemSchema.Description = "Editorial Item Dataset - Editorial Item information"
 
 	// Create the canvases array property with items containing nested object properties
 	canvasItemSchema := openapi3.NewObjectSchema()
 	canvasItemSchema.Type = "object"
 	canvasItemSchema.Description = "Display canvas for editorial item."
 	canvasItemSchema.Properties = openapi3.Schemas{
-		"storefronts": {
+		"stores": {
 			Value: &openapi3.Schema{
 				Type:        "array",
-				Description: "(Required) Array of storefronts where this canvas is displayed.",
+				Description: "(Required) Array of stores where this canvas is displayed.",
 				Items: &openapi3.SchemaRef{
 					Value: &openapi3.Schema{
 						Type: "string",
@@ -444,7 +444,7 @@ func TestProcessSchemasWithArrayOfObjectsWithProperties(t *testing.T) {
 	})
 
 	t.Run("verify nested properties in canvases", func(t *testing.T) {
-		assert.Contains(t, markdownContent, "| storefronts|string|", "Expected 'storefronts' property in canvases")
+		assert.Contains(t, markdownContent, "| stores|string|", "Expected 'stores' property in canvases")
 		assert.Contains(t, markdownContent, "| shelves|[shelves](#editorialitem-shelves)|", "Expected 'shelves' property with link in canvases")
 	})
 
