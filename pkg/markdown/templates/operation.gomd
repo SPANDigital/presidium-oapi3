@@ -19,7 +19,7 @@ weight: {{ .Weight }}
 
 {{- template "parametersList" .Parameters }}
 {{- template "requestBody" .RequestBody }}
-{{- template "responseList" .Responses }}
+{{- if .Responses }}{{- template "responseList" .Responses.Map }}{{- end }}
 
 {{ if .Security }}
     {{- template "securityList" dict "Security" .Security "PresidiumRefURL" .PresidiumRefURL }}

@@ -156,6 +156,13 @@ func NotEmpty(value interface{}) bool {
 	}
 }
 
+func Deref(ptr *bool) bool {
+	if ptr == nil {
+		return false
+	}
+	return *ptr
+}
+
 func FuncMap(refUrl string) template.FuncMap {
 	referenceURL = refUrl
 	return template.FuncMap{
@@ -178,5 +185,6 @@ func FuncMap(refUrl string) template.FuncMap {
 		"slice":            Slice,
 		"notEmpty":         NotEmpty,
 		"append":           Append,
+		"deref":            Deref,
 	}
 }

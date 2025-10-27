@@ -87,7 +87,7 @@ func TestProcessSchemas(t *testing.T) {
 
 	// Initialize SchemaRef for schema1
 	schema1 := openapi3.NewObjectSchema()
-	schema1.Type = "object"
+	schema1.Type = &openapi3.Types{"object"}
 
 	err = ms.processSchemas(openapi3.Schemas{})
 	assert.NoError(t, err)
