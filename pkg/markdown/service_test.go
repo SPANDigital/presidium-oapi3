@@ -444,7 +444,7 @@ func TestProcessSchemasWithArrayOfObjectsWithProperties(t *testing.T) {
 	})
 
 	t.Run("verify nested properties in canvases", func(t *testing.T) {
-		assert.Contains(t, markdownContent, "| stores|string|", "Expected 'stores' property in canvases")
+		assert.Contains(t, markdownContent, "| stores|[string]|", "Expected 'stores' property in canvases")
 		assert.Contains(t, markdownContent, "| shelves|[shelves](#editorialitem-shelves)|", "Expected 'shelves' property with link in canvases")
 	})
 

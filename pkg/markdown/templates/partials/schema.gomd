@@ -203,8 +203,12 @@
             {{- $items := $schema.Items -}}
             {{- if or $items.Value.AnyOf $items.Value.AllOf $items.Value.OneOf -}}
                 {{- template "listQuantifiers" $items.Value -}}
-            {{- else -}}
+            {{- else if and (not $items.Ref) (typeIs $items.Value.Type "object") $items.Value.Properties -}}
+                {{- /* Array of objects with properties - render as link without extra brackets */ -}}
                 {{- template "schemaType" dict "Property" $schema.Items "Name" $name "RootName" $rootName "PresidiumRefURL" $url -}}
+            {{- else -}}
+                {{- /* Array of simple types - wrap with brackets */ -}}
+                [{{- template "schemaType" dict "Property" $schema.Items "Name" $name "RootName" $rootName "PresidiumRefURL" $url -}}]
             {{- end -}}
         {{- else if typeIs $schema.Type "object" -}}
             [{{- $name }}](#{{- template "anchor" . }})
