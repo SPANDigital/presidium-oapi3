@@ -155,7 +155,6 @@ func (ms *MarkdownService) sanitizeReferenceURL() string {
 	sanitized := strings.TrimPrefix(ms.cfg.ReferenceURL, "http://")
 	sanitized = strings.TrimPrefix(sanitized, "https://")
 	sanitized = strings.ReplaceAll(sanitized, ":", "_")
-	sanitized = strings.ReplaceAll(sanitized, "/", "_")
 	return sanitized
 }
 
