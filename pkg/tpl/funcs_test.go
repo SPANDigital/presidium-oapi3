@@ -277,3 +277,173 @@ func TestInStringSlice(t *testing.T) {
 		})
 	}
 }
+
+func TestDeref(t *testing.T) {
+	tests := []struct {
+		name     string
+		ptr      *bool
+		expected bool
+	}{
+		{
+			name:     "nil pointer",
+			ptr:      nil,
+			expected: false,
+		},
+		{
+			name:     "pointer to true",
+			ptr:      func() *bool { b := true; return &b }(),
+			expected: true,
+		},
+		{
+			name:     "pointer to false",
+			ptr:      func() *bool { b := false; return &b }(),
+			expected: false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := Deref(tt.ptr)
+			assert.Equal(t, tt.expected, result, "Deref(%v) = %v, expected %v", tt.ptr, result, tt.expected)
+		})
+	}
+}
+
+func TestTypeIs(t *testing.T) {
+	tests := []struct {
+		name         string
+		types        interface{}
+		expectedType string
+		expected     bool
+	}{
+		{
+			name:         "nil types",
+			types:        nil,
+			expectedType: "string",
+			expected:     false,
+		},
+		{
+			name:         "nil openapi3.Types pointer",
+			types:        (*openapi3.Types)(nil),
+			expectedType: "string",
+			expected:     false,
+		},
+		{
+			name:         "empty openapi3.Types",
+			types:        &openapi3.Types{},
+			expectedType: "string",
+			expected:     false,
+		},
+		{
+			name:         "openapi3.Types with matching type",
+			types:        &openapi3.Types{"string"},
+			expectedType: "string",
+			expected:     true,
+		},
+		{
+			name:         "openapi3.Types with non-matching type",
+			types:        &openapi3.Types{"integer"},
+			expectedType: "string",
+			expected:     false,
+		},
+		{
+			name:         "openapi3.Types with multiple types - match first",
+			types:        &openapi3.Types{"string", "null"},
+			expectedType: "string",
+			expected:     true,
+		},
+		{
+			name:         "openapi3.Types with multiple types - match second",
+			types:        &openapi3.Types{"string", "null"},
+			expectedType: "null",
+			expected:     true,
+		},
+		{
+			name:         "openapi3.Types with multiple types - no match",
+			types:        &openapi3.Types{"string", "null"},
+			expectedType: "integer",
+			expected:     false,
+		},
+		{
+			name:         "backward compatibility - string type matches",
+			types:        "string",
+			expectedType: "string",
+			expected:     true,
+		},
+		{
+			name:         "backward compatibility - string type no match",
+			types:        "string",
+			expectedType: "integer",
+			expected:     false,
+		},
+		{
+			name:         "invalid type - returns false",
+			types:        123,
+			expectedType: "string",
+			expected:     false,
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := TypeIs(tt.types, tt.expectedType)
+			assert.Equal(t, tt.expected, result, "TypeIs(%v, %q) = %v, expected %v", tt.types, tt.expectedType, result, tt.expected)
+		})
+	}
+}
+
+func TestFirstType(t *testing.T) {
+	tests := []struct {
+		name     string
+		types    interface{}
+		expected string
+	}{
+		{
+			name:     "nil types",
+			types:    nil,
+			expected: "",
+		},
+		{
+			name:     "nil openapi3.Types pointer",
+			types:    (*openapi3.Types)(nil),
+			expected: "",
+		},
+		{
+			name:     "empty openapi3.Types",
+			types:    &openapi3.Types{},
+			expected: "",
+		},
+		{
+			name:     "openapi3.Types with single type",
+			types:    &openapi3.Types{"string"},
+			expected: "string",
+		},
+		{
+			name:     "openapi3.Types with multiple types",
+			types:    &openapi3.Types{"string", "null"},
+			expected: "string",
+		},
+		{
+			name:     "openapi3.Types with multiple types - different order",
+			types:    &openapi3.Types{"integer", "number", "string"},
+			expected: "integer",
+		},
+		{
+			name:     "backward compatibility - string type",
+			types:    "string",
+			expected: "string",
+		},
+		{
+			name:     "invalid type - returns empty string",
+			types:    123,
+			expected: "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := FirstType(tt.types)
+			assert.Equal(t, tt.expected, result, "FirstType(%v) = %q, expected %q", tt.types, result, tt.expected)
+		})
+	}
+}
