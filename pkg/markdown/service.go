@@ -96,7 +96,8 @@ func (ms *MarkdownService) ConvertToMarkdown(filename string) error {
 	}
 
 	sequence := 0
-	for path, item := range swagger.Paths {
+	for _, path := range swagger.Paths.InMatchingOrder() {
+		item := swagger.Paths.Value(path)
 		_ = ms.processOperations(path, item.Operations(), sequence, swagger.Security)
 		if err != nil {
 			return err
@@ -104,19 +105,21 @@ func (ms *MarkdownService) ConvertToMarkdown(filename string) error {
 		sequence++
 	}
 
-	err = ms.processSchemas(swagger.Components.Schemas)
-	if err != nil {
-		return err
-	}
+	if swagger.Components != nil {
+		err = ms.processSchemas(swagger.Components.Schemas)
+		if err != nil {
+			return err
+		}
 
-	err = ms.processResponses(swagger.Components.Responses)
-	if err != nil {
-		return err
-	}
+		err = ms.processResponses(swagger.Components.Responses)
+		if err != nil {
+			return err
+		}
 
-	err = ms.processSecuritySchemas(swagger.Components.SecuritySchemes)
-	if err != nil {
-		return err
+		err = ms.processSecuritySchemas(swagger.Components.SecuritySchemes)
+		if err != nil {
+			return err
+		}
 	}
 
 	err = ms.processInfo(swagger.Info)
@@ -152,7 +155,6 @@ func (ms *MarkdownService) sanitizeReferenceURL() string {
 	sanitized := strings.TrimPrefix(ms.cfg.ReferenceURL, "http://")
 	sanitized = strings.TrimPrefix(sanitized, "https://")
 	sanitized = strings.ReplaceAll(sanitized, ":", "_")
-	sanitized = strings.ReplaceAll(sanitized, "/", "_")
 	return sanitized
 }
 
@@ -343,15 +345,15 @@ func (ms *MarkdownService) createIndexFiles(schema *openapi3.T) error {
 		"":                           cases.Title(language.English).String(ms.cfg.ReferenceURL),
 	}
 
-	if len(schema.Components.Responses) == 0 {
+	if schema.Components == nil || len(schema.Components.Responses) == 0 {
 		delete(dirs, "components/responses")
 	}
 
-	if len(schema.Components.Schemas) == 0 {
+	if schema.Components == nil || len(schema.Components.Schemas) == 0 {
 		delete(dirs, "components/schemas")
 	}
 
-	if len(schema.Components.SecuritySchemes) == 0 {
+	if schema.Components == nil || len(schema.Components.SecuritySchemes) == 0 {
 		delete(dirs, "components/securitySchemas")
 	}
 

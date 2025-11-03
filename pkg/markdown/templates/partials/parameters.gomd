@@ -16,12 +16,12 @@
     {{- if $ref }}
         {{- schemaLink $ref }}
     {{- else if $schema }}
-        {{- if eq $schema.Type "array" -}}
+        {{- if typeIs $schema.Type "array" -}}
             {{- template "parameterType" $schema.Items -}}
         {{- else if not $schema.Type -}}
             {{ template "listQuantifiers" $schema }}
         {{- else }}
-            {{- $schema.Type }} {{- if $schema.Format }} ({{$schema.Format}}) {{end}}
+            {{- firstType $schema.Type }} {{- if $schema.Format }} ({{$schema.Format}}) {{end}}
         {{- end }}
     {{- end }}
 {{- end }}
