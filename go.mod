@@ -7,7 +7,7 @@ require (
 	github.com/getkin/kin-openapi v0.131.0
 	github.com/iancoleman/strcase v0.2.0
 	github.com/pkg/errors v0.9.1
-	github.com/sirupsen/logrus v1.8.1
+	github.com/sirupsen/logrus v1.8.3
 	github.com/spf13/cobra v1.4.0
 	github.com/stretchr/testify v1.9.0
 	golang.org/x/text v0.3.6
@@ -26,6 +26,6 @@ require (
 	github.com/perimeterx/marshmallow v1.1.5 // indirect
 	github.com/pmezard/go-difflib v1.0.0 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	golang.org/x/sys v0.0.0-20220517195934-5e4e11fc645e // indirect
+	golang.org/x/sys v0.0.0-20220715151400-c0bba94af5f8 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
