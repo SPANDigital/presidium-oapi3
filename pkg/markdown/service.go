@@ -7,6 +7,7 @@ import (
 	"fmt"
 	"io/fs"
 	"os"
+	"path"
 	"path/filepath"
 	"strings"
 	"text/template"
@@ -146,8 +147,10 @@ func (ms *MarkdownService) basePath() string {
 // presidiumRefURL is the site-absolute URL path of the generated section
 // (reference URL plus API name). Templates use it to build links, so it must
 // include the API name segment — file paths and links diverge otherwise.
+// Cleaned with the path package, not filepath: this is a URL, and
+// filepath.Clean would emit backslashes on Windows.
 func (ms *MarkdownService) presidiumRefURL() string {
-	return filepath.Clean(fmt.Sprintf("%s%s", ms.cfg.ReferenceURL, ms.cfg.ApiName))
+	return path.Clean(fmt.Sprintf("%s%s", ms.cfg.ReferenceURL, ms.cfg.ApiName))
 }
 
 func (ms *MarkdownService) rootPath() string {

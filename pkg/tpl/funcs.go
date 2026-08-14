@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"path/filepath"
+	"path"
 	"reflect"
 	"regexp"
 	"strings"
@@ -57,7 +57,7 @@ func GetSchemaLink(ref string) string {
 	refName := ref[idx+1:]
 	linkPath := ref[:idx]
 	linkPath = strings.ReplaceAll(linkPath, "#", fmt.Sprintf("/%s", referenceURL))
-	linkPath = filepath.Join(linkPath, fmt.Sprintf("#%s", Slugify(refName)))
+	linkPath = path.Join(linkPath, fmt.Sprintf("#%s", Slugify(refName)))
 	linkPath = strings.TrimPrefix(linkPath, "/")
 	return fmt.Sprintf("[%s]({{%%baseurl%%}}/%s)", strcase.ToCamel(refName), linkPath)
 }
