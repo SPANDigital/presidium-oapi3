@@ -39,6 +39,15 @@ func NewMarkdownService(cfg Config) (MarkdownService, error) {
 		cfg.ApiName = fmt.Sprintf("/%s", cfg.ApiName)
 	}
 
+	if normalized := tpl.NormalizeURLPath(cfg.ApiName); normalized != cfg.ApiName {
+		log.Infof("apiName %q normalized to %q to match Hugo's rendered URLs", cfg.ApiName, normalized)
+		cfg.ApiName = normalized
+	}
+	if normalized := tpl.NormalizeURLPath(cfg.ReferenceURL); normalized != cfg.ReferenceURL {
+		log.Infof("referenceURL %q normalized to %q to match Hugo's rendered URLs", cfg.ReferenceURL, normalized)
+		cfg.ReferenceURL = normalized
+	}
+
 	templates := template.New("").Funcs(tpl.FuncMap(fmt.Sprintf("%s%s", cfg.ReferenceURL, cfg.ApiName)))
 
 	err := getTemplatesFromFS("templates", templates)
@@ -134,6 +143,13 @@ func (ms *MarkdownService) basePath() string {
 	return filepath.Clean(fmt.Sprintf("%s%s", ms.sanitizeReferenceURL(), ms.cfg.ApiName))
 }
 
+// presidiumRefURL is the site-absolute URL path of the generated section
+// (reference URL plus API name). Templates use it to build links, so it must
+// include the API name segment — file paths and links diverge otherwise.
+func (ms *MarkdownService) presidiumRefURL() string {
+	return filepath.Clean(fmt.Sprintf("%s%s", ms.cfg.ReferenceURL, ms.cfg.ApiName))
+}
+
 func (ms *MarkdownService) rootPath() string {
 	path := filepath.Join(ms.cfg.OutputDir, "content", ms.sanitizeReferenceURL())
 
@@ -164,7 +180,7 @@ func (ms *MarkdownService) processSchemas(schemas openapi3.Schemas) error {
 
 		theSchema := Schema{
 			Name:            name,
-			PresidiumRefURL: ms.cfg.ReferenceURL,
+			PresidiumRefURL: ms.presidiumRefURL(),
 			SchemaRef:       schema,
 			Config:          ms.cfg,
 		}
@@ -183,7 +199,7 @@ func (ms *MarkdownService) processResponses(responses map[string]*openapi3.Respo
 		log.Infof("Processing response %s...", name)
 		theResponse := Response{
 			Name:            name,
-			PresidiumRefURL: ms.cfg.ReferenceURL,
+			PresidiumRefURL: ms.presidiumRefURL(),
 			ResponseRef:     response,
 		}
 		dir := filepath.Clean(fmt.Sprintf("%s/content/%s/components/responses", ms.cfg.OutputDir, ms.basePath()))
@@ -201,7 +217,7 @@ func (ms *MarkdownService) processSecuritySchemas(schemas map[string]*openapi3.S
 		log.Infof("Processing security schema %s...", name)
 		theSecuritySchema := SecuritySchema{
 			Name:              name,
-			PresidiumRefURL:   ms.cfg.ReferenceURL,
+			PresidiumRefURL:   ms.presidiumRefURL(),
 			SecuritySchemeRef: schema,
 		}
 		dir := filepath.Clean(fmt.Sprintf("%s/content/%s/components/securitySchemas", ms.cfg.OutputDir, ms.basePath()))
@@ -273,7 +289,7 @@ func (ms MarkdownService) processOperations(path string, operations map[string]*
 			MethodTitle:     ms.cfg.TitleFormat == methodTitle,
 			Weight:          count + 1,
 			GlobalSecurity:  globalSecurity,
-			PresidiumRefURL: filepath.Clean(ms.cfg.ReferenceURL),
+			PresidiumRefURL: ms.presidiumRefURL(),
 		}
 		err := ms.processOperation(tplOperation, ms.basePath())
 		if err != nil {

@@ -1,0 +1,65 @@
+openapi: 3.0.2
+info:
+  title: Link Check API
+  description: Exercises every link-generating template path.
+  version: 1.0.0
+security:
+  - bearerAuth: []
+tags:
+  - name: Data Query - Service
+    description: Tag with spaces to exercise URL generation.
+paths:
+  /users:
+    get:
+      operationId: getUsers
+      tags:
+        - Data Query - Service
+      summary: Get a list of users
+      parameters:
+        - name: limit
+          in: query
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A JSON array of user objects
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/User'
+      security:
+        - bearerAuth: []
+        - legacyAccessToken: []
+components:
+  schemas:
+    User:
+      type: object
+      description: A user of the system.
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        address:
+          $ref: '#/components/schemas/HomeAddress'
+      required:
+        - id
+        - name
+    HomeAddress:
+      type: object
+      properties:
+        street:
+          type: string
+        city:
+          type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    legacyAccessToken:
+      type: apiKey
+      in: header
+      name: access_token

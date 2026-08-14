@@ -83,6 +83,18 @@ func Slugify(s string) string {
 	return strings.Trim(slug, "-")
 }
 
+// NormalizeURLPath lowercases each segment of a URL path and replaces spaces
+// with hyphens, mirroring how Hugo turns content directory names into URLs.
+// Generated links must match Hugo's rendered URLs or they 404 (or, with
+// spaces, fail CommonMark parsing and render as literal text).
+func NormalizeURLPath(p string) string {
+	segments := strings.Split(p, "/")
+	for i, segment := range segments {
+		segments[i] = strings.ReplaceAll(strings.ToLower(segment), " ", "-")
+	}
+	return strings.Join(segments, "/")
+}
+
 // BreakLine replaces new lines with <br>
 func BreakLine(s string) string {
 	var newLine = regexp.MustCompile(`\n`)
