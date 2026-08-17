@@ -2,7 +2,7 @@
 {{- define "security" -}}
     {{- $url := .PresidiumRefURL }}
     {{- range $name, $scopes := .Security }}
-        | [{{ $name }}](/{{$url}}/components/securitySchemas#{{- (slugify (lower $name)) -}}) | {{ join $scopes ", " }} |
+        | [{{ $name }}]({{"{{%baseurl%}}"}}/{{$url}}/components/securityschemas/#{{- slugify $name -}}) | {{ join $scopes ", " }} |
     {{- end}}
 {{- end}}
 {{- /* End of Security Template */ -}}

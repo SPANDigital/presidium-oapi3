@@ -15,8 +15,13 @@ clean:
 	rm -rf tmp
 
 test:
-	@mkdir -p reports	
+	@mkdir -p reports
 	go test -failfast -coverprofile reports/coverage.out -v ./...
+
+# Renders the generated markdown with Hugo and the pinned Presidium theme,
+# then checks every internal link and anchor. Needs hugo and network access.
+render-test:
+	PRESIDIUM_RENDER_TEST=1 go test -count=1 -run TestRenderedSiteHasNoBrokenLinks -v ./pkg/markdown/
 
 test_reports:
 	@mkdir -p reports

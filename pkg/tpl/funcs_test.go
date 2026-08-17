@@ -447,3 +447,44 @@ func TestFirstType(t *testing.T) {
 		})
 	}
 }
+
+func TestNormalizeURLPath(t *testing.T) {
+	tests := []struct {
+		name     string
+		input    string
+		expected string
+	}{
+		{
+			name:     "already normalized",
+			input:    "reference/aggregate-api",
+			expected: "reference/aggregate-api",
+		},
+		{
+			name:     "uppercase with space",
+			input:    "reference/Aggregate API",
+			expected: "reference/aggregate-api",
+		},
+		{
+			name:     "spaces around hyphen match Hugo rendering",
+			input:    "Data Query - Service",
+			expected: "data-query---service",
+		},
+		{
+			name:     "leading slash preserved",
+			input:    "/Aggregate API",
+			expected: "/aggregate-api",
+		},
+		{
+			name:     "empty",
+			input:    "",
+			expected: "",
+		},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			result := NormalizeURLPath(tt.input)
+			assert.Equal(t, tt.expected, result, "NormalizeURLPath(%q) = %q, expected %q", tt.input, result, tt.expected)
+		})
+	}
+}
