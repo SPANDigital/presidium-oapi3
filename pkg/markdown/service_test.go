@@ -214,14 +214,16 @@ func TestProcessOperations(t *testing.T) {
 	ms, err := NewMarkdownService(config)
 	assert.NoError(t, err, "Unexpected error from NewMarkdownService: %v", err)
 
-	err = ms.processOperations(ms.cfg.OutputDir, map[string]*openapi3.Operation{
-		"get":  {},
-		"post": {},
+	sequence, err := ms.processOperations(ms.cfg.OutputDir, map[string]*openapi3.Operation{
+		"GET":  {},
+		"POST": {},
 	}, 1, nil)
 	assert.NoError(t, err)
+	assert.Equal(t, 3, sequence)
 
-	err = ms.processOperations(ms.cfg.OutputDir, nil, 0, nil)
+	sequence, err = ms.processOperations(ms.cfg.OutputDir, nil, 0, nil)
 	assert.NoError(t, err)
+	assert.Equal(t, 0, sequence)
 }
 
 func TestProcessInfo(t *testing.T) {

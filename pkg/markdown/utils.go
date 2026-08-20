@@ -2,16 +2,9 @@ package markdown
 
 import "fmt"
 
-// GetWeightedFilename prefixes the filename with a digit
+// GetWeightedFilename prefixes the filename with its weight, zero-padded so
+// lexicographic file ordering matches numeric weight order (weights are now
+// per-operation, so three digits are common on larger specs).
 func GetWeightedFilename(weight int, filename string) string {
-	var wFilename string
-
-	// Ensure number of digits is consistent for smaller numbers
-	if weight < 10 {
-		wFilename = fmt.Sprintf("0%v-%v", weight, filename)
-	} else {
-		wFilename = fmt.Sprintf("%v-%v", weight, filename)
-	}
-
-	return wFilename
+	return fmt.Sprintf("%04d-%v", weight, filename)
 }
