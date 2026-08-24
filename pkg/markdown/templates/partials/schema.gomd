@@ -295,5 +295,8 @@
         {{- $op = "OneOf" -}}
     {{- end -}}
 
-    **{{ $op }}:** {{- range $idx, $schema := $schemas -}}{{- template "operationSchemaType" $schema -}}, {{- end -}}
+    {{- /* Join with <br> so each alternative wraps onto its own line inside
+           table cells; a bare comma join produces one long unbreakable run
+           that forces horizontal scrolling. */ -}}
+    **{{ $op }}:** {{ range $idx, $schema := $schemas -}}{{- if $idx -}}<br>{{- end -}}{{- template "operationSchemaType" $schema -}}{{- end -}}
 {{- end -}}
