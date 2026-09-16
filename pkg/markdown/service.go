@@ -106,13 +106,12 @@ func (ms *MarkdownService) ConvertToMarkdown(filename string) error {
 	}
 
 	sequence := 0
-	for _, path := range swagger.Paths.InMatchingOrder() {
+	for _, path := range orderedPaths(swagger, filename) {
 		item := swagger.Paths.Value(path)
-		_ = ms.processOperations(path, item.Operations(), sequence, swagger.Security)
+		sequence, err = ms.processOperations(path, item.Operations(), sequence, swagger.Security)
 		if err != nil {
 			return err
 		}
-		sequence++
 	}
 
 	if swagger.Components != nil {
@@ -281,25 +280,33 @@ func (ms MarkdownService) processOperation(operation Operation, parentFolder str
 	return nil
 }
 
-func (ms MarkdownService) processOperations(path string, operations map[string]*openapi3.Operation, count int, globalSecurity openapi3.SecurityRequirements) error {
+// processOperations renders a path's operations in conventional method order,
+// assigning each a unique, spec-ordered weight. It returns the sequence after
+// the last operation it rendered.
+func (ms MarkdownService) processOperations(path string, operations map[string]*openapi3.Operation, sequence int, globalSecurity openapi3.SecurityRequirements) (int, error) {
 	log.Infof("Processing operations %s...", path)
 
-	for method, operation := range operations {
+	for _, method := range methodOrder {
+		operation, ok := operations[method]
+		if !ok {
+			continue
+		}
+		sequence++
 		tplOperation := Operation{
 			Method:          method,
 			Name:            path,
 			Operation:       operation,
 			MethodTitle:     ms.cfg.TitleFormat == methodTitle,
-			Weight:          count + 1,
+			Weight:          sequence,
 			GlobalSecurity:  globalSecurity,
 			PresidiumRefURL: ms.presidiumRefURL(),
 		}
 		err := ms.processOperation(tplOperation, ms.basePath())
 		if err != nil {
-			return err
+			return sequence, err
 		}
 	}
-	return nil
+	return sequence, nil
 }
 
 func (ms *MarkdownService) processInfo(info *openapi3.Info) error {
